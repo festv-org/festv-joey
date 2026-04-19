@@ -7,6 +7,7 @@ import { config } from '../config/index.js';
 import { AuthenticatedRequest, TokenPayload, AuthTokens } from '../types/index.js';
 import { registerSchema, loginSchema, refreshTokenSchema } from '../utils/validators.js';
 import { asyncHandler, AppError, ConflictError, UnauthorizedError } from '../middleware/errorHandler.js';
+import { sendPasswordResetEmail } from '../services/verification.js';
 
 // Generate JWT tokens
 const generateTokens = (payload: TokenPayload): AuthTokens => {
@@ -517,15 +518,17 @@ export const forgotPassword = asyncHandler(async (req: AuthenticatedRequest, res
     },
   });
   
-  // In production, send email here
-  // For demo, we'll include the code in the response (remove in production!)
-  console.log(`Password reset code for ${email}: ${resetCode}`);
-  
+  // Send password reset email
+  try {
+    await sendPasswordResetEmail(email, resetCode, user.firstName || 'there');
+  } catch (emailError) {
+    console.error('Failed to send reset email:', emailError);
+    // Don't expose the error to the client
+  }
+
   res.json({
     success: true,
-    message: 'If an account with that email exists, a password reset link has been sent.',
-    // DEMO ONLY - remove in production
-    resetCode: resetCode,
+    message: 'If an account with that email exists, a password reset code has been sent.',
   });
 });
 

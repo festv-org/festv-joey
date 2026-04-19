@@ -744,7 +744,7 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
           _resetEmail = email;
-          if (data.resetCode) document.getElementById('resetCode').value = data.resetCode;
+          // Code sent via email - user enters it manually
           document.getElementById('forgotStep1').style.display = 'none';
           document.getElementById('forgotStep2').style.display = '';
           btn.disabled = false; btn.textContent = 'Get Reset Code';
