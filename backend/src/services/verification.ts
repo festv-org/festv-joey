@@ -29,7 +29,7 @@ export async function sendEmailCode(email: string, code: string, firstName: stri
   try {
     const resend = getResend();
     await resend.emails.send({
-      from: 'FESTV <onboarding@resend.dev>',
+      from: 'FESTV <noreply@festv.org>',
       to: email,
       subject: 'Verify your email - FESTV',
       html: `
@@ -94,7 +94,7 @@ export async function sendPasswordResetEmail(email: string, code: string, firstN
   try {
     const resend = getResend();
     await resend.emails.send({
-      from: 'FESTV <onboarding@resend.dev>',
+      from: 'FESTV <noreply@festv.org>',
       to: email,
       subject: 'Reset your password - FESTV',
       html: `
