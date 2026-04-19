@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Catering Booking Request</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root { --gold: #C4A06A; --gold-light: #D9BF8C; --gold-dark: #9C7A45; --bg: #F5F3EF; --white: #FFFFFF; --dark: #1A1714; --charcoal: #3A3530; --muted: #7A7068; --border: rgba(0,0,0,0.09); --green: #3A8A55; --red: #B84040; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2.5rem; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; letter-spacing: 0.35em; color: var(--dark); text-decoration: none; }
+    .logo .v { color: var(--gold); }
+    .header-icons { display: flex; align-items: center; gap: 1rem; }
+    .icon-btn { background: none; border: none; cursor: pointer; color: var(--charcoal); display: flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 50%; transition: color 0.2s, background 0.2s; }
+    .icon-btn:hover { color: var(--gold-dark); background: rgba(196,160,106,0.1); }
+    .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .page { max-width: 780px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .page-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-weight: 500; color: var(--dark); letter-spacing: 0.03em; margin-bottom: 0.35rem; }
+    .page-sub { font-size: 0.83rem; color: var(--muted); margin-bottom: 2rem; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem; margin-bottom: 1.25rem; }
+    .card-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.1rem; }
+    .gold-rule { width: 28px; height: 2px; background: var(--gold); margin-bottom: 1.25rem; }
+    .planner-top { display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.5rem; }
+    .planner-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
+    .planner-main { flex: 1; }
+    .planner-name { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 600; color: var(--dark); letter-spacing: 0.02em; margin-bottom: 0.18rem; }
+    .planner-meta { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .planner-stars { display: flex; align-items: center; gap: 0.28rem; margin-bottom: 0.55rem; }
+    .planner-stars svg { width: 12px; height: 12px; fill: var(--gold); stroke: var(--gold); }
+    .rating-val { font-size: 0.8rem; font-weight: 700; color: var(--dark); margin-left: 0.15rem; }
+    .rating-cnt { font-size: 0.72rem; color: var(--muted); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 999px; }
+    .badge-green { background: rgba(58,138,85,0.1); color: var(--green); border: 1px solid rgba(58,138,85,0.25); }
+    .badge-gold  { background: rgba(196,160,106,0.15); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.35); }
+    .badge-dark  { background: var(--dark); color: var(--gold-light); }
+    .planner-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+    .p-stat { background: var(--bg); padding: 0.8rem 1rem; text-align: center; }
+    .p-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--dark); line-height: 1.1; }
+    .p-stat-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+    .request-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1.25rem; }
+    .req-cell { background: var(--white); padding: 1.25rem 1.35rem; display: flex; align-items: flex-start; gap: 0.85rem; }
+    .req-icon { width: 32px; height: 32px; border-radius: 5px; background: rgba(196,160,106,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.1rem; }
+    .req-icon svg { width: 14px; height: 14px; stroke: var(--gold-dark); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .req-label { font-size: 0.61rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+    .req-value { font-size: 0.9rem; font-weight: 600; color: var(--dark); line-height: 1.3; }
+    .req-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+    .tag { display: inline-block; font-size: 0.63rem; font-weight: 600; letter-spacing: 0.05em; background: var(--bg); color: var(--muted); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 999px; margin-top: 0.3rem; margin-right: 0.25rem; }
+    .moments-list { display: flex; flex-direction: column; gap: 0; }
+    .moment-row { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); }
+    .moment-row:last-child { border-bottom: none; }
+    .moment-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
+    .moment-icon { width: 34px; height: 34px; border-radius: 5px; background: rgba(196,160,106,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+    .moment-body { flex: 1; min-width: 0; }
+    .moment-occasion { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.15rem; }
+    .moment-song { font-size: 0.88rem; font-weight: 600; color: var(--dark); }
+    .moment-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.08rem; }
+    .moment-tag { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(196,160,106,0.12); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.3); white-space: nowrap; flex-shrink: 0; margin-left: 0.75rem; }
+    .vendor-lineup { display: flex; flex-direction: column; gap: 0; }
+    .vendor-row { display: flex; align-items: center; gap: 1rem; padding: 0.95rem 0; border-bottom: 1px solid var(--border); }
+    .vendor-row:last-child { border-bottom: none; }
+    .vendor-thumb { width: 44px; height: 44px; border-radius: 5px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+    .vendor-info { flex: 1; }
+    .vendor-category { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.12rem; }
+    .vendor-name-text { font-size: 0.87rem; font-weight: 600; color: var(--dark); }
+    .vendor-detail { font-size: 0.73rem; color: var(--muted); margin-top: 0.08rem; }
+    .vendor-status { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.22rem 0.65rem; border-radius: 999px; flex-shrink: 0; }
+    .status-booked    { background: rgba(58,138,85,0.1); color: var(--green); border: 1px solid rgba(58,138,85,0.25); }
+    .status-requested { background: rgba(196,160,106,0.12); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.3); }
+    .status-pending   { background: rgba(122,112,104,0.08); color: var(--muted); border: 1px solid var(--border); }
+    .message-bubble { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--charcoal); line-height: 1.8; font-style: italic; }
+    .action-area { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem; margin-bottom: 1.25rem; }
+    .action-buttons { display: flex; gap: 1rem; }
+    .btn-approve { flex: 1; background: var(--dark); color: var(--gold-light); border: none; padding: 1rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-approve:hover, .btn-approve.active { background: var(--green); color: var(--white); }
+    .btn-decline { flex: 1; background: transparent; color: var(--charcoal); border: 1px solid var(--charcoal); padding: 1rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-decline:hover, .btn-decline.active { border-color: var(--red); color: var(--red); background: rgba(184,64,64,0.04); }
+    .btn-approve svg, .btn-decline svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .notes-panel { display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); animation: slideDown 0.22s ease; }
+    .notes-panel.visible { display: block; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .notes-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .notes-hint { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.6; }
+    .notes-hint span { font-weight: 600; }
+    .notes-textarea { width: 100%; min-height: 100px; border: 1px solid var(--border); border-radius: 4px; padding: 0.85rem 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.84rem; color: var(--dark); background: var(--bg); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+    .notes-textarea:focus { border-color: var(--gold); }
+    .notes-textarea::placeholder { color: var(--muted); }
+    .notes-submit-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.85rem; }
+    .notes-skip { font-size: 0.72rem; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+    .notes-skip:hover { color: var(--charcoal); }
+    .btn-submit-approve { background: var(--green); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .btn-submit-approve:hover { background: #2e7244; }
+    .btn-submit-decline { background: var(--red); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .btn-submit-decline:hover { background: #9a3535; }
+    .success-banner { display: none; background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 2.5rem 1.75rem; text-align: center; margin-bottom: 1.25rem; }
+    .success-banner.visible { display: block; animation: slideDown 0.3s ease; }
+    .success-icon { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    .success-icon.approve { background: rgba(58,138,85,0.12); }
+    .success-icon.decline { background: rgba(184,64,64,0.1); }
+    .success-icon svg { width: 22px; height: 22px; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .success-icon.approve svg { stroke: var(--green); }
+    .success-icon.decline svg { stroke: var(--red); }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--dark); margin-bottom: 0.4rem; }
+    .success-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-icons">
+      <button class="icon-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
+      <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">Catering Request</div>
+    <h1 class="page-title">New Catering Request</h1>
+    <p class="page-sub">Review the event details and planner profile before responding.</p>
+
+    <!-- PLANNER PROFILE -->
+    <div class="card">
+      <div class="card-label">Event Planner</div>
+      <div class="gold-rule"></div>
+      <div class="planner-top">
+        <img class="planner-avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80" alt="Natalie Voss">
+        <div class="planner-main">
+          <div class="planner-name">Natalie Voss</div>
+          <div class="planner-meta">Austin, TX &nbsp;·&nbsp; Member since March 2024</div>
+          <div class="planner-stars">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--gold)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="rating-val">4.0</span><span class="rating-cnt">(8 reviews)</span>
+          </div>
+          <div class="badge-row">
+            <span class="badge badge-green">Verified</span>
+            <span class="badge badge-gold">Repeat Planner</span>
+            <span class="badge badge-dark">Top 10%</span>
+          </div>
+        </div>
+      </div>
+      <div class="planner-stats">
+        <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-label">Events Booked</div></div>
+        <div class="p-stat"><div class="p-stat-val">100%</div><div class="p-stat-label">Response Rate</div></div>
+        <div class="p-stat"><div class="p-stat-val">0</div><div class="p-stat-label">Prior Cancellations</div></div>
+      </div>
+    </div>
+
+    <!-- CATERING REQUEST DETAILS -->
+    <div class="card">
+      <div class="card-label">Catering Request Details</div>
+      <div class="gold-rule"></div>
+      <div class="request-grid">
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div>
+            <div class="req-label">Event Date</div>
+            <div class="req-value">June 14, 2026</div>
+            <div class="req-note">Saturday · Full service</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div>
+            <div class="req-label">Guest Count</div>
+            <div class="req-value">180 Guests</div>
+            <div class="req-note">Cocktail hour + seated dinner</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div>
+            <div class="req-label">Type of Event</div>
+            <div class="req-value">Wedding Reception</div>
+            <div class="req-note">3:00 PM setup · 5:00 PM – 10:00 PM service</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div>
+            <div class="req-label">Catering Budget</div>
+            <div class="req-value">$12,000</div>
+            <div class="req-note">Staff, equipment & food included</div>
+          </div>
+        </div>
+
+        <div class="req-cell" style="grid-column: span 2;">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          <div>
+            <div class="req-label">Service Style</div>
+            <div class="req-value">Passed appetizers + plated dinner + dessert station</div>
+            <div class="req-note" style="margin-top:0.45rem;">
+              <span class="tag">Gluten-free option</span>
+              <span class="tag">Vegan option</span>
+              <span class="tag">Kosher-friendly</span>
+              <span class="tag">Nut allergy — 5 guests</span>
+              <span class="tag">Full waitstaff</span>
+              <span class="tag">Rentals included</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="req-label" style="margin-bottom:0.5rem;">Cuisine Style</div>
+      <div>
+        <span class="tag">Mediterranean</span>
+        <span class="tag">Modern American</span>
+        <span class="tag">Seasonal & local ingredients</span>
+        <span class="tag">Elegant presentation</span>
+        <span class="tag">No buffet — plated only</span>
+      </div>
+    </div>
+
+    <!-- MENU BREAKDOWN -->
+    <div class="card">
+      <div class="card-label">Menu &amp; Service Flow</div>
+      <div class="gold-rule"></div>
+      <div class="moments-list">
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🥂</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Cocktail Hour · 5:00–6:30 PM</div>
+              <div class="moment-song">Passed hors d'oeuvres — 4 varieties</div>
+              <div class="moment-note">Bruschetta, shrimp cocktail, caprese skewers, veggie spring rolls</div>
+            </div>
+          </div>
+          <span class="moment-tag">Passed</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🥗</div>
+            <div class="moment-body">
+              <div class="moment-occasion">First Course · 6:45 PM</div>
+              <div class="moment-song">Plated starter — arugula salad or roasted tomato bisque</div>
+              <div class="moment-note">Guest pre-selection · Served simultaneously tableside</div>
+            </div>
+          </div>
+          <span class="moment-tag">Plated</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🍽️</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Main Course · 7:30 PM</div>
+              <div class="moment-song">Filet mignon / pan-seared halibut / mushroom risotto (V)</div>
+              <div class="moment-note">3-choice plated entrée · Full table service</div>
+            </div>
+          </div>
+          <span class="moment-tag">Plated</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🍰</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Dessert · 9:15 PM</div>
+              <div class="moment-song">Dessert display station + wedding cake service</div>
+              <div class="moment-note">Mini pastries, macarons, chocolate truffles · Cake cutting included</div>
+            </div>
+          </div>
+          <span class="moment-tag">Station</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDOR LINEUP -->
+    <div class="card">
+      <div class="card-label">Other Vendors for This Event</div>
+      <div class="gold-rule"></div>
+      <div class="vendor-lineup">
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=200&q=80" alt="Venue">
+          <div class="vendor-info">
+            <div class="vendor-category">Venue</div>
+            <div class="vendor-name-text">The Rosewood Estate</div>
+            <div class="vendor-detail">Austin, TX · Commercial kitchen available on-site</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&q=80" alt="Bar">
+          <div class="vendor-info">
+            <div class="vendor-category">Bar Service</div>
+            <div class="vendor-name-text">The Craft Bar Co.</div>
+            <div class="vendor-detail">Coordinates timing with catering for dinner service</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&q=80" alt="DJ">
+          <div class="vendor-info">
+            <div class="vendor-category">DJ</div>
+            <div class="vendor-name-text">DJ Milo</div>
+            <div class="vendor-detail">Will cue dinner transitions and cake cutting music</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=80" alt="Photographer">
+          <div class="vendor-info">
+            <div class="vendor-category">Photography</div>
+            <div class="vendor-name-text">Clara Moon Photography</div>
+            <div class="vendor-detail">Full coverage including food & table styling shots</div>
+          </div>
+          <span class="vendor-status status-requested">Requested</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGE -->
+    <div class="card">
+      <div class="card-label">Message from Planner</div>
+      <div class="gold-rule"></div>
+      <div class="message-bubble">
+        "Hi! We're planning a wedding reception for 180 guests and need a full-service catering team who can handle everything from cocktail hour hors d'oeuvres through dessert. We have guests with gluten-free, vegan, kosher, and nut allergy needs — accommodating everyone elegantly is really important to us. We'd love a plated dinner rather than buffet, and the dessert station is something we're really excited about. A tasting would be amazing if you offer one!"
+      </div>
+    </div>
+
+    <!-- MENU SELECTION -->
+    <div class="card">
+      <div class="card-label">Menu Selection</div>
+      <div class="gold-rule"></div>
+
+      <!-- Canapés -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);">Canapés <span style="color:var(--muted);font-weight:500;">(passed · cocktail hour)</span></div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--muted);">180 guests × $20.50 = <span style="color:var(--dark);">$3,690</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Shrimp Cocktail Shooter</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$7pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Burrata Bruschetta</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$5pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Caprese Skewer</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$4.50pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Veggie Spring Roll</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$4pp · V/GF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stations -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);">Stations</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--muted);">180 guests × $66 = <span style="color:var(--dark);">$11,880</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.07);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🥩 Carving Station</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$22pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.07);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🦪 Raw Bar</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$28pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.07);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🍝 Pasta Station</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$16pp · V</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plated Dinner -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);">Plated Dinner — Entrée Selections</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--muted);">avg. $62pp × 180 = <span style="color:var(--dark);">$11,160</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Filet Mignon</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$68pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Pan-Seared Halibut</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$58pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Mushroom Risotto</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$42pp · V/GF</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dessert Station -->
+      <div style="margin-bottom:0;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);">Dessert Station &amp; Midnight Snack</div>
+          <div style="font-size:0.78rem;font-weight:600;color:var(--muted);">180 × $30 = <span style="color:var(--dark);">$5,400</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Wedding Cake Service</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$4pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Dessert Display</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$12pp</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🌙 Midnight Snack</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$14pp · 9:30 PM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BAR PACKAGE -->
+    <div class="card">
+      <div class="card-label">Bar Package</div>
+      <div class="gold-rule"></div>
+
+      <!-- Bar Type -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);margin-bottom:0.75rem;">Bar Type</div>
+        <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+          <div style="padding:0.65rem 1.1rem;border-radius:5px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.08);font-size:0.75rem;font-weight:600;color:var(--gold-dark);">Open Bar</div>
+          <div style="padding:0.65rem 1.1rem;border-radius:5px;border:1.5px solid var(--border);background:var(--bg);font-size:0.75rem;font-weight:600;color:var(--muted);">Cash Bar</div>
+          <div style="padding:0.65rem 1.1rem;border-radius:5px;border:1.5px solid var(--border);background:var(--bg);font-size:0.75rem;font-weight:600;color:var(--muted);">On Consumption</div>
+        </div>
+        <div style="text-align:right;margin-top:0.75rem;font-size:0.78rem;font-weight:600;color:var(--muted);">Open bar · 180 guests · 5 hrs <span style="color:var(--dark);margin-left:0.5rem;">$65pp → $11,700</span></div>
+      </div>
+
+      <!-- Welcome Drinks -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);margin-bottom:0.75rem;">Welcome Drinks <span style="color:var(--muted);font-weight:500;">(on arrival · included)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🥂 Champagne Welcome Toast</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">Elderflower Lemonade</span>
+            <span style="font-size:0.7rem;color:var(--muted);">NA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signature Cocktails -->
+      <div style="margin-bottom:1.5rem;">
+        <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);margin-bottom:0.75rem;">Signature Cocktails <span style="color:var(--muted);font-weight:500;">(included in open bar)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.07);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🥃 "The Marcus"</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$16 · His</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--gold);background:rgba(196,160,106,0.07);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🍸 "The Natalie"</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$16 · Hers</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">"Garden Kiss"</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$10 · NA</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wine Selection -->
+      <div>
+        <div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--charcoal);margin-bottom:0.75rem;">Wine Selection <span style="color:var(--muted);font-weight:500;">(included in open bar)</span></div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🥂 Chardonnay</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$14/glass</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🍷 Cabernet Sauvignon</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$14/glass</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">🌸 Rosé — Provence</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$18/glass</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.9rem;border-radius:999px;border:1.5px solid var(--border);background:var(--white);">
+            <span style="font-size:0.82rem;font-weight:600;color:var(--dark);">✨ Sparkling Rosé</span>
+            <span style="font-size:0.7rem;color:var(--muted);">$22/glass</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING SUMMARY -->
+    <div class="card">
+      <div class="card-label">Pricing Summary</div>
+      <div class="gold-rule"></div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Canapés (180 guests × $20.50)</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$3,690</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Stations — Carving, Raw Bar, Pasta</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$11,880</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Plated Dinner (avg. $62pp × 180)</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$11,160</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Dessert Station + Midnight Snack</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$5,400</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Open Bar Package (180 × $65)</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$11,700</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Staffing & Equipment</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$2,400</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Subtotal</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$46,230</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem;color:var(--charcoal);">Tax (8.25%)</span>
+          <span style="font-size:0.85rem;font-weight:600;color:var(--dark);">$3,814</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:0.9rem 0;margin-top:0.25rem;">
+          <span style="font-size:1rem;font-weight:700;color:var(--dark);font-family:'Cormorant Garamond',serif;letter-spacing:0.03em;">Total</span>
+          <span style="font-size:1.1rem;font-weight:700;color:var(--dark);font-family:'Cormorant Garamond',serif;">$50,044</span>
+        </div>
+      </div>
+      <div style="margin-top:1rem;background:rgba(196,160,106,0.07);border:1px solid rgba(196,160,106,0.2);border-radius:8px;padding:0.85rem 1rem;font-size:0.75rem;color:var(--charcoal);line-height:1.6;">
+        <strong>Deposit required:</strong> 50% ($25,022) due upon booking confirmation. Balance due 14 days before event. Final guest count locked 7 days prior.
+      </div>
+    </div>
+
+    <!-- ACTION AREA -->
+    <div class="action-area" id="actionArea">
+      <div class="action-buttons">
+        <button class="btn-approve" id="btnApprove" onclick="selectAction('approve')">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Approve Request
+        </button>
+        <button class="btn-decline" id="btnDecline" onclick="selectAction('decline')">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Decline Request
+        </button>
+      </div>
+      <div class="notes-panel" id="notesPanel">
+        <div class="notes-label" id="notesLabel">Add a note (optional)</div>
+        <div class="notes-hint" id="notesHint">Let <span>Natalie</span> know next steps — a tasting, deposit, or menu proposal.</div>
+        <textarea class="notes-textarea" id="notesText" placeholder="e.g. We'd love to cater your wedding! We handle all dietary needs regularly and can schedule a tasting this month. I'll send over a sample menu and proposal this week…"></textarea>
+        <div class="notes-submit-row">
+          <span class="notes-skip" onclick="submitAction()">Skip and submit</span>
+          <button class="btn-submit-approve" id="btnSubmit" onclick="submitAction()">Confirm Approval</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-banner" id="successBanner">
+      <div class="success-icon approve" id="successIcon">
+        <svg viewBox="0 0 24 24" id="successSvg"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title" id="successTitle">Request Approved</div>
+      <div class="success-sub" id="successSub">Natalie Voss has been notified. You'll receive a follow-up to schedule a tasting and confirm the full menu.</div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentAction = null;
+    function selectAction(action) {
+      currentAction = action;
+      document.getElementById('btnApprove').classList.toggle('active', action === 'approve');
+      document.getElementById('btnDecline').classList.toggle('active', action === 'decline');
+      const notesPanel = document.getElementById('notesPanel');
+      notesPanel.classList.add('visible');
+      const btnSubmit = document.getElementById('btnSubmit');
+      if (action === 'approve') {
+        document.getElementById('notesLabel').textContent = 'Add a note (optional)';
+        document.getElementById('notesHint').innerHTML = 'Let <span>Natalie</span> know next steps — a tasting, deposit, or menu proposal.';
+        document.getElementById('notesText').placeholder = 'e.g. We\'d love to cater your wedding! I\'ll send over a sample menu and schedule a tasting…';
+        btnSubmit.textContent = 'Confirm Approval';
+        btnSubmit.className = 'btn-submit-approve';
+      } else {
+        document.getElementById('notesLabel').textContent = 'Reason for declining (optional)';
+        document.getElementById('notesHint').innerHTML = 'Let <span>Natalie</span> know why you\'re unable to take this booking.';
+        document.getElementById('notesText').placeholder = 'e.g. Unfortunately we\'re already booked for that date…';
+        btnSubmit.textContent = 'Confirm Decline';
+        btnSubmit.className = 'btn-submit-decline';
+      }
+      notesPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function submitAction() {
+      document.getElementById('actionArea').style.display = 'none';
+      const successBanner = document.getElementById('successBanner');
+      const successIcon = document.getElementById('successIcon');
+      const successSvg = document.getElementById('successSvg');
+      if (currentAction === 'approve') {
+        successIcon.className = 'success-icon approve';
+        successSvg.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+        document.getElementById('successTitle').textContent = 'Request Approved';
+        document.getElementById('successSub').textContent = 'Natalie Voss has been notified. You\'ll receive a follow-up to schedule a tasting and confirm the full menu.';
+      } else {
+        successIcon.className = 'success-icon decline';
+        successSvg.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+        document.getElementById('successTitle').textContent = 'Request Declined';
+        document.getElementById('successSub').textContent = 'Natalie Voss has been notified. If you included a note, it will be shared with them.';
+      }
+      successBanner.classList.add('visible');
+      successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  </script>
+</body>
+</html>

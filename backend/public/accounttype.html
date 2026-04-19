@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+      --green: #3A8A55;
+      --red: #B84040;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--dark);
+      text-decoration: none;
+    }
+    .logo .v { color: var(--gold); }
+    .header-right {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+    .header-right a { color: var(--gold-dark); text-decoration: none; font-weight: 600; }
+    .header-right a:hover { text-decoration: underline; }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 3.5rem 1.5rem 6rem;
+    }
+    .container {
+      width: 100%;
+      max-width: 660px;
+    }
+
+    /* ── PAGE HEADING ── */
+    .page-heading {
+      text-align: center;
+      margin-bottom: 2.6rem;
+    }
+    .page-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.55rem;
+    }
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.6rem;
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.1;
+      margin-bottom: 0.65rem;
+    }
+    .page-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── ACCOUNT TYPE CARDS ── */
+    .type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .type-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem 1.5rem 1.6rem;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      text-align: center;
+      position: relative;
+    }
+    .type-card:hover {
+      border-color: var(--gold-light);
+      box-shadow: 0 4px 20px rgba(196,160,106,0.12);
+      transform: translateY(-1px);
+    }
+    .type-card.selected {
+      border-color: var(--gold);
+      box-shadow: 0 4px 24px rgba(196,160,106,0.18);
+    }
+    .type-check {
+      position: absolute;
+      top: 0.9rem; right: 0.9rem;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .type-card.selected .type-check { background: var(--gold); border-color: var(--gold); }
+    .type-check svg { opacity: 0; transition: opacity 0.2s; }
+    .type-card.selected .type-check svg { opacity: 1; }
+    .type-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.1rem;
+      font-size: 1.5rem;
+      transition: background 0.2s;
+    }
+    .type-card.selected .type-icon { background: rgba(196,160,106,0.12); }
+    .type-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600;
+      color: var(--dark); margin-bottom: 0.35rem;
+    }
+    .type-desc { font-size: 0.71rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── SLIDE-IN SECTIONS ── */
+    .slide-section {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.48s cubic-bezier(0.4,0,0.2,1), opacity 0.32s ease, margin-top 0.3s;
+      margin-top: 0;
+    }
+    .slide-section.open {
+      max-height: 1800px;
+      opacity: 1;
+      margin-top: 1.5rem;
+    }
+
+    /* ── DIVIDER ── */
+    .sec-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .sec-divider-line { flex: 1; height: 1px; background: var(--border); }
+    .sec-divider-label {
+      font-size: 0.66rem; font-weight: 600;
+      letter-spacing: 0.15em; color: var(--muted);
+      text-transform: uppercase; white-space: nowrap;
+    }
+
+    /* ── VENDOR TYPE GRID ── */
+    .vendor-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.7rem;
+    }
+    .vendor-card {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 0.75rem 1.1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+      text-align: center;
+    }
+    .vendor-card:hover {
+      border-color: var(--gold-light);
+      box-shadow: 0 3px 14px rgba(196,160,106,0.1);
+      transform: translateY(-1px);
+    }
+    .vendor-card.selected {
+      border-color: var(--gold);
+      background: rgba(196,160,106,0.04);
+      box-shadow: 0 3px 16px rgba(196,160,106,0.15);
+    }
+    .vendor-icon { font-size: 1.5rem; margin-bottom: 0.5rem; display: block; }
+    .vendor-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 600; color: var(--dark);
+    }
+    .vendor-card.selected .vendor-name { color: var(--gold-dark); }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.75rem 1.75rem 1.75rem;
+    }
+
+    /* ── FORM ELEMENTS ── */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.42rem;
+      margin-bottom: 1rem;
+    }
+    .form-group:last-of-type { margin-bottom: 0; }
+    .form-row .form-group { margin-bottom: 0; }
+
+    .form-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+    .req { color: var(--gold); margin-left: 1px; }
+
+    .form-input, .form-select {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      color: var(--dark);
+      background: var(--bg);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 0.72rem 0.9rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(196,160,106,0.11);
+    }
+    .form-input::placeholder { color: rgba(122,112,104,0.5); }
+
+    /* password eye toggle wrapper */
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap .form-input {
+      padding-right: 2.6rem;
+    }
+    .eye-btn {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    .eye-btn:hover { color: var(--charcoal); }
+
+    /* ── PROOF OF OWNERSHIP (conditional) ── */
+    .proof-group {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, margin-top 0.3s;
+      margin-top: 0;
+    }
+    .proof-group.open {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 1rem;
+    }
+    .upload-zone {
+      border: 2px dashed rgba(196,160,106,0.45);
+      border-radius: 10px;
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: rgba(196,160,106,0.03);
+      position: relative;
+    }
+    .upload-zone:hover { border-color: var(--gold); background: rgba(196,160,106,0.07); }
+    .upload-zone.has-file { border-color: var(--green); background: rgba(58,138,85,0.04); }
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 1.6rem; margin-bottom: 0.45rem; display: block; pointer-events: none; }
+    .upload-title { font-size: 0.76rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.25rem; pointer-events: none; }
+    .upload-sub  { font-size: 0.67rem; color: var(--muted); line-height: 1.5; pointer-events: none; }
+    .upload-filename { display: none; font-size: 0.72rem; font-weight: 600; color: var(--green); margin-top: 0.35rem; pointer-events: none; }
+    .upload-zone.has-file .upload-filename  { display: block; }
+    .upload-zone.has-file .upload-default   { display: none; }
+    .field-hint { font-size: 0.67rem; color: var(--muted); line-height: 1.5; margin-top: 0.2rem; }
+
+    /* ── REVIEW NOTE ── */
+    .review-note {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      background: rgba(196,160,106,0.07);
+      border: 1px solid rgba(196,160,106,0.25);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin-top: 1.5rem;
+    }
+    .review-note-icon {
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 0.05rem;
+    }
+    .review-note-text {
+      font-size: 0.72rem;
+      color: var(--charcoal);
+      line-height: 1.6;
+    }
+    .review-note-text strong {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      width: 100%;
+      padding: 1rem 2rem;
+      background: var(--dark);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      margin-top: 1.5rem;
+    }
+    .btn-submit:hover { background: var(--charcoal); transform: translateY(-1px); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit svg { transition: transform 0.2s; }
+    .btn-submit:hover svg { transform: translateX(3px); }
+
+    /* ── SIGN IN NOTE ── */
+    .signin-note {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .signin-note a { color: var(--gold-dark); font-weight: 600; text-decoration: none; }
+    .signin-note a:hover { text-decoration: underline; }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(245,243,239,0.97);
+      z-index: 100;
+      align-items: center; justify-content: center;
+      flex-direction: column;
+      gap: 1rem; text-align: center; padding: 2rem;
+    }
+    .success-overlay.show { display: flex; }
+    .success-icon {
+      width: 68px; height: 68px; border-radius: 50%;
+      background: rgba(58,138,85,0.1);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem; font-weight: 500; color: var(--dark);
+    }
+    .success-sub {
+      font-size: 0.78rem; color: var(--muted);
+      max-width: 340px; line-height: 1.65;
+    }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem 1.25rem;
+      }
+
+      .logo {
+        font-size: 1.6rem;
+      }
+
+      main {
+        padding: 2rem 1rem 4rem;
+      }
+
+      .page-title {
+        font-size: 2rem;
+      }
+
+      .type-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+
+      .vendor-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.6rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .form-card {
+        padding: 1.25rem;
+      }
+
+      .btn-submit {
+        padding: 0.85rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .type-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .vendor-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .page-title {
+        font-size: 1.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="#" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-right">Already have an account? <a href="signin.html">Sign in</a></div>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="container">
+
+      <!-- Heading -->
+      <div class="page-heading">
+        <div class="page-label">Create Account</div>
+        <h1 class="page-title">Join FESTV</h1>
+        <p class="page-sub">Choose how you'll be using the platform to get started.</p>
+      </div>
+
+      <!-- ── Account type cards ── -->
+      <div class="type-grid">
+
+        <div class="type-card" id="card-planner">
+          <div class="type-check">
+            <svg width="10" height="8" fill="none" viewBox="0 0 10 8">
+              <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="type-icon">🗓️</div>
+          <div class="type-name">Event Planner</div>
+          <p class="type-desc">Browse and book vendors for your events.</p>
+        </div>
+
+        <div class="type-card" id="card-vendor">
+          <div class="type-check">
+            <svg width="10" height="8" fill="none" viewBox="0 0 10 8">
+              <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="type-icon">✨</div>
+          <div class="type-name">Vendor</div>
+          <p class="type-desc">List your services and receive booking requests.</p>
+        </div>
+
+      </div>
+
+      <!-- ── PLANNER FORM ── -->
+      <div class="slide-section" id="plannerSection">
+        <div class="sec-divider">
+          <div class="sec-divider-line"></div>
+          <span class="sec-divider-label">Account Details</span>
+          <div class="sec-divider-line"></div>
+        </div>
+        <div class="form-card">
+
+          <div class="error-msg" id="plannerError" style="display:none;font-size:0.72rem;color:var(--red);font-weight:500;background:rgba(184,64,64,0.07);border:1px solid rgba(184,64,64,0.18);border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:1.1rem;line-height:1.5;"></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Full Name <span class="req">*</span></label>
+              <input class="form-input" id="plannerName" type="text" placeholder="Natalie Voss" autocomplete="name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address <span class="req">*</span></label>
+              <input class="form-input" id="plannerEmail" type="email" placeholder="natalie@email.com" autocomplete="email">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input class="form-input" type="password" id="plannerPw" placeholder="Min. 8 characters" autocomplete="new-password">
+                <button class="eye-btn" type="button" onclick="togglePw('plannerPw', this)" aria-label="Show password">
+                  <svg width="17" height="17" fill="none" viewBox="0 0 17 17"><path d="M1 8.5C1 8.5 3.5 3 8.5 3S16 8.5 16 8.5 13.5 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.4"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input class="form-input" type="password" id="plannerPwConfirm" placeholder="Repeat password" autocomplete="new-password">
+                <button class="eye-btn" type="button" onclick="togglePw('plannerPwConfirm', this)" aria-label="Show password">
+                  <svg width="17" height="17" fill="none" viewBox="0 0 17 17"><path d="M1 8.5C1 8.5 3.5 3 8.5 3S16 8.5 16 8.5 13.5 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.4"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-submit" id="btnPlanner">
+            Create Account
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- ── VENDOR TYPE SELECTION ── -->
+      <div class="slide-section" id="vendorTypeSection">
+        <div class="sec-divider">
+          <div class="sec-divider-line"></div>
+          <span class="sec-divider-label">What type of vendor are you?</span>
+          <div class="sec-divider-line"></div>
+        </div>
+        <div class="vendor-grid">
+          <div class="vendor-card" id="vcard-dj" data-vendor="dj">
+            <span class="vendor-icon">🎧</span>
+            <div class="vendor-name">DJ</div>
+          </div>
+          <div class="vendor-card" id="vcard-photographer" data-vendor="photographer">
+            <span class="vendor-icon">📸</span>
+            <div class="vendor-name">Photographer</div>
+          </div>
+          <div class="vendor-card" id="vcard-caterer" data-vendor="caterer">
+            <span class="vendor-icon">🥂</span>
+            <div class="vendor-name">Caterer</div>
+          </div>
+          <div class="vendor-card" id="vcard-restaurant" data-vendor="restaurant">
+            <span class="vendor-icon">🍽️</span>
+            <div class="vendor-name">Restaurant</div>
+          </div>
+          <div class="vendor-card" id="vcard-bartender" data-vendor="bartender">
+            <span class="vendor-icon">🍸</span>
+            <div class="vendor-name">Bartender</div>
+          </div>
+          <div class="vendor-card" id="vcard-venue" data-vendor="venue">
+            <span class="vendor-icon">🏛️</span>
+            <div class="vendor-name">Venue</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── VENDOR FORM ── -->
+      <div class="slide-section" id="vendorFormSection">
+        <div class="sec-divider">
+          <div class="sec-divider-line"></div>
+          <span class="sec-divider-label" id="vendorFormLabel">Business Details</span>
+          <div class="sec-divider-line"></div>
+        </div>
+        <div class="form-card">
+
+          <div class="error-msg" id="vendorError" style="display:none;font-size:0.72rem;color:var(--red);font-weight:500;background:rgba(184,64,64,0.07);border:1px solid rgba(184,64,64,0.18);border-radius:8px;padding:0.6rem 0.85rem;margin-bottom:1.1rem;line-height:1.5;"></div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Business Name <span class="req">*</span></label>
+              <input class="form-input" id="vendorBusiness" type="text" placeholder="Milo Sound & Lights">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Name <span class="req">*</span></label>
+              <input class="form-input" id="vendorContact" type="text" placeholder="DJ Milo" autocomplete="name">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email Address <span class="req">*</span></label>
+              <input class="form-input" id="vendorEmail" type="email" placeholder="hello@milosound.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone Number <span class="req">*</span></label>
+              <input class="form-input" id="vendorPhone" type="tel" placeholder="+1 (512) 000-0000" autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">City <span class="req">*</span></label>
+            <input class="form-input" id="vendorCity" type="text" placeholder="Austin" autocomplete="address-level2">
+          </div>
+
+          <!-- Password for vendor account -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input class="form-input" type="password" id="vendorPw" placeholder="Min. 8 characters" autocomplete="new-password">
+                <button class="eye-btn" type="button" onclick="togglePw('vendorPw', this)" aria-label="Show password">
+                  <svg width="17" height="17" fill="none" viewBox="0 0 17 17"><path d="M1 8.5C1 8.5 3.5 3 8.5 3S16 8.5 16 8.5 13.5 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.4"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirm Password <span class="req">*</span></label>
+              <div class="input-wrap">
+                <input class="form-input" type="password" id="vendorPwConfirm" placeholder="Repeat password" autocomplete="new-password">
+                <button class="eye-btn" type="button" onclick="togglePw('vendorPwConfirm', this)" aria-label="Show password">
+                  <svg width="17" height="17" fill="none" viewBox="0 0 17 17"><path d="M1 8.5C1 8.5 3.5 3 8.5 3S16 8.5 16 8.5 13.5 14 8.5 14 1 8.5 1 8.5Z" stroke="currentColor" stroke-width="1.4"/><circle cx="8.5" cy="8.5" r="2.2" stroke="currentColor" stroke-width="1.4"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proof of ownership (restaurant / venue / caterer only) -->
+          <div class="proof-group" id="proofGroup">
+            <div class="form-group" style="margin-bottom:0;">
+              <label class="form-label">Proof of Ownership <span class="req">*</span></label>
+              <div class="upload-zone" id="uploadZone">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(this)">
+                <div class="upload-default">
+                  <span class="upload-icon">📄</span>
+                  <div class="upload-title">Upload a business document</div>
+                  <p class="upload-sub">Business license, lease agreement, or certificate of ownership<br>PDF, JPG or PNG · Max 10 MB</p>
+                </div>
+                <div class="upload-filename" id="uploadFilename"></div>
+              </div>
+              <span class="field-hint">Required for venues, restaurants, and caterers to verify ownership.</span>
+            </div>
+          </div>
+
+          <!-- Review note -->
+          <div class="review-note">
+            <span class="review-note-icon">🕐</span>
+            <p class="review-note-text">
+              <strong>Your account will be reviewed by the FESTV team</strong> before you can access your vendor profile. We'll verify your details and notify you by email once approved — usually within 1–2 business days.
+            </p>
+          </div>
+
+          <button class="btn-submit" id="btnVendor">
+            Submit for Review
+            <svg width="14" height="14" fill="none" viewBox="0 0 14 14">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+      <p class="signin-note">Already have an account? <a href="signin.html">Sign in instead</a></p>
+
+    </div>
+  </main>
+
+  <!-- Success overlay -->
+  <div class="success-overlay" id="successOverlay">
+    <div class="success-icon">
+      <svg width="30" height="30" fill="none" viewBox="0 0 30 30">
+        <path d="M5 15.5L12 22.5L25 9" stroke="#3A8A55" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="success-title" id="successTitle">Welcome to FESTV</div>
+    <p class="success-sub" id="successSub"></p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var selectedType   = null;
+      var selectedVendor = null;
+
+      var cardPlanner        = document.getElementById('card-planner');
+      var cardVendor         = document.getElementById('card-vendor');
+      var plannerSection     = document.getElementById('plannerSection');
+      var vendorTypeSection  = document.getElementById('vendorTypeSection');
+      var vendorFormSection  = document.getElementById('vendorFormSection');
+      var vendorFormLabel    = document.getElementById('vendorFormLabel');
+      var overlay            = document.getElementById('successOverlay');
+      var successTitle       = document.getElementById('successTitle');
+      var successSub         = document.getElementById('successSub');
+
+      var vendorLabels = {
+        dj: 'DJ', photographer: 'Photographer', caterer: 'Caterer',
+        restaurant: 'Restaurant', bartender: 'Bartender', venue: 'Venue'
+      };
+
+      function scrollTo(el) {
+        setTimeout(function () {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 420);
+      }
+
+      function selectType(type) {
+        if (selectedType === type) return;
+        selectedType = type;
+        selectedVendor = null;
+
+        cardPlanner.classList.toggle('selected', type === 'planner');
+        cardVendor.classList.toggle('selected', type === 'vendor');
+        document.querySelectorAll('.vendor-card').forEach(function (c) { c.classList.remove('selected'); });
+
+        if (type === 'planner') {
+          plannerSection.classList.add('open');
+          vendorTypeSection.classList.remove('open');
+          vendorFormSection.classList.remove('open');
+          scrollTo(plannerSection);
+        } else {
+          plannerSection.classList.remove('open');
+          vendorTypeSection.classList.add('open');
+          vendorFormSection.classList.remove('open');
+          scrollTo(vendorTypeSection);
+        }
+      }
+
+      function selectVendor(vendor) {
+        selectedVendor = vendor;
+        document.querySelectorAll('.vendor-card').forEach(function (c) { c.classList.remove('selected'); });
+        document.getElementById('vcard-' + vendor).classList.add('selected');
+        vendorFormLabel.textContent = vendorLabels[vendor] + ' Details';
+
+        // Show proof of ownership only for venue, restaurant, caterer
+        var needsProof = vendor === 'venue' || vendor === 'restaurant' || vendor === 'caterer';
+        document.getElementById('proofGroup').classList.toggle('open', needsProof);
+
+        vendorFormSection.classList.add('open');
+        scrollTo(vendorFormSection);
+      }
+
+      // Card listeners
+      cardPlanner.addEventListener('click', function () { selectType('planner'); });
+      cardVendor.addEventListener('click',  function () { selectType('vendor');  });
+
+      document.querySelectorAll('.vendor-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+          selectVendor(card.getAttribute('data-vendor'));
+        });
+      });
+
+      // Submit: planner
+      document.getElementById('btnPlanner').addEventListener('click', function () {
+        var fullName = document.getElementById('plannerName').value.trim();
+        var email    = document.getElementById('plannerEmail').value.trim().toLowerCase();
+        var pw       = document.getElementById('plannerPw').value;
+        var pwConf   = document.getElementById('plannerPwConfirm').value;
+        var errEl    = document.getElementById('plannerError');
+
+        errEl.style.display = 'none';
+
+        if (!fullName || !email || !pw || !pwConf) {
+          errEl.textContent = 'Please fill in all required fields.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (pw !== pwConf) {
+          errEl.textContent = 'Passwords do not match.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (pw.length < 8) {
+          errEl.textContent = 'Password must be at least 8 characters.';
+          errEl.style.display = 'block';
+          return;
+        }
+
+        var parts = fullName.split(' ');
+        var firstName = parts[0];
+        var lastName  = parts.slice(1).join(' ') || parts[0];
+
+        var btn = document.getElementById('btnPlanner');
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pw, firstName: firstName, lastName: lastName, role: 'CLIENT' })
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          var payload = data.data || data;
+          if (data.success || payload.accessToken) {
+            if (payload.accessToken) {
+              localStorage.setItem('accessToken', payload.accessToken);
+              localStorage.setItem('refreshToken', payload.refreshToken);
+              localStorage.setItem('user', JSON.stringify(payload.user));
+            }
+            successTitle.textContent = 'Welcome to FESTV';
+            successSub.textContent   = 'Your planner account has been created. Start building your perfect event.';
+            overlay.classList.add('show');
+            setTimeout(function () { window.location.href = 'plannerdashboard.html'; }, 2000);
+          } else {
+            errEl.textContent = data.message || data.error || 'Registration failed. Please try again.';
+            errEl.style.display = 'block';
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          errEl.textContent = 'Unable to connect. Please try again.';
+          errEl.style.display = 'block';
+        });
+      });
+
+      // Submit: vendor
+      document.getElementById('btnVendor').addEventListener('click', function () {
+        var contactName = document.getElementById('vendorContact').value.trim();
+        var email       = document.getElementById('vendorEmail').value.trim().toLowerCase();
+        var phone       = document.getElementById('vendorPhone').value.trim();
+        var pw          = document.getElementById('vendorPw').value;
+        var pwConf      = document.getElementById('vendorPwConfirm').value;
+        var errEl       = document.getElementById('vendorError');
+        var label       = vendorLabels[selectedVendor] || 'Vendor';
+
+        errEl.style.display = 'none';
+
+        if (!contactName || !email || !pw || !pwConf) {
+          errEl.textContent = 'Please fill in all required fields.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (pw !== pwConf) {
+          errEl.textContent = 'Passwords do not match.';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (pw.length < 8) {
+          errEl.textContent = 'Password must be at least 8 characters.';
+          errEl.style.display = 'block';
+          return;
+        }
+
+        var parts = contactName.split(' ');
+        var firstName = parts[0];
+        var lastName  = parts.slice(1).join(' ') || parts[0];
+
+        var btn = document.getElementById('btnVendor');
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+
+        fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pw, firstName: firstName, lastName: lastName, role: 'PROVIDER', phoneNumber: phone || undefined })
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          var payload = data.data || data;
+          if (data.success || payload.accessToken) {
+            if (payload.accessToken) {
+              localStorage.setItem('accessToken', payload.accessToken);
+              localStorage.setItem('refreshToken', payload.refreshToken);
+              localStorage.setItem('user', JSON.stringify(payload.user));
+            }
+            successTitle.textContent = 'Application Submitted';
+            successSub.textContent   = 'Thanks for signing up as a ' + label + '. Our team will review your details and reach out within 1–2 business days.';
+            overlay.classList.add('show');
+          } else {
+            errEl.textContent = data.message || data.error || 'Registration failed. Please try again.';
+            errEl.style.display = 'block';
+          }
+        })
+        .catch(function () {
+          btn.disabled = false;
+          btn.style.opacity = '';
+          errEl.textContent = 'Unable to connect. Please try again.';
+          errEl.style.display = 'block';
+        });
+      });
+    });
+
+    // File upload handler
+    function handleFileUpload(input) {
+      var zone     = document.getElementById('uploadZone');
+      var filename = document.getElementById('uploadFilename');
+      if (input.files && input.files[0]) {
+        zone.classList.add('has-file');
+        filename.textContent = '✓ ' + input.files[0].name;
+      }
+    }
+
+    // Password visibility toggle
+    function togglePw(id, btn) {
+      var input = document.getElementById(id);
+      var showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      btn.style.opacity = showing ? '0.5' : '1';
+    }
+  </script>
+
+</body>
+</html>

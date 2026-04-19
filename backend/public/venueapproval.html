@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Venue Booking Request</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold: #C4A06A; --gold-light: #D9BF8C; --gold-dark: #9C7A45;
+      --bg: #F5F3EF; --white: #FFFFFF; --dark: #1A1714;
+      --charcoal: #3A3530; --muted: #7A7068; --border: rgba(0,0,0,0.09);
+      --green: #3A8A55; --red: #B84040;
+    }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 2.5rem; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
+    .logo { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; letter-spacing: 0.35em; color: var(--dark); text-decoration: none; }
+    .logo .v { color: var(--gold); }
+    .header-icons { display: flex; align-items: center; gap: 1rem; }
+    .icon-btn { background: none; border: none; cursor: pointer; color: var(--charcoal); display: flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: 50%; transition: color 0.2s, background 0.2s; }
+    .icon-btn:hover { color: var(--gold-dark); background: rgba(196,160,106,0.1); }
+    .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .page { max-width: 780px; margin: 0 auto; padding: 2.5rem 2rem 5rem; }
+    .page-eyebrow { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.4rem; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 2.1rem; font-weight: 500; color: var(--dark); letter-spacing: 0.03em; margin-bottom: 0.35rem; }
+    .page-sub { font-size: 0.83rem; color: var(--muted); margin-bottom: 2rem; }
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem; margin-bottom: 1.25rem; }
+    .card-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.1rem; }
+    .gold-rule { width: 28px; height: 2px; background: var(--gold); margin-bottom: 1.25rem; }
+    .planner-top { display: flex; align-items: flex-start; gap: 1.25rem; margin-bottom: 1.5rem; }
+    .planner-avatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); flex-shrink: 0; }
+    .planner-main { flex: 1; }
+    .planner-name { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 600; color: var(--dark); letter-spacing: 0.02em; margin-bottom: 0.18rem; }
+    .planner-meta { font-size: 0.74rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .planner-stars { display: flex; align-items: center; gap: 0.28rem; margin-bottom: 0.55rem; }
+    .planner-stars svg { width: 12px; height: 12px; fill: var(--gold); stroke: var(--gold); }
+    .rating-val { font-size: 0.8rem; font-weight: 700; color: var(--dark); margin-left: 0.15rem; }
+    .rating-cnt { font-size: 0.72rem; color: var(--muted); }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .badge { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 999px; }
+    .badge-green { background: rgba(58,138,85,0.1); color: var(--green); border: 1px solid rgba(58,138,85,0.25); }
+    .badge-gold  { background: rgba(196,160,106,0.15); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.35); }
+    .badge-dark  { background: var(--dark); color: var(--gold-light); }
+    .planner-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; }
+    .p-stat { background: var(--bg); padding: 0.8rem 1rem; text-align: center; }
+    .p-stat-val { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; color: var(--dark); line-height: 1.1; }
+    .p-stat-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+    .request-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin-bottom: 1.25rem; }
+    .req-cell { background: var(--white); padding: 1.25rem 1.35rem; display: flex; align-items: flex-start; gap: 0.85rem; }
+    .req-icon { width: 32px; height: 32px; border-radius: 5px; background: rgba(196,160,106,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.1rem; }
+    .req-icon svg { width: 14px; height: 14px; stroke: var(--gold-dark); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .req-label { font-size: 0.61rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+    .req-value { font-size: 0.9rem; font-weight: 600; color: var(--dark); line-height: 1.3; }
+    .req-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+    .tag { display: inline-block; font-size: 0.63rem; font-weight: 600; letter-spacing: 0.05em; background: var(--bg); color: var(--muted); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 999px; margin-top: 0.3rem; margin-right: 0.25rem; }
+    .space-pill-row { display: flex; gap: 0.65rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    .space-pill { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.1rem; border-radius: 5px; border: 1.5px solid var(--border); background: var(--bg); font-size: 0.75rem; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; }
+    .space-pill.selected { border-color: var(--gold); background: rgba(196,160,106,0.08); color: var(--gold-dark); }
+    .space-pill svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .moments-list { display: flex; flex-direction: column; gap: 0; }
+    .moment-row { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid var(--border); }
+    .moment-row:last-child { border-bottom: none; }
+    .moment-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
+    .moment-icon { width: 34px; height: 34px; border-radius: 5px; background: rgba(196,160,106,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; }
+    .moment-body { flex: 1; min-width: 0; }
+    .moment-occasion { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.15rem; }
+    .moment-song { font-size: 0.88rem; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .moment-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.08rem; }
+    .moment-tag { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.2rem 0.6rem; border-radius: 999px; background: rgba(196,160,106,0.12); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.3); white-space: nowrap; flex-shrink: 0; margin-left: 0.75rem; }
+    .vendor-lineup { display: flex; flex-direction: column; gap: 0; }
+    .vendor-row { display: flex; align-items: center; gap: 1rem; padding: 0.95rem 0; border-bottom: 1px solid var(--border); }
+    .vendor-row:last-child { border-bottom: none; }
+    .vendor-thumb { width: 44px; height: 44px; border-radius: 5px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); }
+    .vendor-thumb-placeholder { width: 44px; height: 44px; border-radius: 5px; background: var(--bg); border: 1px dashed rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .vendor-thumb-placeholder svg { width: 16px; height: 16px; stroke: var(--muted); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .vendor-info { flex: 1; }
+    .vendor-category { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.12rem; }
+    .vendor-name-text { font-size: 0.87rem; font-weight: 600; color: var(--dark); }
+    .vendor-detail { font-size: 0.73rem; color: var(--muted); margin-top: 0.08rem; }
+    .vendor-status { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 0.22rem 0.65rem; border-radius: 999px; flex-shrink: 0; }
+    .status-booked    { background: rgba(58,138,85,0.1); color: var(--green); border: 1px solid rgba(58,138,85,0.25); }
+    .status-requested { background: rgba(196,160,106,0.12); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.3); }
+    .status-pending   { background: rgba(122,112,104,0.08); color: var(--muted); border: 1px solid var(--border); }
+    .message-bubble { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--charcoal); line-height: 1.8; font-style: italic; }
+    .action-area { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem; margin-bottom: 1.25rem; }
+    .action-buttons { display: flex; gap: 1rem; }
+    .btn-approve { flex: 1; background: var(--dark); color: var(--gold-light); border: none; padding: 1rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-approve:hover, .btn-approve.active { background: var(--green); color: var(--white); }
+    .btn-decline { flex: 1; background: transparent; color: var(--charcoal); border: 1px solid var(--charcoal); padding: 1rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+    .btn-decline:hover, .btn-decline.active { border-color: var(--red); color: var(--red); background: rgba(184,64,64,0.04); }
+    .btn-approve svg, .btn-decline svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .notes-panel { display: none; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); animation: slideDown 0.22s ease; }
+    .notes-panel.visible { display: block; }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    .notes-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .notes-hint { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.6; }
+    .notes-hint span { font-weight: 600; }
+    .notes-textarea { width: 100%; min-height: 100px; border: 1px solid var(--border); border-radius: 4px; padding: 0.85rem 1rem; font-family: 'Montserrat', sans-serif; font-size: 0.84rem; color: var(--dark); background: var(--bg); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+    .notes-textarea:focus { border-color: var(--gold); }
+    .notes-textarea::placeholder { color: var(--muted); }
+    .notes-submit-row { display: flex; align-items: center; justify-content: space-between; margin-top: 0.85rem; }
+    .notes-skip { font-size: 0.72rem; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+    .notes-skip:hover { color: var(--charcoal); }
+    .btn-submit-approve { background: var(--green); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .btn-submit-approve:hover { background: #2e7244; }
+    .btn-submit-decline { background: var(--red); color: var(--white); border: none; padding: 0.75rem 2rem; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+    .btn-submit-decline:hover { background: #9a3535; }
+    .success-banner { display: none; background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 2.5rem 1.75rem; text-align: center; margin-bottom: 1.25rem; }
+    .success-banner.visible { display: block; animation: slideDown 0.3s ease; }
+    .success-icon { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    .success-icon.approve { background: rgba(58,138,85,0.12); }
+    .success-icon.decline { background: rgba(184,64,64,0.1); }
+    .success-icon svg { width: 22px; height: 22px; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+    .success-icon.approve svg { stroke: var(--green); }
+    .success-icon.decline svg { stroke: var(--red); }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--dark); margin-bottom: 0.4rem; }
+    .success-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.7; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-icons">
+      <button class="icon-btn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></button>
+      <button class="icon-btn"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    </div>
+  </header>
+
+  <div class="page">
+
+    <div class="page-eyebrow">Venue Request</div>
+    <h1 class="page-title">New Venue Inquiry</h1>
+    <p class="page-sub">Review the event details and planner profile before responding.</p>
+
+    <!-- PLANNER PROFILE -->
+    <div class="card">
+      <div class="card-label">Event Planner</div>
+      <div class="gold-rule"></div>
+      <div class="planner-top">
+        <img class="planner-avatar" src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&q=80" alt="Natalie Voss">
+        <div class="planner-main">
+          <div class="planner-name">Natalie Voss</div>
+          <div class="planner-meta">Austin, TX &nbsp;·&nbsp; Member since March 2024</div>
+          <div class="planner-stars">
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--gold)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <span class="rating-val">4.0</span><span class="rating-cnt">(8 reviews)</span>
+          </div>
+          <div class="badge-row">
+            <span class="badge badge-green">Verified</span>
+            <span class="badge badge-gold">Repeat Planner</span>
+            <span class="badge badge-dark">Top 10%</span>
+          </div>
+        </div>
+      </div>
+      <div class="planner-stats">
+        <div class="p-stat"><div class="p-stat-val">12</div><div class="p-stat-label">Events Booked</div></div>
+        <div class="p-stat"><div class="p-stat-val">100%</div><div class="p-stat-label">Response Rate</div></div>
+        <div class="p-stat"><div class="p-stat-val">0</div><div class="p-stat-label">Prior Cancellations</div></div>
+      </div>
+    </div>
+
+    <!-- VENUE REQUEST DETAILS -->
+    <div class="card">
+      <div class="card-label">Venue Request Details</div>
+      <div class="gold-rule"></div>
+      <div class="request-grid">
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div>
+            <div class="req-label">Event Date</div>
+            <div class="req-value">June 14, 2026</div>
+            <div class="req-note">Saturday · Full day rental</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div>
+            <div class="req-label">Guest Count</div>
+            <div class="req-value">180 Guests</div>
+            <div class="req-note">Seated dinner + cocktail hour</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div>
+            <div class="req-label">Type of Event</div>
+            <div class="req-value">Wedding Reception</div>
+            <div class="req-note">10:00 AM – 10:00 PM · Full day rental</div>
+          </div>
+        </div>
+
+        <div class="req-cell">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div>
+            <div class="req-label">Venue Budget</div>
+            <div class="req-value">$6,500</div>
+            <div class="req-note">Tables, chairs & basic AV included</div>
+          </div>
+        </div>
+
+        <div class="req-cell" style="grid-column: span 2;">
+          <div class="req-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div>
+            <div class="req-label">Space Requirements</div>
+            <div class="req-value">Indoor ballroom with outdoor terrace access</div>
+            <div class="req-note" style="margin-top:0.45rem;">
+              <span class="tag">Dance floor</span>
+              <span class="tag">Bridal suite</span>
+              <span class="tag">Outdoor terrace</span>
+              <span class="tag">Commercial kitchen access</span>
+              <span class="tag">Parking for 120+ cars</span>
+              <span class="tag">Handicap accessible</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="req-label" style="margin-bottom:0.65rem;">Preferred Space Type</div>
+      <div class="space-pill-row">
+        <div class="space-pill selected">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          Indoor Ballroom
+        </div>
+        <div class="space-pill selected">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Outdoor Terrace
+        </div>
+        <div class="space-pill">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          Private Dining Room
+        </div>
+        <div class="space-pill">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/></svg>
+          Rooftop
+        </div>
+      </div>
+
+      <div class="req-label" style="margin-bottom:0.5rem; margin-top:0.25rem;">Catering & Policy</div>
+      <div>
+        <span class="tag">Open to outside caterers</span>
+        <span class="tag">In-house bar service preferred</span>
+        <span class="tag">Kosher-friendly kitchen</span>
+        <span class="tag">No exclusive vendor lock-in</span>
+      </div>
+    </div>
+
+    <!-- SETUP REQUIREMENTS -->
+    <div class="card">
+      <div class="card-label">Setup &amp; AV Requirements</div>
+      <div class="gold-rule"></div>
+      <div class="moments-list">
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🎤</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Audio / Visual</div>
+              <div class="moment-song">Full PA system + wireless microphones</div>
+              <div class="moment-note">2 wireless handhelds · Podium mic for speeches</div>
+            </div>
+          </div>
+          <span class="moment-tag">Required</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">💡</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Lighting</div>
+              <div class="moment-song">Dimmable ambient lighting throughout</div>
+              <div class="moment-note">Gold/warm tones preferred · Uplighting outlets available</div>
+            </div>
+          </div>
+          <span class="moment-tag">Required</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🪑</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Furniture</div>
+              <div class="moment-song">Round tables for 10 + chiavari chairs</div>
+              <div class="moment-note">18 tables · 180 chairs · 2 sweetheart table options</div>
+            </div>
+          </div>
+          <span class="moment-tag">Included</span>
+        </div>
+        <div class="moment-row">
+          <div class="moment-left">
+            <div class="moment-icon">🚗</div>
+            <div class="moment-body">
+              <div class="moment-occasion">Parking</div>
+              <div class="moment-song">On-site parking for 120+ vehicles</div>
+              <div class="moment-note">Valet option preferred · Shuttle access appreciated</div>
+            </div>
+          </div>
+          <span class="moment-tag">Needed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDOR LINEUP -->
+    <div class="card">
+      <div class="card-label">Other Vendors for This Event</div>
+      <div class="gold-rule"></div>
+      <div class="vendor-lineup">
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1555244162-803834f70033?w=200&q=80" alt="Catering">
+          <div class="vendor-info">
+            <div class="vendor-category">Catering</div>
+            <div class="vendor-name-text">Bella Terra Catering Co.</div>
+            <div class="vendor-detail">Full dinner service · 180 guests · Kosher menu available</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&q=80" alt="DJ">
+          <div class="vendor-info">
+            <div class="vendor-category">DJ</div>
+            <div class="vendor-name-text">DJ Milo</div>
+            <div class="vendor-detail">5 hour set · Full lighting rig · Wireless mics</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=200&q=80" alt="Photographer">
+          <div class="vendor-info">
+            <div class="vendor-category">Photography</div>
+            <div class="vendor-name-text">Clara Moon Photography</div>
+            <div class="vendor-detail">Full event coverage · Second shooter included</div>
+          </div>
+          <span class="vendor-status status-requested">Requested</span>
+        </div>
+        <div class="vendor-row">
+          <img class="vendor-thumb" src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&q=80" alt="Bar">
+          <div class="vendor-info">
+            <div class="vendor-category">Bar Service</div>
+            <div class="vendor-name-text">The Craft Bar Co.</div>
+            <div class="vendor-detail">Open bar · Signature cocktail menu · 6 hour service</div>
+          </div>
+          <span class="vendor-status status-booked">Booked</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGE -->
+    <div class="card">
+      <div class="card-label">Message from Planner</div>
+      <div class="gold-rule"></div>
+      <div class="message-bubble">
+        "Hi! We're planning a wedding reception for 180 guests and your venue looks absolutely stunning. We love the ballroom and the outdoor terrace would be perfect for our cocktail hour. We have our own caterer and DJ already locked in, so we just need the space, tables, chairs, and AV. We're flexible on timing and happy to work around your setup schedule. Would love to do a walkthrough if possible!"
+      </div>
+    </div>
+
+    <!-- ACTION AREA -->
+    <div class="action-area" id="actionArea">
+      <div class="action-buttons">
+        <button class="btn-approve" id="btnApprove" onclick="selectAction('approve')">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirm Availability
+        </button>
+        <button class="btn-decline" id="btnDecline" onclick="selectAction('decline')">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Decline Inquiry
+        </button>
+      </div>
+      <div class="notes-panel" id="notesPanel">
+        <div class="notes-label" id="notesLabel">Add a note (optional)</div>
+        <div class="notes-hint" id="notesHint">Let <span>Natalie</span> know what to expect next — a walkthrough, contract, or deposit info.</div>
+        <textarea class="notes-textarea" id="notesText" placeholder="e.g. We'd love to host your wedding! I'll follow up this week to schedule a venue walkthrough and send over our rental agreement…"></textarea>
+        <div class="notes-submit-row">
+          <span class="notes-skip" onclick="submitAction()">Skip and submit</span>
+          <button class="btn-submit-approve" id="btnSubmit" onclick="submitAction()">Confirm Availability</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-banner" id="successBanner">
+      <div class="success-icon approve" id="successIcon">
+        <svg viewBox="0 0 24 24" id="successSvg"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title" id="successTitle">Availability Confirmed</div>
+      <div class="success-sub" id="successSub">Natalie Voss has been notified. You'll receive a follow-up to schedule a venue walkthrough and finalize the rental agreement.</div>
+    </div>
+
+  </div>
+
+  <script>
+    let currentAction = null;
+    function selectAction(action) {
+      currentAction = action;
+      document.getElementById('btnApprove').classList.toggle('active', action === 'approve');
+      document.getElementById('btnDecline').classList.toggle('active', action === 'decline');
+      const notesPanel = document.getElementById('notesPanel');
+      const notesHint  = document.getElementById('notesHint');
+      const notesText  = document.getElementById('notesText');
+      const btnSubmit  = document.getElementById('btnSubmit');
+      notesPanel.classList.add('visible');
+      if (action === 'approve') {
+        document.getElementById('notesLabel').textContent = 'Add a note (optional)';
+        notesHint.innerHTML = 'Let <span>Natalie</span> know what to expect next — a walkthrough, contract, or deposit info.';
+        notesText.placeholder = 'e.g. We\'d love to host your wedding! I\'ll follow up this week to schedule a venue walkthrough and send over our rental agreement…';
+        btnSubmit.textContent = 'Confirm Availability';
+        btnSubmit.className = 'btn-submit-approve';
+      } else {
+        document.getElementById('notesLabel').textContent = 'Reason for declining (optional)';
+        notesHint.innerHTML = 'Let <span>Natalie</span> know why the venue isn\'t available.';
+        notesText.placeholder = 'e.g. Unfortunately we\'re already booked on that date. We\'d love to host a future event for you…';
+        btnSubmit.textContent = 'Confirm Decline';
+        btnSubmit.className = 'btn-submit-decline';
+      }
+      notesPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function submitAction() {
+      document.getElementById('actionArea').style.display = 'none';
+      const successBanner = document.getElementById('successBanner');
+      const successIcon   = document.getElementById('successIcon');
+      const successSvg    = document.getElementById('successSvg');
+      if (currentAction === 'approve') {
+        successIcon.className = 'success-icon approve';
+        successSvg.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+        document.getElementById('successTitle').textContent = 'Availability Confirmed';
+        document.getElementById('successSub').textContent = 'Natalie Voss has been notified. You\'ll receive a follow-up to schedule a venue walkthrough and finalize the rental agreement.';
+      } else {
+        successIcon.className = 'success-icon decline';
+        successSvg.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+        document.getElementById('successTitle').textContent = 'Inquiry Declined';
+        document.getElementById('successSub').textContent = 'Natalie Voss has been notified. If you included a note, it will be shared with them.';
+      }
+      successBanner.classList.add('visible');
+      successBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  </script>
+</body>
+</html>

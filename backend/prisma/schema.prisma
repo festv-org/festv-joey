@@ -1,0 +1,930 @@
+// CaterEase Database Schema
+// Event Catering & Service Provider Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+enum UserRole {
+  CLIENT
+  PROVIDER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+model User {
+  id                String      @id @default(uuid())
+  email             String      @unique
+  passwordHash      String
+  role              UserRole    @default(CLIENT)  // Primary role for backward compatibility
+  roles             UserRole[]  @default([CLIENT]) // All roles user can act as
+  status            UserStatus  @default(PENDING_VERIFICATION)
+  emailVerified     Boolean     @default(false)
+  phoneNumber       String?
+  phoneVerified     Boolean     @default(false)
+  
+  // Profile info
+  firstName         String
+  lastName          String
+  avatarUrl         String?
+  bannerUrl         String?
+  
+  // Location
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  country           String      @default("US")
+  latitude          Float?
+  longitude         Float?
+  
+  // Timestamps
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Password reset
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  
+  // Relations - User can have multiple provider profiles
+  providerProfiles    ProviderProfile[]
+  eventRequests       EventRequest[]
+  bookingsAsClient    Booking[]          @relation("ClientBookings")
+  reviewsGiven        Review[]           @relation("ReviewAuthor")
+  reviewsReceived     Review[]           @relation("ReviewSubject")
+  sentMessages        Message[]          @relation("MessageSender")
+  receivedMessages    Message[]          @relation("MessageRecipient")
+  notifications       Notification[]
+  favorites           Favorite[]
+  refreshTokens       RefreshToken[]
+  verificationCodes   VerificationCode[]
+  
+  @@index([email])
+  @@index([role])
+  @@index([city, state])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  token       String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([token])
+}
+
+model VerificationCode {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type      String   // 'email' or 'phone'
+  code      String   // 6-digit code
+  target    String   // email address or phone number
+  
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([userId, type])
+  @@index([code, expiresAt])
+}
+
+// ============================================
+// PROVIDER PROFILES & SERVICES
+// ============================================
+
+enum ProviderType {
+  CATERER
+  DJ
+  DECORATOR
+  MUSICIAN
+  PHOTOGRAPHER
+  VIDEOGRAPHER
+  FLORIST
+  EVENT_PLANNER
+  BARTENDER
+  RENTAL_EQUIPMENT
+  OTHER
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model ProviderProfile {
+  id                  String              @id @default(uuid())
+  userId              String              // Removed @unique - user can have multiple profiles
+  user                User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Business info
+  businessName        String
+  businessDescription String?             @db.Text
+  providerTypes       ProviderType[]      // What services this profile offers
+  primaryType         ProviderType?       // Main service type for this profile
+  
+  // Images
+  bannerImageUrl      String?             // Large hero banner image
+  logoUrl             String?             // Profile logo/avatar
+  
+  // Solo worker vs Company (for caterers/bartenders)
+  isSoloWorker        Boolean             @default(false)
+  
+  // Verification
+  verificationStatus  VerificationStatus  @default(UNVERIFIED)
+  verifiedAt          DateTime?
+  licenseNumber       String?
+  insuranceInfo       String?
+  
+  // Service area
+  serviceRadius       Int                 @default(50) // miles
+  serviceAreas        String[]            // cities/regions served
+  
+  // Per-person pricing (for companies: caterers, florists, decorators, equipment, bartender companies)
+  minimumBudget       Float?
+  maximumBudget       Float?
+  pricePerPerson      Float?              // Default/base price per person
+  depositPercentage   Float               @default(25)
+  
+  // Hourly pricing (for solo workers and hourly services: photographers, videographers, DJs, musicians)
+  hourlyRate          Float?
+  minimumHours        Int?                @default(2)
+  fixedFee            Float?              @default(0)  // Optional setup/travel fee
+  
+  // Capabilities (for per-person services)
+  minGuestCount       Int                 @default(10)
+  maxGuestCount       Int                 @default(500)
+  
+  // Operating hours
+  operatingDays       String[]            @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
+  leadTimeDays        Int                 @default(7) // minimum notice required
+  
+  // Stats
+  totalBookings       Int                 @default(0)
+  completedBookings   Int                 @default(0)
+  averageRating       Float               @default(0)
+  totalReviews        Int                 @default(0)
+  responseRate        Float               @default(0)
+  responseTimeHours   Float?
+  
+  // Timestamps
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  
+  // Relations
+  services            Service[]
+  pricingLevels       PricingLevel[]
+  portfolioItems      PortfolioItem[]
+  menuItems           MenuItem[]
+  quotes              Quote[]
+  bookings            Booking[]
+  cuisineTypes        CuisineType[]
+  eventThemes         EventTheme[]
+  equipmentOfferings  Equipment[]
+  availability        Availability[]
+  
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([averageRating])
+  @@index([providerTypes])
+  @@index([primaryType])
+  @@index([isSoloWorker])
+  @@index([serviceAreas])
+  @@index([minGuestCount])
+  @@index([maxGuestCount])
+  @@index([averageRating, totalReviews])
+}
+
+// Pricing levels for per-person pricing providers
+model PricingLevel {
+  id              String          @id @default(uuid())
+  providerId      String
+  provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  name            String          // e.g., "Basic", "Premium", "Deluxe"
+  description     String?         @db.Text
+  pricePerPerson  Float
+  minimumGuests   Int?            // Optional minimum guests for this tier
+  features        String[]        // What's included at this level
+  
+  displayOrder    Int             @default(0)
+  isActive        Boolean         @default(true)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  @@index([providerId])
+  @@index([isActive])
+}
+
+model Service {
+  id              String          @id @default(uuid())
+  providerId      String
+  provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  name            String
+  description     String          @db.Text
+  providerType    ProviderType
+  
+  // Pricing
+  priceType       PriceType       @default(PER_PERSON)
+  basePrice       Float
+  pricePerPerson  Float?
+  pricePerHour    Float?
+  
+  // Capacity
+  minGuests       Int?
+  maxGuests       Int?
+  minHours        Float?
+  maxHours        Float?
+  
+  // Features
+  features        String[]
+  includes        String[]
+  excludes        String[]
+  
+  // Media
+  thumbnailUrl    String?
+  
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  quoteItems      QuoteItem[]
+  bookingServices BookingService[]
+  
+  @@index([providerId])
+  @@index([providerType])
+  @@index([isActive])
+}
+
+enum PriceType {
+  FLAT_RATE
+  PER_PERSON
+  PER_HOUR
+  CUSTOM
+}
+
+// ============================================
+// PORTFOLIO & MEDIA
+// ============================================
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+model PortfolioItem {
+  id              String          @id @default(uuid())
+  providerId      String
+  provider        ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  title           String
+  description     String?         @db.Text
+  
+  // Media
+  mediaType       MediaType
+  mediaUrl        String
+  thumbnailUrl    String?
+  duration        Int?            // seconds for video/audio
+  
+  // Metadata
+  eventType       String?
+  guestCount      Int?
+  eventDate       DateTime?
+  
+  // Display
+  displayOrder    Int             @default(0)
+  isFeatured      Boolean         @default(false)
+  isPublic        Boolean         @default(true)
+  
+  // Stats
+  viewCount       Int             @default(0)
+  likeCount       Int             @default(0)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  tags            PortfolioTag[]
+  
+  @@index([providerId])
+  @@index([mediaType])
+  @@index([isFeatured])
+}
+
+model PortfolioTag {
+  id              String          @id @default(uuid())
+  name            String
+  portfolioItems  PortfolioItem[]
+  
+  @@unique([name])
+}
+
+// ============================================
+// CUISINE & THEMES
+// ============================================
+
+model CuisineType {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  description     String?
+  iconUrl         String?
+  
+  providers       ProviderProfile[]
+  eventRequests   EventRequest[]
+}
+
+model EventTheme {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  description     String?
+  iconUrl         String?
+  
+  providers       ProviderProfile[]
+  eventRequests   EventRequest[]
+}
+
+// ============================================
+// EQUIPMENT & PRESENTATION
+// ============================================
+
+enum EquipmentCategory {
+  PLATING
+  SERVING
+  COOKING
+  DISPLAY
+  FURNITURE
+  LIGHTING
+  AUDIO
+  OTHER
+}
+
+model Equipment {
+  id              String            @id @default(uuid())
+  providerId      String
+  provider        ProviderProfile   @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  name            String
+  description     String?
+  category        EquipmentCategory
+  
+  // Examples: butcher blocks, burners, chafing dishes, etc.
+  imageUrl        String?
+  
+  // Pricing
+  rentalPrice     Float?
+  isIncluded      Boolean           @default(false) // included in service
+  
+  createdAt       DateTime          @default(now())
+  
+  eventRequests   EventRequest[]
+  
+  @@index([providerId])
+  @@index([category])
+}
+
+// ============================================
+// EVENT REQUESTS
+// ============================================
+
+enum EventRequestStatus {
+  DRAFT
+  SUBMITTED
+  MATCHING
+  QUOTED
+  BOOKED
+  COMPLETED
+  CANCELLED
+}
+
+enum EventType {
+  CORPORATE
+  WEDDING
+  BIRTHDAY
+  ANNIVERSARY
+  GRADUATION
+  BABY_SHOWER
+  BRIDAL_SHOWER
+  HOLIDAY
+  COCKTAIL_PARTY
+  DINNER_PARTY
+  BRUNCH
+  BBQ
+  PICNIC
+  SOCIAL
+  OTHER
+}
+
+model EventRequest {
+  id                  String              @id @default(uuid())
+  clientId            String
+  client              User                @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  // Event basics
+  title               String
+  eventType           EventType
+  description         String?             @db.Text
+  
+  // Required fields
+  guestCount          Int
+  budgetMin           Float
+  budgetMax           Float
+  eventDate           DateTime
+  eventStartTime      String              // "18:00"
+  eventEndTime        String              // "22:00"
+  
+  // Location
+  venueName           String?
+  venueAddress        String
+  venueCity           String
+  venueState          String
+  venueZipCode        String
+  venueNotes          String?             @db.Text
+  
+  // Optional preferences
+  cuisineTypes        CuisineType[]
+  eventThemes         EventTheme[]
+  equipmentNeeded     Equipment[]
+  
+  // Dietary requirements
+  dietaryRestrictions String[]
+  allergies           String[]
+  
+  // Service preferences
+  serviceStyle        ServiceStyle        @default(BUFFET)
+  serviceStyles       ServiceStyle[]      @default([])
+  needsStaffing       Boolean             @default(false)
+  staffCount          Int?
+  needsCleanup        Boolean             @default(false)
+  needsSetup          Boolean             @default(false)
+  
+  // Additional services wanted
+  servicesWanted      ProviderType[]
+  
+  // Status
+  status              EventRequestStatus  @default(DRAFT)
+  
+  // Timestamps
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  submittedAt         DateTime?
+  
+  // Relations
+  quotes              Quote[]
+  booking             Booking?
+  
+  @@index([clientId])
+  @@index([status])
+  @@index([eventDate])
+  @@index([venueCity, venueState])
+  @@index([guestCount])
+  @@index([eventType])
+  @@index([status, eventDate])
+  @@index([venueCity, venueState, eventDate])
+}
+
+enum ServiceStyle {
+  BUFFET
+  PLATED
+  FAMILY_STYLE
+  FOOD_STATIONS
+  COCKTAIL
+  DROP_OFF
+  FOOD_TRUCK
+  CUSTOM
+}
+
+// ============================================
+// QUOTES & PROPOSALS
+// ============================================
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  WITHDRAWN
+}
+
+model Quote {
+  id                String          @id @default(uuid())
+  eventRequestId    String
+  eventRequest      EventRequest    @relation(fields: [eventRequestId], references: [id], onDelete: Cascade)
+  providerId        String
+  provider          ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  // Quote details
+  status            QuoteStatus     @default(DRAFT)
+  message           String?         @db.Text
+  
+  // Pricing breakdown
+  subtotal          Float
+  taxRate           Float           @default(0)
+  taxAmount         Float           @default(0)
+  serviceFee        Float           @default(0)
+  gratuity          Float           @default(0)
+  discount          Float           @default(0)
+  totalAmount       Float
+  
+  // Deposit
+  depositRequired   Float
+  depositDueDate    DateTime?
+  
+  // Validity
+  validUntil        DateTime
+  
+  // Timestamps
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  sentAt            DateTime?
+  viewedAt          DateTime?
+  respondedAt       DateTime?
+  
+  // Relations
+  items             QuoteItem[]
+  booking           Booking?
+  
+  @@unique([eventRequestId, providerId])
+  @@index([eventRequestId])
+  @@index([providerId])
+  @@index([status])
+}
+
+model QuoteItem {
+  id              String    @id @default(uuid())
+  quoteId         String
+  quote           Quote     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  serviceId       String?
+  service         Service?  @relation(fields: [serviceId], references: [id])
+  
+  name            String
+  description     String?
+  quantity        Int       @default(1)
+  unitPrice       Float
+  totalPrice      Float
+  
+  @@index([quoteId])
+}
+
+// ============================================
+// BOOKINGS
+// ============================================
+
+enum BookingStatus {
+  PENDING_DEPOSIT
+  DEPOSIT_PAID
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REFUNDED
+  DISPUTED
+}
+
+model Booking {
+  id                  String          @id @default(uuid())
+  eventRequestId      String          @unique
+  eventRequest        EventRequest    @relation(fields: [eventRequestId], references: [id])
+  quoteId             String          @unique
+  quote               Quote           @relation(fields: [quoteId], references: [id])
+  clientId            String
+  client              User            @relation("ClientBookings", fields: [clientId], references: [id])
+  providerId          String
+  provider            ProviderProfile @relation(fields: [providerId], references: [id])
+  
+  // Booking details
+  status              BookingStatus   @default(PENDING_DEPOSIT)
+  
+  // Financial
+  totalAmount         Float
+  depositAmount       Float
+  depositPaidAt       DateTime?
+  balanceAmount       Float
+  balancePaidAt       DateTime?
+  
+  // Event details (snapshot from quote acceptance)
+  eventDate           DateTime
+  eventStartTime      String
+  eventEndTime        String
+  guestCount          Int
+  
+  // Cancellation
+  cancelledAt         DateTime?
+  cancelledBy         String?
+  cancellationReason  String?
+  refundAmount        Float?
+  
+  // Completion
+  completedAt         DateTime?
+  
+  // Timestamps
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  
+  // Relations
+  services            BookingService[]
+  payments            Payment[]
+  review              Review?
+  
+  @@index([clientId])
+  @@index([providerId])
+  @@index([status])
+  @@index([eventDate])
+  @@index([providerId, status])
+  @@index([clientId, status])
+  @@index([status, eventDate])
+}
+
+model BookingService {
+  id          String    @id @default(uuid())
+  bookingId   String
+  booking     Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  serviceId   String
+  service     Service   @relation(fields: [serviceId], references: [id])
+  
+  quantity    Int       @default(1)
+  unitPrice   Float
+  totalPrice  Float
+  notes       String?
+  
+  @@index([bookingId])
+}
+
+// ============================================
+// PAYMENTS
+// ============================================
+
+enum PaymentType {
+  DEPOSIT
+  BALANCE
+  REFUND
+  TIP
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  bookingId         String
+  booking           Booking       @relation(fields: [bookingId], references: [id])
+  
+  type              PaymentType
+  status            PaymentStatus @default(PENDING)
+  amount            Float
+  currency          String        @default("USD")
+  
+  // Payment processor info
+  stripePaymentId   String?
+  stripeCustomerId  String?
+  
+  // Card info (last 4 only)
+  cardLast4         String?
+  cardBrand         String?
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  completedAt       DateTime?
+  
+  @@index([bookingId])
+  @@index([status])
+}
+
+// ============================================
+// REVIEWS
+// ============================================
+
+model Review {
+  id              String    @id @default(uuid())
+  bookingId       String    @unique
+  booking         Booking   @relation(fields: [bookingId], references: [id])
+  authorId        String
+  author          User      @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subjectId       String
+  subject         User      @relation("ReviewSubject", fields: [subjectId], references: [id])
+  
+  // Ratings (1-5)
+  overallRating   Float
+  foodQuality     Float?
+  presentation    Float?
+  punctuality     Float?
+  communication   Float?
+  valueForMoney   Float?
+  
+  // Content
+  title           String?
+  content         String    @db.Text
+  
+  // Photos
+  photoUrls       String[]
+  
+  // Provider response
+  providerResponse    String?     @db.Text
+  providerRespondedAt DateTime?
+  
+  // Moderation
+  isPublic        Boolean   @default(true)
+  isVerified      Boolean   @default(false)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([subjectId])
+  @@index([overallRating])
+  @@index([subjectId, isPublic])
+  @@index([isPublic, overallRating])
+}
+
+// ============================================
+// MESSAGING
+// ============================================
+
+model Conversation {
+  id            String    @id @default(uuid())
+  participants  String[]
+  lastMessageAt DateTime?
+  createdAt     DateTime  @default(now())
+  
+  messages      Message[]
+  
+  @@index([participants])
+}
+
+model Message {
+  id              String        @id @default(uuid())
+  conversationId  String
+  conversation    Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId        String
+  sender          User          @relation("MessageSender", fields: [senderId], references: [id])
+  recipientId     String
+  recipient       User          @relation("MessageRecipient", fields: [recipientId], references: [id])
+  
+  content         String        @db.Text
+  attachmentUrls  String[]
+  
+  isRead          Boolean       @default(false)
+  readAt          DateTime?
+  
+  createdAt       DateTime      @default(now())
+  
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([recipientId])
+  @@index([isRead])
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+enum NotificationType {
+  NEW_QUOTE
+  QUOTE_ACCEPTED
+  QUOTE_REJECTED
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  NEW_MESSAGE
+  NEW_REVIEW
+  REMINDER
+  SYSTEM
+}
+
+model Notification {
+  id          String            @id @default(uuid())
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type        NotificationType
+  title       String
+  message     String
+  data        Json?
+  
+  isRead      Boolean           @default(false)
+  readAt      DateTime?
+  
+  createdAt   DateTime          @default(now())
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// ============================================
+// FAVORITES
+// ============================================
+
+model Favorite {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  providerId  String
+  
+  createdAt   DateTime        @default(now())
+  
+  @@unique([userId, providerId])
+  @@index([userId])
+}
+
+// ============================================
+// AVAILABILITY
+// ============================================
+
+model Availability {
+  id          String          @id @default(uuid())
+  providerId  String
+  provider    ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  date        DateTime        @db.Date
+  isAvailable Boolean         @default(true)
+  notes       String?
+  
+  @@unique([providerId, date])
+  @@index([providerId])
+  @@index([date])
+}
+
+// ============================================
+// MENU ITEMS (for food providers)
+// ============================================
+
+model MenuItem {
+  id              String                  @id @default(uuid())
+  providerId      String
+  provider        ProviderProfile         @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  
+  // Basic info
+  name            String
+  description     String?                 @db.Text
+  category        String                  // e.g., "Appetizers", "Entrees", "Desserts", "Drinks"
+  
+  // Pricing
+  price           Float                   // Base/maximum price (for display)
+  pricingTiers    MenuItemPricingTier[]   // Quantity-based pricing tiers
+  
+  // Media
+  imageUrl        String?
+  
+  // Availability
+  isAvailable     Boolean                 @default(true)
+  displayOrder    Int                     @default(0)
+  
+  // Dietary information
+  allergens       String[]                // e.g., ["Nuts", "Dairy", "Gluten"]
+  dietaryInfo     String[]                // e.g., ["Vegetarian", "Vegan", "Gluten-Free"]
+  
+  // Timestamps
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  
+  @@index([providerId])
+  @@index([category])
+  @@index([isAvailable])
+}
+
+// Quantity-based pricing tiers for menu items
+model MenuItemPricingTier {
+  id              String    @id @default(uuid())
+  menuItemId      String
+  menuItem        MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  minQuantity     Int       // e.g., 1, 11, 51
+  maxQuantity     Int?      // e.g., 10, 50, null (unlimited)
+  pricePerUnit    Float     // e.g., $15, $12, $10
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([menuItemId])
+  @@index([minQuantity])
+}

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Sign In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+      --red: #B84040;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.75rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.1rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--dark);
+      text-decoration: none;
+    }
+    .logo .v { color: var(--gold); }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ── HEADING ── */
+    .heading {
+      text-align: center;
+      margin-bottom: 2.25rem;
+    }
+    .heading-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.55rem;
+    }
+    .heading-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 500;
+      color: var(--dark);
+      line-height: 1.1;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 2rem 1.75rem;
+    }
+
+    /* ── FORM ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.42rem;
+      margin-bottom: 1.1rem;
+    }
+    .form-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+    .input-wrap { position: relative; }
+    .form-input {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.84rem;
+      color: var(--dark);
+      background: var(--bg);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    }
+    .form-input.has-toggle { padding-right: 2.75rem; }
+    .form-input:focus {
+      border-color: var(--gold);
+      background: var(--white);
+      box-shadow: 0 0 0 3px rgba(196,160,106,0.11);
+    }
+    .form-input.error { border-color: var(--red); }
+    .form-input::placeholder { color: rgba(122,112,104,0.5); }
+
+    .eye-btn {
+      position: absolute;
+      right: 0.8rem; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; color: var(--muted);
+      display: flex; align-items: center;
+      padding: 0; transition: color 0.2s;
+    }
+    .eye-btn:hover { color: var(--charcoal); }
+    .eye-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Forgot password */
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: -0.5rem;
+      margin-bottom: 1.4rem;
+    }
+    .forgot-link {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--gold-dark); }
+
+    /* Error message */
+    .error-msg {
+      display: none;
+      font-size: 0.72rem;
+      color: var(--red);
+      font-weight: 500;
+      background: rgba(184,64,64,0.07);
+      border: 1px solid rgba(184,64,64,0.18);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      margin-bottom: 1.1rem;
+      line-height: 1.5;
+    }
+    .error-msg.show { display: block; }
+
+    /* Sign in button */
+    .btn-signin {
+      width: 100%;
+      padding: 0.95rem 2rem;
+      background: var(--dark);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+    }
+    .btn-signin:hover { background: var(--charcoal); transform: translateY(-1px); }
+    .btn-signin:active { transform: translateY(0); }
+    .btn-signin svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+    .btn-signin:hover svg { transform: translateX(3px); }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0 0;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--border); }
+    .divider-text { font-size: 0.65rem; color: var(--muted); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* Sign up link */
+    .signup-note {
+      text-align: center;
+      margin-top: 1.35rem;
+      font-size: 0.73rem;
+      color: var(--muted);
+    }
+    .signup-note a {
+      color: var(--gold-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .signup-note a:hover { text-decoration: underline; }
+
+    /* ── DEMO HINT ── */
+    .demo-hint {
+      margin-top: 1.75rem;
+      background: rgba(196,160,106,0.07);
+      border: 1px solid rgba(196,160,106,0.2);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .demo-hint-title {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      margin-bottom: 0.6rem;
+    }
+    .demo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(196,160,106,0.15);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .demo-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .demo-row:first-of-type { padding-top: 0; }
+    .demo-row:hover { opacity: 0.75; }
+    .demo-role {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .demo-email {
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: monospace;
+      letter-spacing: 0.02em;
+    }
+    .demo-use {
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .demo-row:hover .demo-use { opacity: 1; }
+
+    /* ── LOADING STATE ── */
+    .btn-signin.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+    .spinner {
+      display: none;
+      width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    .btn-signin.loading .spinner { display: block; }
+    .btn-signin.loading .btn-text { display: none; }
+    .btn-signin.loading svg { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header {
+        padding: 1.25rem 1.25rem;
+      }
+
+      .logo {
+        font-size: 1.7rem;
+      }
+
+      main {
+        padding: 2rem 1rem 3rem;
+        align-items: flex-start;
+      }
+
+      .wrap {
+        max-width: 100%;
+      }
+
+      .heading-title {
+        font-size: 2rem;
+      }
+
+      .card {
+        padding: 1.5rem 1.25rem 1.25rem;
+      }
+
+      .demo-row {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+      }
+
+      .demo-email {
+        font-size: 0.65rem;
+      }
+
+      .demo-use {
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .heading-title {
+        font-size: 1.7rem;
+      }
+
+      .modal {
+        border-radius: 10px;
+      }
+
+      .modal-footer {
+        flex-direction: column;
+      }
+
+      .btn-modal-cancel {
+        order: 2;
+      }
+    }
+
+    /* ── FORGOT PASSWORD MODAL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(26,23,20,0.42);
+      z-index: 100;
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.16);
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem 0;
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 600; color: var(--dark);
+    }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 0.2rem;
+      display: flex; align-items: center;
+      border-radius: 50%; transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--dark); }
+    .modal-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .modal-body { padding: 0.9rem 1.5rem 0; }
+    .modal-sub { font-size: 0.75rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+    .modal-footer { display: flex; gap: 0.6rem; padding: 1rem 1.5rem 1.5rem; }
+    .btn-modal-cancel {
+      padding: 0.7rem 1.1rem;
+      background: transparent; color: var(--charcoal);
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.72rem;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .btn-modal-cancel:hover { border-color: var(--gold); }
+    .btn-modal-send {
+      flex: 1; padding: 0.7rem 1rem;
+      background: var(--dark); color: var(--white);
+      border: none; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif; font-size: 0.72rem;
+      font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-modal-send:hover { background: var(--charcoal); }
+
+    /* Sent state */
+    .reset-sent {
+      display: none;
+      text-align: center;
+      padding: 1.5rem 1.5rem 2rem;
+    }
+    .reset-sent-icon {
+      font-size: 2rem; margin-bottom: 0.75rem;
+    }
+    .reset-sent-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 600; color: var(--dark);
+      margin-bottom: 0.4rem;
+    }
+    .reset-sent-sub { font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="#" class="logo">FEST<span class="v">V</span></a>
+  </header>
+
+  <!-- MAIN -->
+  <main>
+    <div class="wrap">
+
+      <div class="heading">
+        <div class="heading-label">Welcome Back</div>
+        <h1 class="heading-title">Sign in to FESTV</h1>
+      </div>
+
+      <div class="card">
+
+        <!-- Error -->
+        <div class="error-msg" id="errorMsg">
+          Incorrect email or password. Please try again.
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="emailInput" placeholder="you@email.com" autocomplete="email">
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrap">
+            <input class="form-input has-toggle" type="password" id="passwordInput" placeholder="Your password" autocomplete="current-password">
+            <button class="eye-btn" type="button" id="eyeBtn" aria-label="Show password">
+              <svg id="eyeIcon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Forgot password -->
+        <div class="forgot-row">
+          <a href="forgotpassword.html" class="forgot-link" id="forgotLink">Forgot Password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button class="btn-signin" id="btnSignIn">
+          <div class="spinner"></div>
+          <span class="btn-text">Sign In</span>
+          <svg viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4"/></svg>
+        </button>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">New to FESTV?</span>
+          <div class="divider-line"></div>
+        </div>
+
+      </div>
+
+      <p class="signup-note">
+        Don't have an account? <a href="accounttype.html">Sign Up</a>
+      </p>
+
+      <!-- Demo credentials -->
+      <div class="demo-hint">
+        <div class="demo-hint-title">Demo Accounts</div>
+        <div class="demo-row" data-email="planner@festv.co" data-pw="Demo1234">
+          <div class="demo-role">🗓️ Event Planner</div>
+          <div class="demo-email">planner@festv.co</div>
+          <span class="demo-use">Use →</span>
+        </div>
+        <div class="demo-row" data-email="vendor@festv.co" data-pw="Demo1234">
+          <div class="demo-role">✨ Vendor</div>
+          <div class="demo-email">vendor@festv.co</div>
+          <span class="demo-use">Use →</span>
+        </div>
+        <div class="demo-row" data-email="dj@festv.co" data-pw="Demo1234">
+          <div class="demo-role">🎧 DJ</div>
+          <div class="demo-email">dj@festv.co</div>
+          <span class="demo-use">Use →</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-backdrop" id="forgotModal">
+    <div class="modal">
+
+      <div id="forgotForm">
+        <div class="modal-header">
+          <div class="modal-title">Reset Password</div>
+          <button class="modal-close" id="closeForgot">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-sub">Enter your email and we'll send you a link to reset your password.</p>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">Email Address</label>
+            <input class="form-input" type="email" id="resetEmail" placeholder="you@email.com">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-modal-cancel" id="cancelForgot">Cancel</button>
+          <button class="btn-modal-send" id="btnSendReset">Send Reset Link</button>
+        </div>
+      </div>
+
+      <div class="reset-sent" id="resetSent">
+        <div class="reset-sent-icon">📬</div>
+        <div class="reset-sent-title">Check your inbox</div>
+        <p class="reset-sent-sub">We've sent a password reset link to your email. It may take a minute to arrive.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      var emailInput    = document.getElementById('emailInput');
+      var passwordInput = document.getElementById('passwordInput');
+      var btnSignIn     = document.getElementById('btnSignIn');
+      var errorMsg      = document.getElementById('errorMsg');
+      var eyeBtn        = document.getElementById('eyeBtn');
+
+      // Demo accounts (prefill only — real auth handled by API)
+      var accounts = {
+        'planner@festv.co': { pw: 'Demo1234' },
+        'vendor@festv.co':  { pw: 'Demo1234' },
+        'dj@festv.co':      { pw: 'Demo1234' }
+      };
+
+      // Password toggle
+      eyeBtn.addEventListener('click', function () {
+        var showing = passwordInput.type === 'text';
+        passwordInput.type = showing ? 'password' : 'text';
+        eyeBtn.style.opacity = showing ? '0.5' : '1';
+      });
+
+      // Prefill from demo rows
+      document.querySelectorAll('.demo-row').forEach(function (row) {
+        row.addEventListener('click', function () {
+          emailInput.value    = row.getAttribute('data-email');
+          passwordInput.value = row.getAttribute('data-pw');
+          errorMsg.classList.remove('show');
+          emailInput.classList.remove('error');
+          passwordInput.classList.remove('error');
+        });
+      });
+
+      // Clear error on input
+      [emailInput, passwordInput].forEach(function (el) {
+        el.addEventListener('input', function () {
+          errorMsg.classList.remove('show');
+          el.classList.remove('error');
+        });
+      });
+
+      // Allow Enter to submit
+      [emailInput, passwordInput].forEach(function (el) {
+        el.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') btnSignIn.click();
+        });
+      });
+
+      // Sign in
+      btnSignIn.addEventListener('click', function () {
+        var email = emailInput.value.trim().toLowerCase();
+        var pw    = passwordInput.value;
+
+        if (!email) { emailInput.focus(); return; }
+        if (!pw)    { passwordInput.focus(); return; }
+
+        btnSignIn.classList.add('loading');
+        errorMsg.classList.remove('show');
+        emailInput.classList.remove('error');
+        passwordInput.classList.remove('error');
+
+        fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: pw })
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          btnSignIn.classList.remove('loading');
+          var payload = data.data || data;
+          if (payload.accessToken) {
+            localStorage.setItem('accessToken', payload.accessToken);
+            localStorage.setItem('refreshToken', payload.refreshToken);
+            localStorage.setItem('user', JSON.stringify(payload.user));
+            var role = payload.user && payload.user.role;
+            if (role === 'ADMIN') {
+              window.location.href = 'admindashboard.html';
+            } else if (role === 'PROVIDER') {
+              window.location.href = 'djdashboard.html';
+            } else {
+              window.location.href = 'plannerdashboard.html';
+            }
+          } else {
+            showError(data.message || (data.error ? data.error : 'Incorrect email or password.'));
+          }
+        })
+        .catch(function () {
+          btnSignIn.classList.remove('loading');
+          showError('Unable to connect. Please try again.');
+        });
+      });
+
+      function showError(msg) {
+        errorMsg.textContent = msg || 'Incorrect email or password. Please try again.';
+        errorMsg.classList.add('show');
+        emailInput.classList.add('error');
+        passwordInput.classList.add('error');
+        passwordInput.value = '';
+        passwordInput.focus();
+      }
+
+      // ── Forgot Password ──
+      document.getElementById('forgotLink').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('resetEmail').value = emailInput.value;
+        document.getElementById('forgotForm').style.display = '';
+        document.getElementById('resetSent').style.display = 'none';
+        document.getElementById('forgotModal').classList.add('open');
+        setTimeout(function () { document.getElementById('resetEmail').focus(); }, 100);
+      });
+
+      function closeForgotModal() {
+        document.getElementById('forgotModal').classList.remove('open');
+      }
+
+      document.getElementById('closeForgot').addEventListener('click', closeForgotModal);
+      document.getElementById('cancelForgot').addEventListener('click', closeForgotModal);
+      document.getElementById('forgotModal').addEventListener('click', function (e) {
+        if (e.target === this) closeForgotModal();
+      });
+
+      document.getElementById('btnSendReset').addEventListener('click', function () {
+        var email = document.getElementById('resetEmail').value.trim();
+        if (!email) { document.getElementById('resetEmail').focus(); return; }
+        document.getElementById('forgotForm').style.display = 'none';
+        document.getElementById('resetSent').style.display = 'block';
+      });
+
+    });
+  </script>
+
+</body>
+</html>

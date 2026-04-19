@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Browse Vendors</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+      --green: #3A8A55;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--dark);
+      text-decoration: none;
+    }
+
+    .logo .v { color: var(--gold); }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .icon-btn:hover { color: var(--gold-dark); background: rgba(196,160,106,0.1); }
+
+    .icon-btn svg {
+      width: 22px; height: 22px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ── PAGE BANNER ── */
+    .page-banner {
+      background: var(--dark);
+      padding: 2.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .banner-left {}
+
+    .banner-eyebrow {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+
+    .banner-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.02em;
+    }
+
+    .banner-sub {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.3rem;
+    }
+
+    /* Search bar */
+    .search-wrap {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 3px;
+      padding: 0 1rem;
+      gap: 0.6rem;
+      min-width: 280px;
+    }
+
+    .search-wrap svg {
+      width: 16px; height: 16px;
+      stroke: rgba(255,255,255,0.4);
+      fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .search-wrap input {
+      background: none;
+      border: none;
+      outline: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      color: var(--white);
+      padding: 0.75rem 0;
+      width: 100%;
+    }
+
+    .search-wrap input::placeholder { color: rgba(255,255,255,0.35); }
+
+    /* ── LAYOUT ── */
+    .page-body {
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 2rem 4rem;
+    }
+
+    /* ── HORIZONTAL FILTER BAR ── */
+    .filters {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .filter-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Category pill toggles */
+    .cat-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .cat-pill {
+      position: relative;
+    }
+
+    .cat-pill input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0; height: 0;
+    }
+
+    .cat-pill label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+      background: var(--bg);
+    }
+
+    .cat-pill input:checked + label {
+      background: var(--dark);
+      color: var(--gold-light);
+      border-color: var(--dark);
+    }
+
+    .cat-pill label:hover {
+      border-color: var(--gold);
+      color: var(--gold-dark);
+    }
+
+    .cat-pill input:checked + label:hover {
+      background: var(--charcoal);
+      color: var(--gold-light);
+      border-color: var(--charcoal);
+    }
+
+    /* Availability date */
+    .avail-input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .avail-input:focus { border-color: var(--gold); }
+
+    /* Rating dropdown */
+    .rating-select {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--charcoal);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .rating-select:focus { border-color: var(--gold); }
+
+    .clear-btn {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--gold-dark);
+      background: none;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    .clear-btn:hover { text-decoration: underline; }
+
+    .mini-stars {
+      display: flex;
+      gap: 1px;
+    }
+
+    .mini-stars svg {
+      width: 11px; height: 11px;
+      fill: var(--gold); stroke: var(--gold);
+    }
+
+    /* ── RESULTS AREA ── */
+    .results-area {}
+
+    .results-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .results-count {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .results-count strong {
+      color: var(--dark);
+      font-weight: 700;
+    }
+
+    .sort-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .sort-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .sort-select {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.45rem 0.8rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      color: var(--charcoal);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Active filters */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .filter-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--dark);
+      color: var(--gold-light);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.28rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .filter-tag button {
+      background: none;
+      border: none;
+      color: rgba(217,191,140,0.6);
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .filter-tag button:hover { color: var(--gold-light); }
+
+    /* Vendor grid */
+    .vendor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .vendor-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(196,160,106,0.12);
+      border-color: var(--gold);
+    }
+
+    .card-img-wrap {
+      position: relative;
+      height: 170px;
+    }
+
+    .card-img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    .card-category {
+      position: absolute;
+      top: 0.75rem; left: 0.75rem;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: var(--dark);
+      color: var(--gold-light);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 0.75rem; right: 0.75rem;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .card-body {
+      padding: 1.1rem 1.2rem;
+    }
+
+    .card-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .card-location {
+      font-size: 0.73rem;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-location svg {
+      width: 11px; height: 11px;
+      stroke: var(--muted); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    .card-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .rating-val {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--charcoal);
+    }
+
+    .review-cnt {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .card-price {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold-dark);
+      margin-bottom: 1rem;
+    }
+
+    .card-price span {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .btn-profile {
+      flex: 1;
+      background: transparent;
+      color: var(--charcoal);
+      border: 1px solid var(--charcoal);
+      padding: 0.6rem 0.5rem;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .btn-profile:hover {
+      border-color: var(--gold);
+      color: var(--gold-dark);
+      background: rgba(196,160,106,0.06);
+    }
+
+    .btn-request {
+      flex: 1;
+      background: var(--dark);
+      color: var(--gold-light);
+      border: none;
+      padding: 0.6rem 0.5rem;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-request:hover { background: var(--gold-dark); color: var(--white); }
+
+    /* No results */
+    .no-results {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+      display: none;
+    }
+
+    .no-results-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+    .no-results h3 { font-size: 1rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.4rem; }
+    .no-results p { font-size: 0.85rem; line-height: 1.7; }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem 1.25rem;
+      }
+
+      .logo {
+        font-size: 1.6rem;
+      }
+
+      .page-banner {
+        padding: 1.5rem 1.25rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+
+      .search-wrap {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .banner-title {
+        font-size: 1.6rem;
+      }
+
+      .page-body {
+        padding: 1.25rem 1rem 3rem;
+      }
+
+      .filters {
+        padding: 0.85rem 1rem;
+        gap: 0.75rem;
+      }
+
+      .filter-divider {
+        display: none;
+      }
+
+      .filter-group {
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .cat-pills {
+        gap: 0.35rem;
+      }
+
+      .cat-pill label {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+      }
+
+      .vendor-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .results-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .btn-profile,
+      .btn-request {
+        width: 100%;
+        padding: 0.75rem;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cat-pills {
+        flex-wrap: wrap;
+      }
+
+      .vendor-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-icons">
+      <button class="icon-btn" title="Language">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </button>
+      <button class="icon-btn" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <div class="page-banner">
+    <div class="banner-left">
+      <div class="banner-eyebrow">Discover</div>
+      <div class="banner-title">Browse Vendors</div>
+      <div class="banner-sub">Find the perfect team for your next event</div>
+    </div>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="Search vendors by name...">
+    </div>
+  </div>
+
+  <!-- PAGE BODY -->
+  <div class="page-body">
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+      <!-- Category pills -->
+      <div class="filter-group">
+        <span class="filter-label">Category</span>
+        <div class="cat-pills">
+          <div class="cat-pill"><input type="checkbox" id="cat-venue" data-filter="category" value="Venue"><label for="cat-venue">🏛 Venue</label></div>
+          <div class="cat-pill"><input type="checkbox" id="cat-caterer" data-filter="category" value="Caterer"><label for="cat-caterer">🍽 Caterer</label></div>
+          <div class="cat-pill"><input type="checkbox" id="cat-dj" data-filter="category" value="DJ"><label for="cat-dj">🎧 DJ</label></div>
+          <div class="cat-pill"><input type="checkbox" id="cat-photographer" data-filter="category" value="Photographer"><label for="cat-photographer">📷 Photographer</label></div>
+          <div class="cat-pill"><input type="checkbox" id="cat-bar" data-filter="category" value="Bar"><label for="cat-bar">🍸 Bar</label></div>
+        </div>
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <!-- Availability -->
+      <div class="filter-group">
+        <span class="filter-label">Available</span>
+        <input type="date" id="availDate" class="avail-input">
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <!-- Minimum Rating -->
+      <div class="filter-group">
+        <span class="filter-label">Min Rating</span>
+        <select id="ratingSelect" class="rating-select">
+          <option value="0">Any Rating</option>
+          <option value="4">4.0 ★ & up</option>
+          <option value="4.5">4.5 ★ & up</option>
+          <option value="5">5.0 ★ only</option>
+        </select>
+      </div>
+
+      <button class="clear-btn" id="clearAll">Clear All</button>
+
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-area">
+
+      <div class="results-toolbar">
+        <div class="results-count" id="resultsCount"><strong>30</strong> vendors found</div>
+        <div class="sort-wrap">
+          <span class="sort-label">Sort:</span>
+          <select class="sort-select" id="sortSelect">
+            <option value="featured">Featured</option>
+            <option value="rating">Highest Rated</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="reviews">Most Reviews</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="active-filters" id="activeTags"></div>
+
+      <div class="vendor-grid" id="vendorGrid"></div>
+      <div class="no-results" id="noResults">
+        <div class="no-results-icon">🔍</div>
+        <h3>No vendors found</h3>
+        <p>Try adjusting your filters or search term to find more vendors.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Per-category price tiers: { value, label, min, max (null = no upper limit) }
+    const priceTiers = {
+      Venue: [
+        { value:'all',  label:'All Prices',         min:0,    max:null },
+        { value:'t1',   label:'Under $1,500',        min:0,    max:1499 },
+        { value:'t2',   label:'$1,500 – $3,000',     min:1500, max:3000 },
+        { value:'t3',   label:'$3,000 – $6,000',     min:3001, max:6000 },
+        { value:'t4',   label:'Over $6,000',         min:6001, max:null },
+      ],
+      Caterer: [
+        { value:'all',  label:'All Prices',          min:0,    max:null },
+        { value:'t1',   label:'Under $35/pp',        min:0,    max:34   },
+        { value:'t2',   label:'$35 – $60/pp',        min:35,   max:60   },
+        { value:'t3',   label:'Over $60/pp',         min:61,   max:null },
+      ],
+      DJ: [
+        { value:'all',  label:'All Prices',          min:0,    max:null },
+        { value:'t1',   label:'Under $700',          min:0,    max:699  },
+        { value:'t2',   label:'$700 – $1,000',       min:700,  max:1000 },
+        { value:'t3',   label:'Over $1,000',         min:1001, max:null },
+      ],
+      Photographer: [
+        { value:'all',  label:'All Prices',          min:0,    max:null },
+        { value:'t1',   label:'Under $1,200',        min:0,    max:1199 },
+        { value:'t2',   label:'$1,200 – $2,500',     min:1200, max:2500 },
+        { value:'t3',   label:'Over $2,500',         min:2501, max:null },
+      ],
+      Bar: [
+        { value:'all',  label:'All Prices',          min:0,    max:null },
+        { value:'t1',   label:'Under $15/pp',        min:0,    max:14   },
+        { value:'t2',   label:'$15 – $25/pp',        min:15,   max:25   },
+        { value:'t3',   label:'Over $25/pp',         min:26,   max:null },
+      ],
+      default: [
+        { value:'all',  label:'All Prices',          min:0,    max:null },
+      ]
+    };
+
+    function renderPriceOptions(cats) {
+      const wrap = document.getElementById('priceOptions');
+      if (!wrap) return;
+      const tiers = cats.length === 1 ? priceTiers[cats[0]] : priceTiers.default;
+      wrap.innerHTML = tiers.map((t, i) => `
+        <div class="price-opt">
+          <input type="radio" name="price" id="price-${i}" value="${t.value}" ${i === 0 ? 'checked' : ''} data-min="${t.min}" data-max="${t.max ?? ''}">
+          <label for="price-${i}">${t.label}</label>
+        </div>
+      `).join('');
+      wrap.querySelectorAll('[name="price"]').forEach(el => el.addEventListener('change', applyFilters));
+    }
+
+    const allVendors = [
+      // Venues
+      { id:1,  name:"The Rosewood Estate",   category:"Venue",        location:"Austin, TX",  rating:4.9, reviews:186, priceNum:3200, priceLabel:"From $3,200",  priceRange:"premium", img:"https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80", featured:true,  booked:["2026-05-17","2026-06-14","2026-07-04"] },
+      { id:2,  name:"The Skyline Loft",       category:"Venue",        location:"Austin, TX",  rating:4.7, reviews:112, priceNum:1800, priceLabel:"From $1,800",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80", featured:false, booked:["2026-05-24","2026-06-07"] },
+      { id:3,  name:"Maison Blanche Hall",    category:"Venue",        location:"Austin, TX",  rating:4.8, reviews:94,  priceNum:2500, priceLabel:"From $2,500",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", featured:false, booked:["2026-05-17","2026-08-09"] },
+      { id:4,  name:"The Garden Pavilion",    category:"Venue",        location:"Austin, TX",  rating:4.6, reviews:71,  priceNum:1200, priceLabel:"From $1,200",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80", featured:false, booked:["2026-06-04","2026-07-22"] },
+      { id:5,  name:"Ember Hall",             category:"Venue",        location:"Austin, TX",  rating:4.5, reviews:58,  priceNum:900,  priceLabel:"From $900",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&q=80", featured:false, booked:[] },
+      { id:6,  name:"The Grand Manor",        category:"Venue",        location:"Austin, TX",  rating:5.0, reviews:44,  priceNum:6500, priceLabel:"From $6,500",  priceRange:"luxury",  img:"https://images.unsplash.com/photo-1478146059778-26028b07395a?w=600&q=80", featured:false, booked:["2026-05-17","2026-06-04","2026-07-22"] },
+      // Caterers
+      { id:7,  name:"Harvest & Co.",          category:"Caterer",      location:"Austin, TX",  rating:4.9, reviews:143, priceNum:45,   priceLabel:"From $45/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80", featured:true,  booked:["2026-06-14","2026-08-09"] },
+      { id:8,  name:"The Seasonal Table",     category:"Caterer",      location:"Austin, TX",  rating:4.6, reviews:88,  priceNum:35,   priceLabel:"From $35/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1555244162-803834f70033?w=600&q=80", featured:false, booked:["2026-05-17"] },
+      { id:9,  name:"Luxe Bites Catering",    category:"Caterer",      location:"Austin, TX",  rating:4.8, reviews:120, priceNum:55,   priceLabel:"From $55/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80", featured:false, booked:["2026-07-04","2026-07-22"] },
+      { id:10, name:"Saveur Events",          category:"Caterer",      location:"Austin, TX",  rating:4.7, reviews:65,  priceNum:70,   priceLabel:"From $70/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80", featured:false, booked:[] },
+      { id:11, name:"The Plated Co.",         category:"Caterer",      location:"Austin, TX",  rating:4.5, reviews:52,  priceNum:30,   priceLabel:"From $30/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80", featured:false, booked:["2026-06-04"] },
+      { id:12, name:"Maison Cuisine",         category:"Caterer",      location:"Austin, TX",  rating:5.0, reviews:37,  priceNum:95,   priceLabel:"From $95/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=600&q=80", featured:false, booked:["2026-05-24","2026-08-09"] },
+      // DJs
+      { id:13, name:"DJ Maelo",              category:"DJ",           location:"Austin, TX",  rating:5.0, reviews:77,  priceNum:900,  priceLabel:"From $900",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80", featured:true,  booked:["2026-05-17","2026-07-22"] },
+      { id:14, name:"Vibe Soundworks",       category:"DJ",           location:"Austin, TX",  rating:4.7, reviews:54,  priceNum:700,  priceLabel:"From $700",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1571266028243-d220c6a8c252?w=600&q=80", featured:false, booked:["2026-06-04"] },
+      { id:15, name:"Neon Nights DJ Co.",    category:"DJ",           location:"Austin, TX",  rating:4.8, reviews:63,  priceNum:850,  priceLabel:"From $850",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80", featured:false, booked:[] },
+      { id:16, name:"SoundWave Events",      category:"DJ",           location:"Austin, TX",  rating:4.6, reviews:41,  priceNum:600,  priceLabel:"From $600",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80", featured:false, booked:["2026-08-09"] },
+      { id:17, name:"The Music House",       category:"DJ",           location:"Austin, TX",  rating:4.5, reviews:29,  priceNum:500,  priceLabel:"From $500",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1506157786151-b8491531f063?w=600&q=80", featured:false, booked:["2026-07-04"] },
+      { id:18, name:"Bass & Gold DJ",        category:"DJ",           location:"Austin, TX",  rating:4.9, reviews:88,  priceNum:1100, priceLabel:"From $1,100",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=600&q=80", featured:false, booked:["2026-05-17","2026-06-14"] },
+      // Photographers
+      { id:19, name:"Lucent Photo Studio",   category:"Photographer", location:"Austin, TX",  rating:4.9, reviews:201, priceNum:2200, priceLabel:"From $2,200",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80", featured:true,  booked:["2026-06-04","2026-07-22"] },
+      { id:20, name:"Golden Hour Co.",       category:"Photographer", location:"Austin, TX",  rating:4.8, reviews:139, priceNum:1800, priceLabel:"From $1,800",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80", featured:false, booked:["2026-05-17"] },
+      { id:21, name:"Frame & Light",         category:"Photographer", location:"Austin, TX",  rating:4.7, reviews:95,  priceNum:1500, priceLabel:"From $1,500",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600&q=80", featured:false, booked:[] },
+      { id:22, name:"Shutter & Soul",        category:"Photographer", location:"Austin, TX",  rating:4.6, reviews:74,  priceNum:1200, priceLabel:"From $1,200",  priceRange:"mid",     img:"https://images.unsplash.com/photo-1452587925148-ce544e77e70d?w=600&q=80", featured:false, booked:["2026-08-09"] },
+      { id:23, name:"Timeless Captures",     category:"Photographer", location:"Austin, TX",  rating:5.0, reviews:48,  priceNum:3500, priceLabel:"From $3,500",  priceRange:"premium", img:"https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80", featured:false, booked:["2026-05-24","2026-07-04"] },
+      { id:24, name:"Candid & Co.",          category:"Photographer", location:"Austin, TX",  rating:4.5, reviews:62,  priceNum:900,  priceLabel:"From $900",    priceRange:"budget",  img:"https://images.unsplash.com/photo-1471341971476-ae15ff5dd4ea?w=600&q=80", featured:false, booked:["2026-06-14"] },
+      // Bar
+      { id:25, name:"The Craft Bar Co.",     category:"Bar",          location:"Austin, TX",  rating:4.9, reviews:108, priceNum:18,   priceLabel:"From $18/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80", featured:true,  booked:["2026-05-17","2026-07-22"] },
+      { id:26, name:"Pour & Clink",          category:"Bar",          location:"Austin, TX",  rating:4.7, reviews:82,  priceNum:14,   priceLabel:"From $14/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80", featured:false, booked:["2026-06-04"] },
+      { id:27, name:"Sip Society Events",    category:"Bar",          location:"Austin, TX",  rating:4.8, reviews:67,  priceNum:20,   priceLabel:"From $20/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1543668189-8df3b1af7fa2?w=600&q=80", featured:false, booked:[] },
+      { id:28, name:"Barrel & Bloom",        category:"Bar",          location:"Austin, TX",  rating:4.6, reviews:55,  priceNum:25,   priceLabel:"From $25/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1574096079513-d8259312b785?w=600&q=80", featured:false, booked:["2026-08-09"] },
+      { id:29, name:"The Open Bar Co.",      category:"Bar",          location:"Austin, TX",  rating:4.5, reviews:43,  priceNum:12,   priceLabel:"From $12/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1536935338788-846bb9981813?w=600&q=80", featured:false, booked:["2026-07-04"] },
+      { id:30, name:"Mixology Masters",      category:"Bar",          location:"Austin, TX",  rating:5.0, reviews:31,  priceNum:35,   priceLabel:"From $35/pp",  priceRange:"budget",  img:"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", featured:false, booked:["2026-05-24","2026-06-14"] },
+    ];
+
+    function starHTML(rating) {
+      let html = '<div class="mini-stars">';
+      for (let i = 1; i <= 5; i++) {
+        const style = rating >= i
+          ? 'fill:#C4A06A;stroke:#C4A06A'
+          : 'fill:none;stroke:#D0C5B5';
+        html += `<svg viewBox="0 0 24 24" style="${style};width:11px;height:11px"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+      }
+      return html + '</div>';
+    }
+
+    function getFilters() {
+      const cats = [...document.querySelectorAll('[data-filter="category"]:checked')].map(c => c.value);
+      const priceEl = document.querySelector('[name="price"]:checked');
+      const priceVal = priceEl?.value || 'all';
+      const priceMin = priceEl ? parseFloat(priceEl.dataset.min || 0) : 0;
+      const priceMax = priceEl?.dataset.max ? parseFloat(priceEl.dataset.max) : null;
+      const rating = parseFloat(document.getElementById('ratingSelect')?.value || 0);
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sort   = document.getElementById('sortSelect').value;
+      const date   = document.getElementById('availDate').value;
+      return { cats, priceVal, priceMin, priceMax, rating, search, sort, date };
+    }
+
+    function applyFilters() {
+      const { cats, priceVal, priceMin, priceMax, rating, search, sort, date } = getFilters();
+
+      let filtered = allVendors.filter(v => {
+        if (cats.length && !cats.includes(v.category)) return false;
+        if (priceVal !== 'all') {
+          if (v.priceNum < priceMin) return false;
+          if (priceMax !== null && v.priceNum > priceMax) return false;
+        }
+        if (rating && v.rating < rating) return false;
+        if (search && !v.name.toLowerCase().includes(search)) return false;
+        if (date && v.booked.includes(date)) return false;
+        return true;
+      });
+
+      if (sort === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
+      else if (sort === 'price-low')  filtered.sort((a,b) => a.priceNum - b.priceNum);
+      else if (sort === 'price-high') filtered.sort((a,b) => b.priceNum - a.priceNum);
+      else if (sort === 'reviews')    filtered.sort((a,b) => b.reviews - a.reviews);
+      else filtered.sort((a,b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+
+      renderCards(filtered);
+      renderTags({ cats, rating, search, date });
+      document.getElementById('resultsCount').innerHTML = `<strong>${filtered.length}</strong> vendor${filtered.length !== 1 ? 's' : ''} found`;
+    }
+
+    function renderCards(vendors) {
+      const grid = document.getElementById('vendorGrid');
+      const noRes = document.getElementById('noResults');
+      if (!vendors.length) {
+        grid.innerHTML = '';
+        noRes.style.display = 'block';
+        return;
+      }
+      noRes.style.display = 'none';
+      grid.innerHTML = vendors.map(v => `
+        <div class="vendor-card">
+          <div class="card-img-wrap">
+            <img class="card-img" src="${v.img}" alt="${v.name}">
+            <span class="card-category">${v.category}</span>
+            ${v.featured ? '<span class="card-badge">Top Pick</span>' : ''}
+          </div>
+          <div class="card-body">
+            <div class="card-name">${v.name}</div>
+            <div class="card-location">
+              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${v.location}
+            </div>
+            <div class="card-rating">
+              ${starHTML(v.rating)}
+              <span class="rating-val">${v.rating || '–'}</span>
+              <span class="review-cnt">(${v.reviews} reviews)</span>
+            </div>
+            <div class="card-price">${v.priceLabel} <span>· ${v.priceRange === 'budget' ? '$' : v.priceRange === 'mid' ? '$$' : v.priceRange === 'premium' ? '$$$' : '$$$$'}</span></div>
+            <div class="card-actions">
+              <button class="btn-profile" onclick="window.location.href='vendorprofile.html?id=${v.id}'">View Profile</button>
+              <button class="btn-request">Request Service</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTags({ cats, rating, search, date }) {
+      const tagsEl = document.getElementById('activeTags');
+      tagsEl.innerHTML = '';
+      cats.forEach(c => {
+        tagsEl.innerHTML += `<div class="filter-tag">${c} <button onclick="removeTag('category','${c}')">✕</button></div>`;
+      });
+      const dateVal = document.getElementById('availDate').value;
+      if (dateVal) {
+        const formatted = new Date(dateVal + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+        tagsEl.innerHTML += `<div class="filter-tag">📅 ${formatted} <button onclick="removeTag('date','')">✕</button></div>`;
+      }
+      if (rating) {
+        tagsEl.innerHTML += `<div class="filter-tag">${rating}★ & up <button onclick="removeTag('rating','0')">✕</button></div>`;
+      }
+      if (search) {
+        tagsEl.innerHTML += `<div class="filter-tag">"${search}" <button onclick="clearSearch()">✕</button></div>`;
+      }
+    }
+
+    window.removeTag = function(type, value) {
+      if (type === 'category') {
+        const cb = [...document.querySelectorAll('[data-filter="category"]')].find(c => c.value === value);
+        if (cb) { cb.checked = false; renderPriceOptions([...document.querySelectorAll('[data-filter="category"]:checked')].map(c=>c.value)); }
+      } else if (type === 'price') {
+        document.getElementById('price-0').checked = true;
+      } else if (type === 'rating') {
+        document.getElementById('ratingSelect').value = '0';
+      } else if (type === 'date') {
+        document.getElementById('availDate').value = '';
+      }
+      applyFilters();
+    };
+
+    window.clearSearch = function() {
+      document.getElementById('searchInput').value = '';
+      applyFilters();
+    };
+
+    document.getElementById('clearAll').addEventListener('click', () => {
+      document.querySelectorAll('[data-filter="category"]').forEach(c => c.checked = false);
+      document.getElementById('ratingSelect').value = '0';
+      document.getElementById('availDate').value = '';
+      document.getElementById('searchInput').value = '';
+      renderPriceOptions([]);
+      applyFilters();
+    });
+
+    document.querySelectorAll('[data-filter="category"]').forEach(el => el.addEventListener('change', () => {
+      const cats = [...document.querySelectorAll('[data-filter="category"]:checked')].map(c => c.value);
+      renderPriceOptions(cats);
+      applyFilters();
+    }));
+
+    document.getElementById('ratingSelect').addEventListener('change', applyFilters);
+    document.getElementById('availDate').addEventListener('change', applyFilters);
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+    document.getElementById('sortSelect').addEventListener('change', applyFilters);
+
+    // Init price options and render with static data first
+    renderPriceOptions([]);
+    applyFilters();
+
+    // Then fetch real vendors from API and merge in
+    (function fetchRealVendors() {
+      const typeMap = { DJ:'DJ', PHOTOGRAPHER:'Photographer', CATERER:'Caterer', BARTENDER:'Bar', BARTENDER_COMPANY:'Bar', OTHER:'Venue', RENTAL_EQUIPMENT:'Venue', MUSICIAN:'DJ', VIDEOGRAPHER:'Photographer', FLORIST:'Venue', DECORATOR:'Venue', EVENT_PLANNER:'Venue' };
+      const fallbackImgs = {
+        DJ: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80',
+        Photographer: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80',
+        Caterer: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
+        Bar: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80',
+        Venue: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80',
+      };
+      fetch('/api/v1/providers/search')
+        .then(r => r.json())
+        .then(data => {
+          if (!data.success || !data.data || !data.data.length) return;
+          const realVendors = data.data.map(p => {
+            const category = typeMap[p.primaryType] || typeMap[p.providerTypes?.[0]] || 'Venue';
+            const priceNum  = p.minimumBudget || p.pricePerPerson || p.hourlyRate || 0;
+            const priceLabel = p.pricePerPerson ? `From $${p.pricePerPerson}/pp`
+                             : p.hourlyRate     ? `From $${p.hourlyRate}/hr`
+                             : `From $${(p.minimumBudget || 0).toLocaleString()}`;
+            return {
+              id:         p.id,
+              name:       p.businessName,
+              category,
+              location:   (p.serviceAreas && p.serviceAreas[0]) || 'Location TBD',
+              rating:     p.averageRating  || 0,
+              reviews:    p.totalReviews   || 0,
+              priceNum,
+              priceLabel,
+              priceRange: priceNum > 3000 ? 'luxury' : priceNum > 1500 ? 'premium' : priceNum > 500 ? 'mid' : 'budget',
+              img:        (p.user && p.user.avatarUrl) || p.bannerUrl || fallbackImgs[category] || fallbackImgs.Venue,
+              featured:   false,
+              booked:     [],
+            };
+          });
+          // Prepend real vendors before static placeholders
+          allVendors = [...realVendors, ...allVendors];
+          document.getElementById('resultsCount').innerHTML = `<strong>${allVendors.length}</strong> vendors found`;
+          applyFilters();
+        })
+        .catch(() => {});
+    })();
+  </script>
+
+</body>
+</html>

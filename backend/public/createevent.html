@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Create Event</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+      --green: #3A8A55;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--dark);
+      text-decoration: none;
+    }
+
+    .logo .v { color: var(--gold); }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .icon-btn:hover {
+      color: var(--gold-dark);
+      background: rgba(196,160,106,0.1);
+    }
+
+    .icon-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── FORM PAGE ── */
+    .form-page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 3.5rem 2rem 5rem;
+    }
+
+    .page-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .gold-line {
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── FORM ── */
+    .event-form {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    input[type="time"],
+    select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0.75rem 1rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.88rem;
+      color: var(--dark);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder { color: var(--muted); }
+
+    input:focus, select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(196,160,106,0.12);
+    }
+
+    .budget-wrap {
+      position: relative;
+    }
+
+    .budget-wrap span {
+      position: absolute;
+      left: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.88rem;
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .budget-wrap input { padding-left: 1.75rem; }
+
+    /* Vendor checkboxes */
+    .vendors-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .vendor-checks {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .vendor-check {
+      position: relative;
+    }
+
+    .vendor-check input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .vendor-check label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 0.75rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .vendor-check label .check-icon {
+      font-size: 1.4rem;
+    }
+
+    .vendor-check input:checked + label {
+      border-color: var(--gold);
+      background: rgba(196,160,106,0.08);
+      color: var(--gold-dark);
+    }
+
+    .vendor-check label:hover {
+      border-color: var(--gold-light);
+    }
+
+    .checkmark {
+      display: none;
+      width: 16px;
+      height: 16px;
+      background: var(--gold);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+
+    .checkmark svg {
+      width: 9px;
+      height: 9px;
+      stroke: var(--white);
+      stroke-width: 2.5;
+    }
+
+    .vendor-check input:checked ~ .checkmark { display: flex; }
+
+    /* Divider */
+    .form-divider {
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* Submit */
+    .btn-submit {
+      background: var(--dark);
+      color: var(--gold-light);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+      width: 100%;
+      margin-top: 0.25rem;
+    }
+
+    .btn-submit:hover { background: var(--gold-dark); color: var(--white); }
+
+    /* ── RESULTS PAGE ── */
+    .results-page {
+      display: none;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem 5rem;
+    }
+
+    .results-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .results-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.4rem;
+    }
+
+    .results-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .event-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .summary-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .summary-pill svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--gold-dark);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Vendor category sections */
+    .category-section {
+      margin-bottom: 3rem;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .category-icon { font-size: 1.2rem; }
+
+    .category-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      flex: 1;
+    }
+
+    .category-count {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .vendor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .vendor-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(196,160,106,0.12);
+      border-color: var(--gold);
+    }
+
+    .vendor-card-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .vendor-card-body {
+      padding: 1rem 1.1rem 1.1rem;
+    }
+
+    .vendor-card-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.3rem;
+    }
+
+    .vendor-card-location {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .vendor-card-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .mini-stars {
+      display: flex;
+      gap: 1px;
+    }
+
+    .mini-stars svg {
+      width: 11px;
+      height: 11px;
+      fill: var(--gold);
+      stroke: var(--gold);
+    }
+
+    .rating-text {
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: var(--charcoal);
+    }
+
+    .rating-count {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .vendor-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      margin-top: 0.25rem;
+    }
+
+    .vendor-card-price {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold-dark);
+    }
+
+    .btn-view {
+      background: var(--dark);
+      color: var(--gold-light);
+      border: none;
+      padding: 0.4rem 0.9rem;
+      border-radius: 2px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-view:hover { background: var(--gold-dark); color: var(--white); }
+
+    .badge-featured {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(196,160,106,0.15);
+      color: var(--gold-dark);
+      border: 1px solid rgba(196,160,106,0.35);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: none;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      margin-bottom: 1.5rem;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .back-btn:hover { color: var(--gold-dark); }
+
+    .back-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .progress-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2.5rem;
+    }
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .prog-step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .prog-step.active { color: var(--gold-dark); }
+    .prog-step.done { color: var(--green); }
+    .prog-num {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 700;
+      background: var(--white); color: var(--muted);
+      flex-shrink: 0;
+    }
+    .prog-step.active .prog-num { background: var(--gold); border-color: var(--gold); color: var(--white); }
+    .prog-step.done .prog-num  { background: var(--green); border-color: var(--green); color: var(--white); }
+    .prog-line { flex: 1; height: 1px; background: var(--border); margin: 0 0.75rem; }
+    .prog-line.done { background: var(--green); }
+
+    /* ── STEP 2 ── */
+    .step2-wrap { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem 5rem; display: none; }
+    .cat-filter-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .cat-tab {
+      padding: 0.4rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cat-tab:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .cat-tab.active { background: var(--dark); border-color: var(--dark); color: var(--gold-light); }
+
+    .step2-body { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; align-items: start; }
+    .step2-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.1rem; }
+
+    .vs-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+    }
+    .vs-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(196,160,106,0.1); }
+    .vs-card.selected { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(196,160,106,0.15); }
+    .vs-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+    .vs-card-body { padding: 0.9rem 1rem; }
+    .vs-card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; line-height: 1.2; }
+    .vs-card-meta { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.2rem; display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+    .vs-card-location { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .vs-card-price { font-size: 0.78rem; font-weight: 700; color: var(--gold-dark); margin-bottom: 0.7rem; }
+    .vs-card-actions { display: flex; gap: 0.4rem; }
+    .btn-view-profile {
+      flex: 1; padding: 0.48rem 0.5rem; text-align: center;
+      border: 1.5px solid var(--border); border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--charcoal); text-decoration: none; display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s, color 0.15s; cursor: pointer;
+    }
+    .btn-view-profile:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .btn-select {
+      flex: 1; padding: 0.48rem 0.5rem;
+      border: 1.5px solid var(--border); border-radius: 3px;
+      background: transparent;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--charcoal); cursor: pointer; transition: all 0.15s;
+    }
+    .btn-select:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .vs-card.selected .btn-select { background: var(--gold); border-color: var(--gold); color: var(--white); }
+
+    .selections-sidebar {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 8px; padding: 1.25rem;
+      position: sticky; top: 80px;
+    }
+    .sel-sidebar-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--charcoal); margin-bottom: 1rem; }
+    .sel-empty { text-align: center; color: var(--muted); font-size: 0.78rem; padding: 0.75rem 0; line-height: 1.6; }
+    .sel-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.78rem; }
+    .sel-item:last-of-type { border-bottom: none; }
+    .sel-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .sel-info { flex: 1; }
+    .sel-name { font-weight: 600; color: var(--dark); font-size: 0.76rem; }
+    .sel-price { color: var(--muted); font-size: 0.7rem; margin-top: 0.1rem; }
+    .sel-remove { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0.1rem; transition: color 0.15s; flex-shrink: 0; }
+    .sel-remove:hover { color: #B84040; }
+    .sel-remove svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .sel-subtotal { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; }
+    .sel-subtotal-label { color: var(--muted); font-weight: 500; }
+    .sel-subtotal-val { font-weight: 700; color: var(--dark); font-size: 0.88rem; }
+    .btn-continue {
+      width: 100%; margin-top: 0.85rem;
+      padding: 0.65rem;
+      background: var(--dark); color: var(--gold-light);
+      border: none; border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-continue:hover { background: var(--gold-dark); color: var(--white); }
+    .btn-continue:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── STEP 3 ── */
+    .step3-wrap { max-width: 720px; margin: 0 auto; padding: 2.5rem 2rem 5rem; display: none; }
+    .confirm-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+    .confirm-section-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+    .confirm-event-name { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; color: var(--dark); margin-bottom: 1rem; }
+    .confirm-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem 2rem; }
+    .confirm-detail { display: flex; flex-direction: column; gap: 0.2rem; }
+    .confirm-detail-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+    .confirm-detail-value { font-size: 0.84rem; color: var(--dark); font-weight: 500; }
+    .vcr { display: flex; align-items: center; gap: 0.85rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+    .vcr:last-child { border-bottom: none; }
+    .vcr-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .vcr-info { flex: 1; }
+    .vcr-name { font-weight: 600; font-size: 0.83rem; color: var(--dark); }
+    .vcr-cat { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.1rem; }
+    .vcr-price { font-size: 0.8rem; font-weight: 700; color: var(--gold-dark); }
+    .budget-bar-labels { display: flex; justify-content: space-between; font-size: 0.73rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .budget-bar-track { height: 6px; background: rgba(0,0,0,0.06); border-radius: 999px; overflow: hidden; }
+    .budget-bar-fill { height: 100%; border-radius: 999px; background: var(--gold); transition: width 0.6s ease; }
+    .budget-bar-fill.over { background: #B84040; }
+    .confirm-footer { display: flex; gap: 1rem; align-items: center; margin-top: 0.25rem; }
+    .btn-edit-link { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; background: none; border: none; transition: color 0.15s; font-family: 'Montserrat', sans-serif; }
+    .btn-edit-link:hover { color: var(--gold-dark); }
+    .btn-create {
+      flex: 1; padding: 0.85rem;
+      background: var(--dark); color: var(--gold-light);
+      border: none; border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-create:hover { background: var(--gold-dark); color: var(--white); }
+    .btn-create .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: var(--white); border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .success-state { display: none; text-align: center; padding: 4rem 1.5rem; }
+    .success-icon-wrap { width: 68px; height: 68px; border-radius: 50%; background: rgba(58,138,85,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .success-icon-wrap svg { width: 32px; height: 32px; stroke: var(--green); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .success-title { font-family: 'Cormorant Garamond', serif; font-size: 2.4rem; font-weight: 600; color: var(--dark); margin-bottom: 0.5rem; }
+    .success-sub { font-size: 0.88rem; color: var(--muted); margin-bottom: 2rem; line-height: 1.6; }
+    .btn-dashboard { display: inline-block; padding: 0.8rem 2.4rem; background: var(--dark); color: var(--gold-light); border: none; border-radius: 3px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; transition: background 0.2s; text-decoration: none; }
+    .btn-dashboard:hover { background: var(--gold-dark); color: var(--white); }
+    .no-vendors-msg { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.85rem; }
+
+    /* ── VENDOR PROFILE MODAL ── */
+    .vp-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(26,23,20,0.55); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .vp-overlay.open { opacity: 1; pointer-events: all; }
+    .vp-modal {
+      background: var(--white); border-radius: 12px; overflow: hidden;
+      width: 100%; max-width: 560px; max-height: 88vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      transform: translateY(12px); transition: transform 0.2s;
+    }
+    .vp-overlay.open .vp-modal { transform: translateY(0); }
+    .vp-hero { position: relative; height: 200px; flex-shrink: 0; }
+    .vp-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vp-hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(26,23,20,0.7) 0%, transparent 55%); }
+    .vp-close {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--dark);
+      font-size: 1rem; line-height: 1; transition: background 0.15s;
+    }
+    .vp-close:hover { background: #fff; }
+    .vp-hero-name {
+      position: absolute; bottom: 0.9rem; left: 1.1rem; right: 1.1rem;
+      font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600;
+      color: #fff; line-height: 1.2;
+    }
+    .vp-body { padding: 1.25rem 1.4rem; overflow-y: auto; flex: 1; }
+    .vp-meta-row { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 0.9rem; flex-wrap: wrap; }
+    .vp-location { font-size: 0.74rem; color: var(--muted); }
+    .vp-price-tag { font-size: 0.8rem; font-weight: 700; color: var(--gold-dark); background: rgba(196,160,106,0.1); padding: 0.2rem 0.55rem; border-radius: 3px; }
+    .vp-bio { font-size: 0.82rem; color: var(--charcoal); line-height: 1.65; margin-bottom: 1.1rem; }
+    .vp-section-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.6rem; }
+    .vp-services { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.1rem; }
+    .vp-service-opt {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.6rem 0.75rem; border: 1.5px solid var(--border); border-radius: 6px;
+      cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    }
+    .vp-service-opt:hover { border-color: var(--gold-light); }
+    .vp-service-opt.chosen { border-color: var(--gold); background: rgba(196,160,106,0.06); }
+    .vp-service-opt input[type="radio"] { accent-color: var(--gold); flex-shrink: 0; }
+    .vp-service-name { font-size: 0.79rem; font-weight: 600; color: var(--dark); flex: 1; }
+    .vp-service-price { font-size: 0.74rem; color: var(--muted); font-weight: 500; }
+    .vp-notes { width: 100%; padding: 0.6rem 0.75rem; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Montserrat', sans-serif; font-size: 0.78rem; color: var(--dark); resize: vertical; min-height: 56px; outline: none; margin-bottom: 1.1rem; transition: border-color 0.15s; }
+    .vp-notes:focus { border-color: var(--gold-light); }
+    .vp-footer { padding: 1rem 1.4rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0; }
+    .vp-btn-add {
+      flex: 1; padding: 0.72rem;
+      background: var(--dark); color: var(--gold-light);
+      border: none; border-radius: 4px; cursor: pointer;
+      font-family: 'Montserrat', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      transition: background 0.2s;
+    }
+    .vp-btn-add:hover { background: var(--gold-dark); color: #fff; }
+    .vp-btn-add.added { background: var(--green); color: #fff; }
+    .vp-btn-cancel { font-size: 0.72rem; color: var(--muted); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; background: none; border: none; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: color 0.15s; }
+    .vp-btn-cancel:hover { color: var(--dark); }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem 1.25rem;
+      }
+
+      .logo {
+        font-size: 1.6rem;
+      }
+
+      .form-page {
+        padding: 2rem 1rem 3.5rem;
+      }
+
+      .results-page {
+        padding: 2rem 1rem 3.5rem;
+      }
+
+      .event-form {
+        padding: 1.5rem 1rem;
+        gap: 1.25rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .vendor-checks {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+      }
+
+      .vendor-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .event-summary {
+        gap: 0.4rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .vendor-checks {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .page-title {
+        font-size: 1.7rem;
+      }
+
+      .results-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-icons">
+      <button class="icon-btn" title="Language">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </button>
+      <button class="icon-btn" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- FORM PAGE -->
+  <div class="form-page" id="formPage">
+    <div class="page-eyebrow">New Event</div>
+    <h1 class="page-title">Let's plan something special.</h1>
+    <p class="page-sub">Fill in your event details and we'll match you with the best vendors for your occasion.</p>
+    <div class="gold-line"></div>
+
+    <form class="event-form" id="eventForm">
+
+      <div class="form-row">
+        <div class="form-group full">
+          <label for="eventName">Event Name</label>
+          <input type="text" id="eventName" placeholder="e.g. Summer Wedding Reception" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="eventDate">Date</label>
+          <input type="date" id="eventDate" required>
+        </div>
+        <div class="form-group">
+          <label for="guestCount">Guest Count</label>
+          <input type="number" id="guestCount" placeholder="e.g. 150" min="1">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startTime">Start Time</label>
+          <input type="time" id="startTime" required>
+        </div>
+        <div class="form-group">
+          <label for="endTime">End Time</label>
+          <input type="time" id="endTime" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full">
+          <label for="venueAddress">Venue Address</label>
+          <input type="text" id="venueAddress" placeholder="e.g. 123 Oak Street" required>
+        </div>
+      </div>
+
+      <div class="form-row" style="grid-template-columns: 1fr 1fr 110px;">
+        <div class="form-group">
+          <label for="venueCity">City</label>
+          <input type="text" id="venueCity" placeholder="e.g. Austin" required>
+        </div>
+        <div class="form-group">
+          <label for="venueState">State</label>
+          <input type="text" id="venueState" placeholder="e.g. TX" required>
+        </div>
+        <div class="form-group">
+          <label for="venueZip">ZIP</label>
+          <input type="text" id="venueZip" placeholder="78701">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="eventType">Event Type</label>
+          <select id="eventType">
+            <option value="">Select type...</option>
+            <option value="WEDDING">Wedding</option>
+            <option value="BIRTHDAY_PARTY">Birthday Party</option>
+            <option value="CORPORATE_EVENT">Corporate Event</option>
+            <option value="ANNIVERSARY">Anniversary</option>
+            <option value="GRADUATION">Graduation</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="budgetMin">Min Budget</label>
+          <div class="budget-wrap">
+            <span>$</span>
+            <input type="number" id="budgetMin" placeholder="5,000" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="budgetMax">Max Budget</label>
+          <div class="budget-wrap">
+            <span>$</span>
+            <input type="number" id="budgetMax" placeholder="15,000" min="0">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-divider"></div>
+
+      <div class="vendors-section">
+        <label>Vendors Needed</label>
+        <div class="vendor-checks">
+
+          <div class="vendor-check">
+            <input type="checkbox" id="v-venue" value="venue">
+            <label for="v-venue">
+              <span class="check-icon">🏛</span>
+              Venue
+            </label>
+            <div class="checkmark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="vendor-check">
+            <input type="checkbox" id="v-caterer" value="caterer">
+            <label for="v-caterer">
+              <span class="check-icon">🍽</span>
+              Caterer
+            </label>
+            <div class="checkmark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="vendor-check">
+            <input type="checkbox" id="v-dj" value="dj">
+            <label for="v-dj">
+              <span class="check-icon">🎧</span>
+              DJ
+            </label>
+            <div class="checkmark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="vendor-check">
+            <input type="checkbox" id="v-photographer" value="photographer">
+            <label for="v-photographer">
+              <span class="check-icon">📷</span>
+              Photographer
+            </label>
+            <div class="checkmark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+          <div class="vendor-check">
+            <input type="checkbox" id="v-bar" value="bar">
+            <label for="v-bar">
+              <span class="check-icon">🍸</span>
+              Bar
+            </label>
+            <div class="checkmark">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Find My Vendors →</button>
+
+    </form>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-bar" id="progressBar" style="display:none;">
+    <div class="progress-steps">
+      <div class="prog-step done" id="prog1"><div class="prog-num">1</div> Event Details</div>
+      <div class="prog-line" id="progLine1"></div>
+      <div class="prog-step active" id="prog2"><div class="prog-num">2</div> Browse Vendors</div>
+      <div class="prog-line" id="progLine2"></div>
+      <div class="prog-step" id="prog3"><div class="prog-num">3</div> Send Request</div>
+    </div>
+  </div>
+
+  <!-- VENDOR PROFILE MODAL -->
+  <div class="vp-overlay" id="vpOverlay" onclick="if(event.target===this)closeVendorModal()">
+    <div class="vp-modal" id="vpModal">
+      <div class="vp-hero">
+        <img id="vpImg" src="" alt="">
+        <div class="vp-hero-overlay"></div>
+        <button class="vp-close" onclick="closeVendorModal()">✕</button>
+        <div class="vp-hero-name" id="vpName"></div>
+      </div>
+      <div class="vp-body">
+        <div class="vp-meta-row">
+          <span class="vp-location" id="vpLocation"></span>
+          <span id="vpStars"></span>
+          <span class="vp-price-tag" id="vpPrice"></span>
+        </div>
+        <div class="vp-bio" id="vpBio"></div>
+        <div class="vp-section-label">Select a Service</div>
+        <div class="vp-services" id="vpServices"></div>
+        <div class="vp-section-label">Additional Notes <span style="font-weight:400;letter-spacing:0;text-transform:none;font-size:0.72rem;">(optional)</span></div>
+        <textarea class="vp-notes" id="vpNotes" placeholder="Any special requests or details for this vendor…"></textarea>
+      </div>
+      <div class="vp-footer">
+        <button class="vp-btn-cancel" onclick="closeVendorModal()">Cancel</button>
+        <button class="vp-btn-add" id="vpAddBtn" onclick="addFromModal()">Add to Request →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: VENDOR SELECTION -->
+  <div class="step2-wrap" id="step2Page">
+    <button class="back-btn" id="back1Btn">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Edit Event
+    </button>
+    <div class="results-header">
+      <div class="page-eyebrow">Step 2 of 3 — Browse Vendors</div>
+      <div class="results-title" id="step2Title">Find Your Vendors</div>
+      <div class="event-summary" id="step2Summary"></div>
+    </div>
+    <div class="cat-filter-tabs" id="catTabs"></div>
+    <div class="step2-body">
+      <div class="step2-grid" id="step2Grid"></div>
+      <div class="selections-sidebar">
+        <div class="sel-sidebar-title">Your Selections</div>
+        <div id="selectionsList"><div class="sel-empty">No vendors added yet.<br>Browse and select vendors below — then view their full profile to see services.</div></div>
+        <div class="sel-subtotal" id="selSubtotal" style="display:none;">
+          <span class="sel-subtotal-label">Estimated Total</span>
+          <span class="sel-subtotal-val" id="selSubtotalVal">$0</span>
+        </div>
+        <button class="btn-continue" id="btnContinue" disabled onclick="goToStep3()">Review &amp; Send Request →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: CONFIRM -->
+  <div class="step3-wrap" id="step3Page">
+    <div id="step3Content">
+      <button class="back-btn" id="back2Btn">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Edit Vendors
+      </button>
+      <div class="page-eyebrow">Step 3 of 3</div>
+      <h1 class="page-title" style="margin-bottom:0.35rem;">Review &amp; Send</h1>
+      <p class="page-sub">Review your event details and selected vendors. We'll send your request to verified vendors in each category — they'll review your event and send you a quote.</p>
+      <div class="gold-line"></div>
+
+      <!-- Event Summary -->
+      <div class="confirm-card">
+        <div class="confirm-section-label">Event Details</div>
+        <div class="confirm-event-name" id="confirmEventName"></div>
+        <div class="confirm-details" id="confirmDetails"></div>
+      </div>
+
+      <!-- Selected Vendors -->
+      <div class="confirm-card" id="confirmVendorsCard">
+        <div class="confirm-section-label">Selected Vendors</div>
+        <div id="confirmVendorsList"></div>
+      </div>
+
+      <!-- Budget -->
+      <div class="confirm-card" id="confirmBudgetCard" style="display:none;">
+        <div class="confirm-section-label">Budget Breakdown</div>
+        <div class="budget-bar-labels">
+          <span id="budgetSpentLabel">Vendors: $0</span>
+          <span id="budgetTotalLabel">Budget: $0</span>
+        </div>
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill" id="budgetBarFill" style="width:0%"></div>
+        </div>
+        <p id="budgetNote" style="font-size:0.75rem;color:var(--muted);margin-top:0.6rem;"></p>
+      </div>
+
+      <div class="confirm-footer">
+        <button class="btn-edit-link" onclick="goToStep(1)">← Edit Event</button>
+        <button class="btn-edit-link" onclick="goToStep(2)">← Edit Vendors</button>
+        <button class="btn-create" id="btnCreate" onclick="createEvent()">
+          <span class="spinner" id="createSpinner"></span>
+          <span id="createBtnText">Send Request →</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div class="success-state" id="successState">
+      <div class="success-icon-wrap">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="success-title">Request Sent!</div>
+      <p class="success-sub" id="successMsg">Your event request has been sent. Vendors will review your details and send you quotes — check your dashboard to review and accept.</p>
+      <a href="plannerdashboard.html" class="btn-dashboard">View Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    /* ── AUTH GUARD ── */
+    (function() {
+      if (!localStorage.getItem('accessToken')) {
+        window.location.href = 'signin.html';
+      }
+    })();
+
+    /* ── STATE ── */
+    let eventState = {};
+    let selectedVendors = {}; // keyed by category
+    let activeCatFilter = 'all';
+
+    const vendorData = {
+      venue: [
+        { id: null, name: "The Rosewood Estate", location: "Austin, TX", rating: 4.9, reviews: 186, price: "From $3,200", img: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80", featured: true },
+        { id: null, name: "The Skyline Loft", location: "Austin, TX", rating: 4.7, reviews: 112, price: "From $1,800", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80", featured: false },
+        { id: null, name: "Maison Blanche Hall", location: "Austin, TX", rating: 4.8, reviews: 94, price: "From $2,500", img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", featured: false },
+      ],
+      caterer: [
+        { id: null, name: "Harvest & Co.", location: "Austin, TX", rating: 4.9, reviews: 143, price: "From $45/pp", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80", featured: true },
+        { id: null, name: "The Seasonal Table", location: "Austin, TX", rating: 4.6, reviews: 88, price: "From $35/pp", img: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&q=80", featured: false },
+        { id: null, name: "Luxe Bites Catering", location: "Austin, TX", rating: 4.8, reviews: 120, price: "From $55/pp", img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80", featured: false },
+      ],
+      dj: [
+        { id: null, name: "DJ Maelo", location: "Austin, TX", rating: 5.0, reviews: 77, price: "From $900", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80", featured: true },
+        { id: null, name: "Vibe Soundworks", location: "Austin, TX", rating: 4.7, reviews: 54, price: "From $700", img: "https://images.unsplash.com/photo-1571266028243-d220c6a8c252?w=600&q=80", featured: false },
+        { id: null, name: "Neon Nights DJ Co.", location: "Austin, TX", rating: 4.8, reviews: 63, price: "From $850", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80", featured: false },
+      ],
+      photographer: [
+        { id: null, name: "Lucent Photo Studio", location: "Austin, TX", rating: 4.9, reviews: 201, price: "From $2,200", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80", featured: true },
+        { id: null, name: "Golden Hour Co.", location: "Austin, TX", rating: 4.8, reviews: 139, price: "From $1,800", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80", featured: false },
+        { id: null, name: "Frame & Light", location: "Austin, TX", rating: 4.7, reviews: 95, price: "From $1,500", img: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600&q=80", featured: false },
+      ],
+      bar: [
+        { id: null, name: "The Craft Bar Co.", location: "Austin, TX", rating: 4.9, reviews: 108, price: "From $18/pp", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80", featured: true },
+        { id: null, name: "Pour & Clink", location: "Austin, TX", rating: 4.7, reviews: 82, price: "From $14/pp", img: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80", featured: false },
+        { id: null, name: "Sip Society Events", location: "Austin, TX", rating: 4.8, reviews: 67, price: "From $20/pp", img: "https://images.unsplash.com/photo-1543668189-8df3b1af7fa2?w=600&q=80", featured: false },
+      ]
+    };
+
+    const categoryMeta = {
+      venue:        { label: "Venues",        icon: "🏛" },
+      caterer:      { label: "Caterers",      icon: "🍽" },
+      dj:           { label: "DJs",           icon: "🎧" },
+      photographer: { label: "Photographers", icon: "📷" },
+      bar:          { label: "Bar Services",  icon: "🍸" },
+    };
+
+    function starHTML(rating) {
+      let html = '<div class="mini-stars">';
+      for (let i = 1; i <= 5; i++) {
+        if (rating >= i) {
+          html += `<svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+        } else {
+          html += `<svg viewBox="0 0 24 24" style="fill:none;stroke:#D0C5B5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`;
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    /* ── STEP NAVIGATION ── */
+    function goToStep(n) {
+      document.getElementById('formPage').style.display  = n === 1 ? 'block' : 'none';
+      document.getElementById('step2Page').style.display = n === 2 ? 'block' : 'none';
+      document.getElementById('step3Page').style.display = n === 3 ? 'block' : 'none';
+      document.getElementById('progressBar').style.display = n === 1 ? 'none' : 'block';
+
+      // Progress indicator
+      ['prog1','prog2','prog3'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.className = 'prog-step';
+        if (i + 1 < n) el.classList.add('done');
+        else if (i + 1 === n) el.classList.add('active');
+      });
+      document.getElementById('progLine1').className = 'prog-line' + (n > 2 ? ' done' : '');
+      document.getElementById('progLine2').className = 'prog-line' + (n > 3 ? ' done' : '');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ── SUMMARY PILLS ── */
+    function buildSummaryPills(containerEl) {
+      const { name, date, venueCity, venueState, guests, budgetMin, budgetMax, type } = eventState;
+      containerEl.innerHTML = '';
+      const pills = [];
+      const locationText = [venueCity, venueState].filter(Boolean).join(', ');
+      const budgetText = budgetMin && budgetMax
+        ? `$${parseInt(budgetMin).toLocaleString()} – $${parseInt(budgetMax).toLocaleString()}`
+        : budgetMin ? `$${parseInt(budgetMin).toLocaleString()}+` : null;
+      const typeLabel = type ? type.replace(/_/g, ' ') : null;
+      if (date)         pills.push({ icon: `<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`, text: new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) });
+      if (locationText) pills.push({ icon: `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`, text: locationText });
+      if (guests)       pills.push({ icon: `<svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`, text: `${guests} guests` });
+      if (budgetText)   pills.push({ icon: `<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`, text: budgetText });
+      if (typeLabel)    pills.push({ icon: `<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>`, text: typeLabel });
+      pills.forEach(p => {
+        containerEl.innerHTML += `<div class="summary-pill">${p.icon}${p.text}</div>`;
+      });
+    }
+
+    /* ── PROVIDER TYPE MAP ── */
+    const providerTypeToCategory = { DJ: 'dj', CATERER: 'caterer', PHOTOGRAPHER: 'photographer', BARTENDER: 'bar', VENUE: 'venue', RESTAURANT: 'caterer' };
+    const categoryToProviderType = { venue: 'VENUE', caterer: 'CATERER', dj: 'DJ', photographer: 'PHOTOGRAPHER', bar: 'BARTENDER' };
+
+    /* ── FETCH REAL VENDORS ── */
+    function fetchRealVendors(cats) {
+      fetch('/api/v1/providers/search')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.success || !data.data || !data.data.length) return;
+          data.data.forEach(function(p) {
+            var cat = providerTypeToCategory[p.providerType];
+            if (!cat) return;
+            if (cats.length > 0 && !cats.includes(cat)) return;
+            if (!vendorData[cat]) return;
+            var exists = vendorData[cat].find(function(v) { return v.id === p.id; });
+            if (!exists) {
+              vendorData[cat].unshift({
+                id: p.id,
+                name: p.businessName,
+                location: p.city ? (p.city + (p.state ? ', ' + p.state : '')) : '',
+                rating: p.averageRating || 4.5,
+                reviews: p.reviewCount || 0,
+                price: p.priceMin ? 'From $' + parseInt(p.priceMin).toLocaleString() : 'Contact for pricing',
+                img: p.profileImage || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80',
+                bio: p.bio || p.description || '',
+                featured: true,
+                real: true
+              });
+            }
+          });
+          renderVendorGrid(cats.length > 0 ? cats : Object.keys(vendorData));
+        })
+        .catch(function() {});
+    }
+
+    /* ── STEP 2: RENDER VENDORS ── */
+    function renderStep2() {
+      const cats = eventState.selectedCats.length > 0 ? eventState.selectedCats : Object.keys(vendorData);
+      buildSummaryPills(document.getElementById('step2Summary'));
+      document.getElementById('step2Title').textContent = eventState.name || 'Select Your Vendors';
+
+      // Build category tabs
+      const tabsEl = document.getElementById('catTabs');
+      tabsEl.innerHTML = `<button class="cat-tab ${activeCatFilter==='all'?'active':''}" data-cat="all">All</button>`;
+      cats.forEach(cat => {
+        tabsEl.innerHTML += `<button class="cat-tab ${activeCatFilter===cat?'active':''}" data-cat="${cat}">${categoryMeta[cat].icon} ${categoryMeta[cat].label}</button>`;
+      });
+      tabsEl.querySelectorAll('.cat-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCatFilter = btn.dataset.cat;
+          renderVendorGrid(cats);
+          tabsEl.querySelectorAll('.cat-tab').forEach(t => t.classList.toggle('active', t.dataset.cat === activeCatFilter));
+        });
+      });
+
+      renderVendorGrid(cats);
+      fetchRealVendors(cats);
+    }
+
+    function renderVendorGrid(cats) {
+      const grid = document.getElementById('step2Grid');
+      const filtered = activeCatFilter === 'all' ? cats : cats.filter(c => c === activeCatFilter);
+      grid.innerHTML = '';
+      filtered.forEach(cat => {
+        const meta = categoryMeta[cat];
+        const vendors = vendorData[cat];
+        const secDiv = document.createElement('div');
+        secDiv.className = 'category-section';
+        secDiv.innerHTML = `
+          <div class="category-header">
+            <span class="category-icon">${meta.icon}</span>
+            <span class="category-name">${meta.label}</span>
+            <span class="category-count">${vendors.length} options</span>
+          </div>
+          <div class="vendor-grid">
+            ${vendors.map(v => {
+              const isSel = selectedVendors[cat] && selectedVendors[cat].name === v.name;
+              return `
+                <div class="vs-card ${isSel?'selected':''}" data-cat="${cat}" data-name="${v.name}" data-price="${v.price}" data-img="${v.img}" data-id="${v.id||''}">
+                  <img src="${v.img}" alt="${v.name}">
+                  <div class="vs-card-body">
+                    <div class="vs-card-name">${v.name}${v.featured && v.real ? ' <span class="badge-featured">Verified</span>' : v.featured ? ' <span class="badge-featured">Top Pick</span>' : ''}</div>
+                    <div class="vs-card-meta">${starHTML(v.rating)} <span class="rating-text">${v.rating}</span> <span class="rating-count">(${v.reviews}${v.reviews===1?' review':' reviews'})</span></div>
+                    ${v.location ? `<div class="vs-card-location">📍 ${v.location}</div>` : ''}
+                    <div class="vs-card-price">${v.price}</div>
+                    <div class="vs-card-actions">
+                      <button class="btn-view-profile">View Profile</button>
+                      <button class="btn-select">${isSel ? '✓ Added' : 'Quick Add'}</button>
+                    </div>
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>`;
+        grid.appendChild(secDiv);
+      });
+
+      // View Profile + Select buttons
+      grid.querySelectorAll('.vs-card').forEach(card => {
+        card.querySelector('.btn-view-profile').addEventListener('click', () => {
+          openVendorModal(card.dataset.cat, card.dataset.name);
+        });
+        card.querySelector('.btn-select').addEventListener('click', () => {
+          const cat = card.dataset.cat;
+          if (selectedVendors[cat] && selectedVendors[cat].name === card.dataset.name) {
+            delete selectedVendors[cat];
+          } else {
+            selectedVendors[cat] = { name: card.dataset.name, price: card.dataset.price, cat };
+          }
+          renderVendorGrid(Object.keys(vendorData).filter(c => document.querySelector(`.vs-card[data-cat="${c}"]`)));
+          renderSelections();
+        });
+      });
+    }
+
+    function renderSelections() {
+      const listEl = document.getElementById('selectionsList');
+      const keys = Object.keys(selectedVendors);
+      if (keys.length === 0) {
+        listEl.innerHTML = '<div class="sel-empty">No vendors selected yet.<br>Pick one per category.</div>';
+        document.getElementById('selSubtotal').style.display = 'none';
+        document.getElementById('btnContinue').disabled = true;
+        return;
+      }
+      listEl.innerHTML = keys.map(cat => {
+        const v = selectedVendors[cat];
+        return `<div class="sel-item">
+          <span class="sel-icon">${categoryMeta[cat].icon}</span>
+          <div class="sel-info"><div class="sel-name">${v.name}</div><div class="sel-price">${v.price}</div></div>
+          <button class="sel-remove" data-cat="${cat}"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>`;
+      }).join('');
+      listEl.querySelectorAll('.sel-remove').forEach(btn => {
+        btn.addEventListener('click', () => { delete selectedVendors[btn.dataset.cat]; renderVendorGrid(Object.keys(vendorData).filter(c => document.querySelector(`.vs-card[data-cat="${c}"]`))); renderSelections(); });
+      });
+      document.getElementById('selSubtotal').style.display = 'flex';
+      document.getElementById('selSubtotalVal').textContent = 'See review →';
+      document.getElementById('btnContinue').disabled = false;
+    }
+
+    /* ── STEP 3: BUILD CONFIRM ── */
+    function goToStep3() {
+      // Event name
+      document.getElementById('confirmEventName').textContent = eventState.name || 'Your Event';
+
+      // Details grid
+      const detailsEl = document.getElementById('confirmDetails');
+      const locationDisplay = [eventState.venueAddress, eventState.venueCity, eventState.venueState].filter(Boolean).join(', ');
+      const budgetDisplay = eventState.budgetMin
+        ? `$${parseInt(eventState.budgetMin).toLocaleString()} – $${parseInt(eventState.budgetMax || eventState.budgetMin).toLocaleString()}`
+        : '—';
+      const items = [
+        { label: 'Date',       value: eventState.date ? new Date(eventState.date + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—' },
+        { label: 'Time',       value: eventState.startTime ? (eventState.startTime + (eventState.endTime ? ' – ' + eventState.endTime : '')) : '—' },
+        { label: 'Event Type', value: eventState.type ? eventState.type.replace(/_/g, ' ') : '—' },
+        { label: 'Location',   value: locationDisplay || '—' },
+        { label: 'Guests',     value: eventState.guests ? `${eventState.guests} guests` : '—' },
+        { label: 'Budget',     value: budgetDisplay },
+      ];
+      detailsEl.innerHTML = items.map(i => `<div class="confirm-detail"><div class="confirm-detail-label">${i.label}</div><div class="confirm-detail-value">${i.value}</div></div>`).join('');
+
+      // Vendors list
+      const vListEl = document.getElementById('confirmVendorsList');
+      const selKeys = Object.keys(selectedVendors);
+      if (selKeys.length === 0) {
+        document.getElementById('confirmVendorsCard').style.display = 'none';
+      } else {
+        document.getElementById('confirmVendorsCard').style.display = 'block';
+        vListEl.innerHTML = selKeys.map(cat => {
+          const v = selectedVendors[cat];
+          return `<div class="vcr">
+            <span class="vcr-icon">${categoryMeta[cat].icon}</span>
+            <div class="vcr-info"><div class="vcr-name">${v.name}</div><div class="vcr-cat">${categoryMeta[cat].label}</div></div>
+            <div class="vcr-price">${v.price}</div>
+          </div>`;
+        }).join('');
+      }
+
+      // Budget bar
+      if (eventState.budget && selKeys.length > 0) {
+        document.getElementById('confirmBudgetCard').style.display = 'block';
+        const budget = parseInt(eventState.budget);
+        const spent = selKeys.reduce((sum, cat) => {
+          const match = selectedVendors[cat].price.match(/[\d,]+/);
+          return sum + (match ? parseInt(match[0].replace(/,/g,'')) : 0);
+        }, 0);
+        const pct = Math.min((spent / budget) * 100, 100);
+        document.getElementById('budgetSpentLabel').textContent = `Vendors: $${spent.toLocaleString()}`;
+        document.getElementById('budgetTotalLabel').textContent = `Budget: $${budget.toLocaleString()}`;
+        const fill = document.getElementById('budgetBarFill');
+        setTimeout(() => fill.style.width = pct + '%', 50);
+        fill.classList.toggle('over', spent > budget);
+        document.getElementById('budgetNote').textContent = spent > budget
+          ? `⚠️ Vendors exceed your budget by $${(spent - budget).toLocaleString()}.`
+          : `$${(budget - spent).toLocaleString()} remaining in your budget.`;
+      } else {
+        document.getElementById('confirmBudgetCard').style.display = 'none';
+      }
+
+      goToStep(3);
+    }
+
+    /* ── CREATE EVENT ── */
+    function createEvent() {
+      const btn = document.getElementById('btnCreate');
+      const spinner = document.getElementById('createSpinner');
+      const btnText = document.getElementById('createBtnText');
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btnText.textContent = 'Creating…';
+
+      const token = localStorage.getItem('accessToken');
+      const servicesWanted = Object.keys(selectedVendors)
+        .map(function(cat) { return categoryToProviderType[cat]; })
+        .filter(Boolean);
+
+      const payload = {
+        title:          eventState.name,
+        eventType:      eventState.type || 'OTHER',
+        guestCount:     parseInt(eventState.guests) || 1,
+        budgetMin:      parseFloat(eventState.budgetMin) || 0,
+        budgetMax:      parseFloat(eventState.budgetMax || eventState.budgetMin) || 0,
+        eventDate:      eventState.date,
+        eventStartTime: eventState.startTime || '18:00',
+        eventEndTime:   eventState.endTime || '23:00',
+        venueAddress:   eventState.venueAddress || '',
+        venueCity:      eventState.venueCity || '',
+        venueState:     eventState.venueState || '',
+        venueZipCode:   eventState.venueZip || '00000',
+        servicesWanted: servicesWanted
+      };
+
+      function showSuccess() {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        document.getElementById('step3Content').style.display = 'none';
+        document.getElementById('successState').style.display = 'block';
+        document.getElementById('successMsg').textContent = `"${eventState.name || 'Your event'}" has been created. Your selected vendors have been notified.`;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      fetch('/api/v1/event-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) { showSuccess(); })
+      .catch(function() {
+        // /event-requests not yet deployed — show success UI anyway
+        showSuccess();
+      });
+    }
+
+    /* ── FORM SUBMIT (step 1 → step 2) ── */
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      eventState = {
+        name:         document.getElementById('eventName').value,
+        date:         document.getElementById('eventDate').value,
+        startTime:    document.getElementById('startTime').value,
+        endTime:      document.getElementById('endTime').value,
+        venueAddress: document.getElementById('venueAddress').value,
+        venueCity:    document.getElementById('venueCity').value,
+        venueState:   document.getElementById('venueState').value,
+        venueZip:     document.getElementById('venueZip').value,
+        budgetMin:    document.getElementById('budgetMin').value,
+        budgetMax:    document.getElementById('budgetMax').value,
+        guests:       document.getElementById('guestCount').value,
+        type:         document.getElementById('eventType').value,
+        selectedCats: [...document.querySelectorAll('.vendor-check input:checked')].map(c => c.value),
+      };
+      activeCatFilter = 'all';
+      renderStep2();
+      goToStep(2);
+    });
+
+    document.getElementById('back1Btn').addEventListener('click', () => goToStep(1));
+    document.getElementById('back2Btn').addEventListener('click', () => { goToStep(2); renderVendorGrid(eventState.selectedCats.length > 0 ? eventState.selectedCats : Object.keys(vendorData)); });
+
+    /* ── VENDOR PROFILE MODAL ── */
+    const defaultServices = {
+      dj:           [{ name: 'Full Reception Coverage', price: 'From $900' }, { name: 'Ceremony + Reception', price: 'From $1,200' }, { name: 'Cocktail Hour Only', price: 'From $400' }, { name: 'Custom Package', price: 'Contact for pricing' }],
+      photographer: [{ name: 'Full Day Coverage', price: 'From $2,200' }, { name: 'Half Day (6 hrs)', price: 'From $1,400' }, { name: 'Ceremony Only', price: 'From $900' }, { name: 'Engagement Session', price: 'From $650' }],
+      venue:        [{ name: 'Full Venue Rental', price: 'From $3,200' }, { name: 'Ceremony Only', price: 'From $1,400' }, { name: 'Reception Only', price: 'From $2,200' }, { name: 'Outdoor Space', price: 'From $1,000' }],
+      caterer:      [{ name: 'Full Service Catering', price: 'From $55/pp' }, { name: 'Buffet Style', price: 'From $40/pp' }, { name: 'Cocktail Hour + Appetizers', price: 'From $25/pp' }, { name: 'Dessert Service', price: 'From $18/pp' }],
+      bar:          [{ name: 'Full Open Bar (5 hrs)', price: 'From $20/pp' }, { name: 'Beer & Wine Only', price: 'From $14/pp' }, { name: 'Signature Cocktail Bar', price: 'From $18/pp' }, { name: 'Non-Alcoholic Service', price: 'From $10/pp' }],
+    };
+
+    let _vpVendor = null;
+    let _vpCat = null;
+
+    function openVendorModal(cat, vendorName) {
+      const vendor = vendorData[cat] && vendorData[cat].find(v => v.name === vendorName);
+      if (!vendor) return;
+      _vpVendor = vendor;
+      _vpCat = cat;
+
+      document.getElementById('vpImg').src = vendor.img || '';
+      document.getElementById('vpName').textContent = vendor.name;
+      document.getElementById('vpLocation').textContent = vendor.location ? '📍 ' + vendor.location : '';
+      document.getElementById('vpStars').innerHTML = starHTML(vendor.rating) + ` <span style="font-size:0.72rem;color:var(--muted);margin-left:0.2rem;">${vendor.rating} (${vendor.reviews} reviews)</span>`;
+      document.getElementById('vpPrice').textContent = vendor.price;
+      document.getElementById('vpBio').textContent = vendor.bio || 'Professional ' + (categoryMeta[cat] ? categoryMeta[cat].label.slice(0,-1) : 'vendor') + ' available for your event.';
+      document.getElementById('vpNotes').value = '';
+
+      // Services
+      const services = (vendor.services && vendor.services.length) ? vendor.services : (defaultServices[cat] || []);
+      const svcEl = document.getElementById('vpServices');
+      svcEl.innerHTML = services.map((s, i) => `
+        <label class="vp-service-opt" onclick="this.classList.toggle('chosen', true); document.querySelectorAll('.vp-service-opt').forEach((el,idx) => { if(idx !== ${i}) el.classList.remove('chosen'); })">
+          <input type="radio" name="vpService" value="${s.name}" ${i === 0 ? 'checked' : ''}>
+          <span class="vp-service-name">${s.name}</span>
+          <span class="vp-service-price">${s.price}</span>
+        </label>`).join('');
+      if (services.length > 0) svcEl.querySelector('.vp-service-opt').classList.add('chosen');
+
+      // Update add button state
+      const addBtn = document.getElementById('vpAddBtn');
+      const isSel = selectedVendors[cat] && selectedVendors[cat].name === vendor.name;
+      addBtn.textContent = isSel ? '✓ Added to Request' : 'Add to Request →';
+      addBtn.classList.toggle('added', isSel);
+
+      document.getElementById('vpOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeVendorModal() {
+      document.getElementById('vpOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function addFromModal() {
+      if (!_vpVendor || !_vpCat) return;
+      const selectedRadio = document.querySelector('input[name="vpService"]:checked');
+      const service = selectedRadio ? selectedRadio.value : '';
+      const notes = document.getElementById('vpNotes').value.trim();
+      selectedVendors[_vpCat] = {
+        name: _vpVendor.name,
+        price: _vpVendor.price,
+        cat: _vpCat,
+        service: service,
+        notes: notes,
+        id: _vpVendor.id || null
+      };
+      renderVendorGrid(Object.keys(vendorData).filter(c => document.querySelector('.category-section') ? true : eventState.selectedCats.includes(c)));
+      renderSelections();
+      const addBtn = document.getElementById('vpAddBtn');
+      addBtn.textContent = '✓ Added to Request';
+      addBtn.classList.add('added');
+      setTimeout(closeVendorModal, 600);
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+      --green: #3A8A55;
+      --green-bg: rgba(58,138,85,0.1);
+      --red: #B84040;
+      --red-bg: rgba(184,64,64,0.08);
+      --amber: #B8860B;
+      --amber-bg: rgba(184,134,11,0.1);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      background: var(--dark);
+      border-bottom: 1px solid rgba(196,160,106,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--white);
+      text-decoration: none;
+    }
+    .logo .v { color: var(--gold); }
+
+    .header-right { display: flex; align-items: center; gap: 1.25rem; }
+
+    .admin-badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: rgba(196,160,106,0.15);
+      color: var(--gold-light);
+      border: 1px solid rgba(196,160,106,0.3);
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+    .icon-btn:hover { color: var(--gold-light); background: rgba(196,160,106,0.1); }
+    .icon-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ── PAGE TITLE BAR ── */
+    .page-title-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .page-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--dark);
+      letter-spacing: 0.02em;
+    }
+
+    .page-subtitle {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    .btn-export {
+      background: var(--gold);
+      color: var(--dark);
+      border: none;
+      padding: 0.75rem 1.75rem;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-export:hover { background: var(--gold-light); }
+
+    /* ── KPI BAR ── */
+    .kpi-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kpi-item {
+      padding: 1.5rem 2rem;
+      border-right: 1px solid var(--border);
+    }
+    .kpi-item:last-child { border-right: none; }
+
+    .kpi-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .kpi-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--dark);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .kpi-change {
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+    .kpi-change.up { color: var(--green); }
+    .kpi-change.down { color: var(--red); }
+
+    /* ── MAIN LAYOUT ── */
+    .page-body {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 2rem;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 4rem;
+      align-items: start;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .card:last-child { margin-bottom: 0; }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+
+    .card-link {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--gold-dark);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .card-link:hover { text-decoration: underline; }
+
+    /* ── VERIFICATION LIST ── */
+    .verify-list { display: flex; flex-direction: column; gap: 0; }
+
+    .verify-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .verify-row:last-child { border-bottom: none; }
+
+    .verify-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold-dark);
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+
+    .verify-info { flex: 1; }
+    .verify-name { font-size: 0.87rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
+    .verify-meta { font-size: 0.72rem; color: var(--muted); }
+
+    .verify-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+    .btn-approve {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 3px;
+      border: none;
+      cursor: pointer;
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(58,138,85,0.25);
+      transition: background 0.2s;
+    }
+    .btn-approve:hover { background: rgba(58,138,85,0.2); }
+
+    .btn-review {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-review:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* ── CATEGORY BADGE ── */
+    .cat-badge {
+      display: inline-block;
+      font-size: 0.58rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(196,160,106,0.12);
+      color: var(--gold-dark);
+      border: 1px solid rgba(196,160,106,0.3);
+      margin-left: 0.4rem;
+    }
+
+    /* ── BOOKINGS TABLE ── */
+    .bookings-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .bookings-table th {
+      font-size: 0.63rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0.5rem 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .bookings-table td {
+      font-size: 0.82rem;
+      color: var(--charcoal);
+      padding: 0.75rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .bookings-table tr:last-child td { border-bottom: none; }
+    .bookings-table td.amount { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--dark); }
+
+    .status-pill {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .status-confirmed { background: var(--green-bg); color: var(--green); border: 1px solid rgba(58,138,85,0.25); }
+    .status-pending { background: rgba(196,160,106,0.12); color: var(--gold-dark); border: 1px solid rgba(196,160,106,0.3); }
+    .status-cancelled { background: var(--red-bg); color: var(--red); border: 1px solid rgba(184,64,64,0.2); }
+
+    /* ── FLAGGED ACCOUNTS ── */
+    .flagged-list { display: flex; flex-direction: column; gap: 0; }
+
+    .flagged-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .flagged-row:last-child { border-bottom: none; }
+
+    .flag-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 4px;
+      background: var(--red-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .flag-icon svg { width: 16px; height: 16px; stroke: var(--red); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+    .flagged-info { flex: 1; }
+    .flagged-name { font-size: 0.87rem; font-weight: 600; color: var(--dark); margin-bottom: 0.2rem; }
+    .flagged-reason { font-size: 0.72rem; color: var(--red); }
+
+    .btn-investigate {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.75rem;
+      border-radius: 3px;
+      border: 1px solid rgba(184,64,64,0.3);
+      cursor: pointer;
+      background: var(--red-bg);
+      color: var(--red);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-investigate:hover { background: rgba(184,64,64,0.15); }
+
+    /* ── ACTIVITY FEED ── */
+    .activity-list { display: flex; flex-direction: column; gap: 0; }
+
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .activity-item:last-child { border-bottom: none; }
+
+    .activity-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 0.35rem;
+    }
+    .dot-green { background: var(--green); }
+    .dot-gold { background: var(--gold); }
+    .dot-red { background: var(--red); }
+    .dot-muted { background: var(--muted); }
+
+    .activity-text { flex: 1; font-size: 0.82rem; color: var(--charcoal); line-height: 1.5; }
+    .activity-time { font-size: 0.68rem; color: var(--muted); flex-shrink: 0; margin-top: 0.1rem; }
+
+    /* ── ANALYTICS GRID (RIGHT COL) ── */
+    .analytics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .analytics-stat { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; }
+    .analytics-value { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--dark); line-height: 1; margin-bottom: 0.25rem; }
+    .analytics-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.35rem; }
+    .analytics-change { font-size: 0.68rem; font-weight: 600; }
+    .analytics-change.up { color: var(--green); }
+
+    /* ── VENDOR BREAKDOWN ── */
+    .breakdown-list { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .breakdown-label { font-size: 0.78rem; color: var(--charcoal); font-weight: 500; width: 100px; flex-shrink: 0; }
+    .breakdown-bar-track { flex: 1; height: 5px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+    .breakdown-bar-fill { height: 100%; background: var(--gold); border-radius: 999px; }
+    .breakdown-count { font-size: 0.75rem; font-weight: 700; color: var(--dark); width: 28px; text-align: right; flex-shrink: 0; }
+
+    /* ── QUICK ACTIONS ── */
+    .manage-list { display: flex; flex-direction: column; }
+    .manage-row { display: flex; align-items: center; gap: 0.85rem; padding: 0.9rem 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s, padding-left 0.15s; border-radius: 3px; }
+    .manage-row:last-child { border-bottom: none; }
+    .manage-row:hover { background: var(--bg); padding-left: 0.4rem; }
+    .manage-icon { width: 36px; height: 36px; border-radius: 4px; background: rgba(196,160,106,0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .manage-icon svg { width: 16px; height: 16px; stroke: var(--gold-dark); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .manage-info { flex: 1; }
+    .manage-title { font-size: 0.87rem; font-weight: 600; color: var(--dark); margin-bottom: 0.1rem; }
+    .manage-sub { font-size: 0.72rem; color: var(--muted); }
+    .manage-badge { background: var(--gold); color: var(--dark); font-size: 0.65rem; font-weight: 700; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .manage-chevron { width: 15px; height: 15px; stroke: var(--muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    /* ── SYSTEM HEALTH ── */
+    .health-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .health-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; }
+    .health-label { color: var(--charcoal); font-weight: 500; }
+    .health-status { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 600; }
+    .health-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .health-dot.green { background: var(--green); }
+    .health-dot.gold { background: var(--gold); }
+    .health-dot.red { background: var(--red); }
+    .status-ok { color: var(--green); }
+    .status-warn { color: var(--amber); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      .page-body { grid-template-columns: 1fr; }
+      .kpi-bar { grid-template-columns: repeat(2, 1fr); }
+      .kpi-item:nth-child(2) { border-right: none; }
+      .kpi-item:nth-child(1), .kpi-item:nth-child(2) { border-bottom: 1px solid var(--border); }
+      .page-title-bar { padding: 1.25rem 1.5rem; }
+      header { padding: 1rem 1.5rem; }
+    }
+
+    @media (max-width: 600px) {
+      .kpi-bar { grid-template-columns: 1fr 1fr; }
+      .page-body { padding: 1.5rem 1rem 3rem; }
+      .bookings-table th:nth-child(3),
+      .bookings-table td:nth-child(3) { display: none; }
+      .verify-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="/festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-right">
+      <span class="admin-badge">Admin</span>
+      <button class="icon-btn" title="Notifications">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="icon-btn" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- PAGE TITLE BAR -->
+  <div class="page-title-bar">
+    <div>
+      <div class="page-title">Admin Dashboard</div>
+      <div class="page-subtitle">Platform Monitor · Updated just now</div>
+    </div>
+    <button class="btn-export">Export Report</button>
+  </div>
+
+  <!-- KPI BAR -->
+  <div class="kpi-bar">
+    <div class="kpi-item">
+      <div class="kpi-label">Total Vendors</div>
+      <div class="kpi-value" id="kpiVendors">284</div>
+      <div class="kpi-change up">↑ 12% this month</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Total Bookings</div>
+      <div class="kpi-value" id="kpiBookings">1,247</div>
+      <div class="kpi-change up">↑ 28% this year</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Platform Revenue</div>
+      <div class="kpi-value" id="kpiRevenue">$48.2k</div>
+      <div class="kpi-change up">↑ 19% vs last mo</div>
+    </div>
+    <div class="kpi-item">
+      <div class="kpi-label">Active Events</div>
+      <div class="kpi-value" id="kpiEvents">63</div>
+      <div class="kpi-change up">↑ 7 this week</div>
+    </div>
+  </div>
+
+  <!-- PAGE BODY -->
+  <div class="page-body">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Pending Verifications -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" style="display:flex;align-items:center;">Pending Vendor Verifications<span id="pendingBadge" style="display:none;background:var(--gold);color:var(--dark);font-size:0.65rem;font-weight:700;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;margin-left:0.5rem;">0</span></div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="verify-list" id="verifyList">
+
+          <div class="verify-row">
+            <div class="verify-avatar">E</div>
+            <div class="verify-info">
+              <div class="verify-name">Eclipse Audio <span class="cat-badge">DJ</span></div>
+              <div class="verify-meta">Miami, FL · Submitted Apr 14, 2026</div>
+            </div>
+            <div class="verify-actions">
+              <button class="btn-approve">Approve</button>
+              <button class="btn-review">Review</button>
+            </div>
+          </div>
+
+          <div class="verify-row">
+            <div class="verify-avatar">V</div>
+            <div class="verify-info">
+              <div class="verify-name">Vivid Lens Co. <span class="cat-badge">Photographer</span></div>
+              <div class="verify-meta">Orlando, FL · Submitted Apr 13, 2026</div>
+            </div>
+            <div class="verify-actions">
+              <button class="btn-approve">Approve</button>
+              <button class="btn-review">Review</button>
+            </div>
+          </div>
+
+          <div class="verify-row">
+            <div class="verify-avatar">P</div>
+            <div class="verify-info">
+              <div class="verify-name">The Pearl Catering <span class="cat-badge">Caterer</span></div>
+              <div class="verify-meta">Tampa, FL · Submitted Apr 12, 2026</div>
+            </div>
+            <div class="verify-actions">
+              <button class="btn-approve">Approve</button>
+              <button class="btn-review">Review</button>
+            </div>
+          </div>
+
+          <div class="verify-row">
+            <div class="verify-avatar">S</div>
+            <div class="verify-info">
+              <div class="verify-name">Skyline Bar Co. <span class="cat-badge">Bartender</span></div>
+              <div class="verify-meta">Miami, FL · Submitted Apr 11, 2026</div>
+            </div>
+            <div class="verify-actions">
+              <button class="btn-approve">Approve</button>
+              <button class="btn-review">Review</button>
+            </div>
+          </div>
+
+          <div class="verify-row">
+            <div class="verify-avatar">A</div>
+            <div class="verify-info">
+              <div class="verify-name">Azure Venue Group <span class="cat-badge">Venue</span></div>
+              <div class="verify-meta">Fort Lauderdale, FL · Submitted Apr 10, 2026</div>
+            </div>
+            <div class="verify-actions">
+              <button class="btn-approve">Approve</button>
+              <button class="btn-review">Review</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Recent Bookings -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent Bookings</div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Client</th>
+              <th>Vendor</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Wedding Reception</td>
+              <td>Aaliyah Johnson</td>
+              <td>DJ Marcus Reid</td>
+              <td>Apr 19</td>
+              <td class="amount">$1,800</td>
+              <td><span class="status-pill status-confirmed">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Birthday Dinner</td>
+              <td>Devon Clarke</td>
+              <td>Maison Dorée</td>
+              <td>Apr 20</td>
+              <td class="amount">$9,320</td>
+              <td><span class="status-pill status-confirmed">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Corporate Gala</td>
+              <td>Tiffany Reyes</td>
+              <td>Élite Events</td>
+              <td>Apr 22</td>
+              <td class="amount">$14,200</td>
+              <td><span class="status-pill status-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>Engagement Party</td>
+              <td>Marcus Williams</td>
+              <td>Sophia Laurent</td>
+              <td>Apr 24</td>
+              <td class="amount">$650</td>
+              <td><span class="status-pill status-confirmed">Confirmed</span></td>
+            </tr>
+            <tr>
+              <td>Wedding Reception</td>
+              <td>Jasmine Torres</td>
+              <td>Remy Duval Bar Co.</td>
+              <td>Apr 26</td>
+              <td class="amount">$4,480</td>
+              <td><span class="status-pill status-pending">Pending</span></td>
+            </tr>
+            <tr>
+              <td>Private Party</td>
+              <td>Chris Fontaine</td>
+              <td>Skyline Events DJ</td>
+              <td>Apr 15</td>
+              <td class="amount">$900</td>
+              <td><span class="status-pill status-cancelled">Cancelled</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Flagged Accounts -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Flagged Accounts</div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="flagged-list">
+
+          <div class="flagged-row">
+            <div class="flag-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="flagged-info">
+              <div class="flagged-name">Neon Sound DJs</div>
+              <div class="flagged-reason">3 cancellations in 30 days</div>
+            </div>
+            <button class="btn-investigate">Investigate</button>
+          </div>
+
+          <div class="flagged-row">
+            <div class="flag-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="flagged-info">
+              <div class="flagged-name">Coastal Catering Co.</div>
+              <div class="flagged-reason">Payment dispute unresolved · 8 days</div>
+            </div>
+            <button class="btn-investigate">Investigate</button>
+          </div>
+
+          <div class="flagged-row">
+            <div class="flag-icon">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="flagged-info">
+              <div class="flagged-name">Premier Bar Services</div>
+              <div class="flagged-reason">Unverified license on file</div>
+            </div>
+            <button class="btn-investigate">Investigate</button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Platform Activity</div>
+          <a href="#" class="card-link">Full Log</a>
+        </div>
+        <div class="activity-list" id="activityList">
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text"><strong>New vendor signup</strong> — Vivid Lens Co. (Photographer, Orlando)</div>
+            <div class="activity-time">2m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-gold"></div>
+            <div class="activity-text"><strong>Booking confirmed</strong> — Aaliyah Johnson × DJ Marcus Reid · $1,800</div>
+            <div class="activity-time">14m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text"><strong>Review posted</strong> — 5★ for Sophia Laurent Photography by Marcus W.</div>
+            <div class="activity-time">31m ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-red"></div>
+            <div class="activity-text"><strong>Booking cancelled</strong> — Chris Fontaine × Skyline Events DJ · refund issued</div>
+            <div class="activity-time">1h ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text"><strong>Dispute resolved</strong> — Tiffany Reyes × Harbor Events · closed in client's favor</div>
+            <div class="activity-time">2h ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-gold"></div>
+            <div class="activity-text"><strong>New booking request</strong> — Jasmine Torres × Remy Duval Bar Co. · $4,480</div>
+            <div class="activity-time">3h ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-muted"></div>
+            <div class="activity-text"><strong>Vendor updated profile</strong> — Élite Events Catering added 4 new photos</div>
+            <div class="activity-time">4h ago</div>
+          </div>
+          <div class="activity-item">
+            <div class="activity-dot dot-green"></div>
+            <div class="activity-text"><strong>Vendor approved</strong> — Maison Dorée verified by admin</div>
+            <div class="activity-time">5h ago</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left-col -->
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- Platform Stats -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Platform Stats</div></div>
+        <div class="analytics-grid">
+          <div class="analytics-stat">
+            <div class="analytics-label">Vendors</div>
+            <div class="analytics-value">284</div>
+            <div class="analytics-change up">↑ 12%</div>
+          </div>
+          <div class="analytics-stat">
+            <div class="analytics-label">Clients</div>
+            <div class="analytics-value">1,847</div>
+            <div class="analytics-change up">↑ 34%</div>
+          </div>
+          <div class="analytics-stat">
+            <div class="analytics-label">Mo. Revenue</div>
+            <div class="analytics-value">$48k</div>
+            <div class="analytics-change up">↑ 19%</div>
+          </div>
+          <div class="analytics-stat">
+            <div class="analytics-label">Avg Booking</div>
+            <div class="analytics-value">$2.8k</div>
+            <div class="analytics-change up">↑ 8%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vendor Breakdown -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Vendor Breakdown</div></div>
+        <div class="breakdown-list" id="breakdownList">
+          <div class="breakdown-row">
+            <div class="breakdown-label">DJs</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:100%"></div></div>
+            <div class="breakdown-count">68</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Photographers</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:79%"></div></div>
+            <div class="breakdown-count">54</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Venues</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:62%"></div></div>
+            <div class="breakdown-count">42</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Caterers</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:56%"></div></div>
+            <div class="breakdown-count">38</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Bartenders</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:46%"></div></div>
+            <div class="breakdown-count">31</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Planners</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:41%"></div></div>
+            <div class="breakdown-count">28</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-label">Other</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:34%"></div></div>
+            <div class="breakdown-count">23</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Quick Actions</div></div>
+        <div class="manage-list">
+
+          <div class="manage-row">
+            <div class="manage-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+            </div>
+            <div class="manage-info">
+              <div class="manage-title">Send Announcement</div>
+              <div class="manage-sub">Notify all vendors or clients</div>
+            </div>
+            <svg class="manage-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+          <div class="manage-row">
+            <div class="manage-icon">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="manage-info">
+              <div class="manage-title">Featured Vendors</div>
+              <div class="manage-sub">Manage homepage placement</div>
+            </div>
+            <svg class="manage-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+          <div class="manage-row">
+            <div class="manage-icon">
+              <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="manage-info">
+              <div class="manage-title">Financial Reports</div>
+              <div class="manage-sub">Revenue, payouts, disputes</div>
+            </div>
+            <svg class="manage-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+          <div class="manage-row">
+            <div class="manage-icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="manage-info">
+              <div class="manage-title">Support Queue</div>
+              <div class="manage-sub">Open tickets from users</div>
+            </div>
+            <span class="manage-badge">7</span>
+            <svg class="manage-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+          <div class="manage-row" style="border-bottom:none;">
+            <div class="manage-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <div class="manage-info">
+              <div class="manage-title">Platform Settings</div>
+              <div class="manage-sub">Fees, policies, configurations</div>
+            </div>
+            <svg class="manage-chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- System Health -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">System Health</div></div>
+        <div class="health-list">
+          <div class="health-row">
+            <div class="health-label">API</div>
+            <div class="health-status">
+              <div class="health-dot green"></div>
+              <span class="status-ok">Operational</span>
+            </div>
+          </div>
+          <div class="health-row">
+            <div class="health-label">Payments</div>
+            <div class="health-status">
+              <div class="health-dot green"></div>
+              <span class="status-ok">Operational</span>
+            </div>
+          </div>
+          <div class="health-row">
+            <div class="health-label">Email Service</div>
+            <div class="health-status">
+              <div class="health-dot green"></div>
+              <span class="status-ok">Operational</span>
+            </div>
+          </div>
+          <div class="health-row">
+            <div class="health-label">Storage</div>
+            <div class="health-status">
+              <div class="health-dot gold"></div>
+              <span class="status-warn">68% used</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-col -->
+
+  </div><!-- /page-body -->
+
+
+<div id="rejectModal" style="display:none;position:fixed;inset:0;background:rgba(26,23,20,0.5);z-index:300;align-items:center;justify-content:center;padding:1.5rem;">
+  <div style="background:var(--white);border-radius:12px;padding:1.75rem;width:100%;max-width:420px;box-shadow:0 16px 48px rgba(0,0,0,0.2);">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--dark);margin-bottom:0.4rem;">Reject Vendor</div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">Provide a reason — this will be recorded and visible to the vendor.</p>
+    <textarea id="rejectReason" placeholder="e.g. Incomplete documentation, licence not verified..." style="width:100%;min-height:100px;font-family:'Montserrat',sans-serif;font-size:0.82rem;color:var(--dark);background:var(--bg);border:1.5px solid rgba(0,0,0,0.1);border-radius:8px;padding:0.75rem;outline:none;resize:vertical;"></textarea>
+    <div style="display:flex;gap:0.75rem;margin-top:1rem;">
+      <button onclick="closeRejectModal()" style="flex:1;padding:0.7rem;background:transparent;border:1.5px solid var(--border);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:0.72rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);cursor:pointer;">Cancel</button>
+      <button onclick="submitReject()" id="rejectSubmitBtn" style="flex:1;padding:0.7rem;background:var(--red,#B84040);border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--white);cursor:pointer;">Confirm Reject</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  var API = '/api/v1';
+  var pendingRejectId = null;
+  var pendingRejectRow = null;
+
+  // Auth guard
+  var token = localStorage.getItem('accessToken');
+  if (!token) { window.location.href = 'signin.html'; }
+
+  function authFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { 'Authorization': 'Bearer ' + token });
+    return fetch(url, opts);
+  }
+
+  // ── LOAD PENDING VENDORS ──
+  function loadPendingVendors() {
+    authFetch(API + '/admin/providers/pending')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.success || !res.data) return;
+        var list = res.data;
+        var el = document.getElementById('verifyList');
+        var badge = document.getElementById('pendingBadge');
+        if (badge) { badge.textContent = list.length; badge.style.display = list.length > 0 ? 'flex' : 'none'; }
+        if (list.length === 0) {
+          el.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem;">No pending verifications.</div>';
+          return;
+        }
+        el.innerHTML = list.map(function(p) {
+          var initials = (p.businessName || 'V').charAt(0).toUpperCase();
+          var type = p.primaryType || (p.providerTypes && p.providerTypes[0]) || 'Vendor';
+          var city = (p.user && p.user.city) ? p.user.city + ' · ' : '';
+          var submitted = p.createdAt ? new Date(p.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+          return '<div class="verify-row" id="vrow-' + p.id + '">' +
+            '<div class="verify-avatar">' + initials + '</div>' +
+            '<div class="verify-info">' +
+              '<div class="verify-name">' + (p.businessName || 'Unknown') + ' <span class="cat-badge">' + type + '</span></div>' +
+              '<div class="verify-meta">' + city + 'Submitted ' + submitted + '</div>' +
+            '</div>' +
+            '<div class="verify-actions">' +
+              '<button class="btn-approve" onclick="approveVendor(\'' + p.id + '\')">Approve</button>' +
+              '<button class="btn-review" onclick="openRejectModal(\'' + p.id + '\')">Reject</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      })
+      .catch(function(err) { console.error('Failed to load pending vendors', err); });
+  }
+
+  function approveVendor(id) {
+    var row = document.getElementById('vrow-' + id);
+    var btn = row && row.querySelector('.btn-approve');
+    if (btn) { btn.textContent = 'Approving…'; btn.disabled = true; }
+    authFetch(API + '/admin/providers/' + id + '/verify', { method: 'POST' })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.success && row) {
+          row.style.transition = 'opacity 0.3s';
+          row.style.opacity = '0';
+          setTimeout(function() { row.remove(); updatePendingBadge(); }, 300);
+          showToast('Vendor approved ✓');
+        } else {
+          if (btn) { btn.textContent = 'Approve'; btn.disabled = false; }
+          showToast('Error: ' + (res.error || 'Could not approve'));
+        }
+      })
+      .catch(function() { if (btn) { btn.textContent = 'Approve'; btn.disabled = false; } });
+  }
+
+  function openRejectModal(id) {
+    pendingRejectId = id;
+    document.getElementById('rejectReason').value = '';
+    var modal = document.getElementById('rejectModal');
+    modal.style.display = 'flex';
+    setTimeout(function() { document.getElementById('rejectReason').focus(); }, 100);
+  }
+
+  function closeRejectModal() {
+    document.getElementById('rejectModal').style.display = 'none';
+    pendingRejectId = null;
+  }
+
+  function submitReject() {
+    var reason = document.getElementById('rejectReason').value.trim();
+    if (!reason) { document.getElementById('rejectReason').focus(); return; }
+    if (!pendingRejectId) return;
+    var id = pendingRejectId;
+    var btn = document.getElementById('rejectSubmitBtn');
+    btn.textContent = 'Rejecting…'; btn.disabled = true;
+    authFetch(API + '/admin/providers/' + id + '/reject', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reason: reason })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      btn.textContent = 'Confirm Reject'; btn.disabled = false;
+      closeRejectModal();
+      var row = document.getElementById('vrow-' + id);
+      if (row) {
+        row.style.transition = 'opacity 0.3s';
+        row.style.opacity = '0';
+        setTimeout(function() { row.remove(); updatePendingBadge(); }, 300);
+      }
+      showToast('Vendor rejected');
+    })
+    .catch(function() { btn.textContent = 'Confirm Reject'; btn.disabled = false; });
+  }
+
+  function updatePendingBadge() {
+    var remaining = document.querySelectorAll('#verifyList .verify-row').length;
+    var badge = document.getElementById('pendingBadge');
+    if (badge) { badge.textContent = remaining; badge.style.display = remaining > 0 ? 'flex' : 'none'; }
+  }
+
+  // ── LOAD ACTIVITY ──
+  function loadActivity() {
+    authFetch(API + '/admin/events?limit=10')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.success || !res.data || !res.data.length) return;
+        var dotColors = { CREATE: 'dot-green', UPDATE: 'dot-gold', DELETE: 'dot-red', LOGIN: 'dot-muted' };
+        var el = document.getElementById('activityList');
+        el.innerHTML = res.data.slice(0, 10).map(function(ev) {
+          var dot = dotColors[ev.action] || 'dot-muted';
+          var time = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) : '';
+          return '<div class="activity-item">' +
+            '<div class="activity-dot ' + dot + '"></div>' +
+            '<div class="activity-text"><strong>' + (ev.model || 'Event') + '</strong> — ' + (ev.action || '') + (ev.data && ev.data.businessName ? ' · ' + ev.data.businessName : '') + '</div>' +
+            '<div class="activity-time">' + time + '</div>' +
+          '</div>';
+        }).join('');
+      })
+      .catch(function() {}); // silently fail, keep static activity
+  }
+
+  // ── LOAD ALL PROVIDERS FOR KPI + BREAKDOWN ──
+  function loadProviderStats() {
+    authFetch(API + '/admin/providers/all')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.success || !res.data) return;
+        var all = res.data;
+        var verified = all.filter(function(p) { return p.verificationStatus === 'VERIFIED'; });
+
+        // KPI
+        var kpiVendors = document.getElementById('kpiVendors');
+        if (kpiVendors) kpiVendors.textContent = verified.length;
+
+        // Breakdown by type
+        var counts = {};
+        verified.forEach(function(p) {
+          var t = p.primaryType || (p.providerTypes && p.providerTypes[0]) || 'Other';
+          counts[t] = (counts[t] || 0) + 1;
+        });
+        var max = Math.max.apply(null, Object.values(counts).concat([1]));
+        var labelMap = { DJ: 'DJs', CATERER: 'Caterers', PHOTOGRAPHER: 'Photographers', BARTENDER: 'Bartenders', VENUE: 'Venues', RESTAURANT: 'Restaurants', OTHER: 'Other' };
+        var sorted = Object.keys(counts).sort(function(a, b) { return counts[b] - counts[a]; });
+        var breakdownEl = document.getElementById('breakdownList');
+        if (breakdownEl && sorted.length) {
+          breakdownEl.innerHTML = sorted.map(function(t) {
+            var pct = Math.round((counts[t] / max) * 100);
+            return '<div class="breakdown-row">' +
+              '<div class="breakdown-label">' + (labelMap[t] || t) + '</div>' +
+              '<div class="breakdown-bar-track"><div class="breakdown-bar-fill" style="width:' + pct + '%"></div></div>' +
+              '<div class="breakdown-count">' + counts[t] + '</div>' +
+            '</div>';
+          }).join('');
+        }
+      })
+      .catch(function() {});
+  }
+
+  // ── LOAD EVENT REQUESTS FOR KPI ──
+  function loadEventRequestStats() {
+    authFetch(API + '/admin/event-requests')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.success || !res.data) return;
+        var all = res.data;
+        var active = all.filter(function(e) { return e.status === 'SUBMITTED' || e.status === 'ACTIVE'; });
+        var kpiEvents = document.getElementById('kpiEvents');
+        if (kpiEvents) kpiEvents.textContent = active.length;
+        var kpiBookings = document.getElementById('kpiBookings');
+        if (kpiBookings) kpiBookings.textContent = all.filter(function(e) { return e.booking; }).length;
+      })
+      .catch(function() {});
+  }
+
+  // ── TOAST ──
+  function showToast(msg) {
+    var t = document.getElementById('adminToast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'adminToast';
+      t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:var(--white);padding:0.75rem 1.4rem;border-radius:10px;font-size:0.78rem;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);opacity:0;transition:opacity 0.3s,transform 0.3s;z-index:400;pointer-events:none;white-space:nowrap;';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(function() { t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(20px)'; }, 3000);
+  }
+
+  // Close reject modal on backdrop click
+  document.getElementById('rejectModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRejectModal();
+  });
+
+  // Init
+  loadPendingVendors();
+  loadProviderStats();
+  loadActivity();
+  loadEventRequestStats();
+</script>
+
+</body>
+</html>

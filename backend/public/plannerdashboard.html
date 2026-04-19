@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FESTV — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C4A06A;
+      --gold-light: #D9BF8C;
+      --gold-dark: #9C7A45;
+      --bg: #F5F3EF;
+      --white: #FFFFFF;
+      --dark: #1A1714;
+      --charcoal: #3A3530;
+      --muted: #7A7068;
+      --border: rgba(0,0,0,0.09);
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--bg);
+      color: var(--dark);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2.5rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      color: var(--dark);
+      text-decoration: none;
+    }
+
+    .logo .v { color: var(--gold); }
+
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--charcoal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.4rem;
+      border-radius: 50%;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .icon-btn:hover {
+      color: var(--gold-dark);
+      background: rgba(196,160,106,0.1);
+    }
+
+    .icon-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── LAYOUT ── */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      gap: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+      align-items: start;
+    }
+
+    /* ── LEFT COLUMN ── */
+    .left-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Profile card */
+    .profile-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.75rem;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold-light);
+      flex-shrink: 0;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding-top: 0.2rem;
+    }
+
+    .profile-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--dark);
+      letter-spacing: 0.02em;
+    }
+
+    .stars {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .stars svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .star-filled { fill: var(--gold); stroke: var(--gold); }
+    .star-half   { fill: url(#halfGold); stroke: var(--gold); }
+    .star-empty  { fill: none; stroke: #D0C5B5; }
+
+    .rating-value {
+      font-weight: 600;
+      color: var(--charcoal);
+      font-size: 0.82rem;
+    }
+
+    .badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: nowrap;
+      margin-top: 0.25rem;
+    }
+
+    .badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.22rem 0.5rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .badge-gold {
+      background: rgba(196,160,106,0.15);
+      color: var(--gold-dark);
+      border: 1px solid rgba(196,160,106,0.35);
+    }
+
+    .badge-dark {
+      background: var(--dark);
+      color: var(--gold-light);
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--dark);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Guest list */
+    .guest-list-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem 1.75rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+    }
+
+    .card-link {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--gold-dark);
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .card-link:hover { text-decoration: underline; }
+
+    .guest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .guest-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .guest-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .guest-avatar-placeholder {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #E8E0D4, #D5C9BA);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      flex-shrink: 0;
+      border: 1.5px solid var(--border);
+    }
+
+    .guest-info { flex: 1; }
+
+    .guest-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .guest-meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.1rem;
+    }
+
+    .guest-status {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+    }
+
+    .status-going {
+      background: rgba(74,169,110,0.12);
+      color: #3A8A55;
+    }
+
+    .status-invited {
+      background: rgba(196,160,106,0.12);
+      color: var(--gold-dark);
+    }
+
+    /* ── RIGHT COLUMN ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    /* Action buttons */
+    .actions-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem 1.75rem;
+    }
+
+    .actions-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      margin-bottom: 1rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.8rem 1.5rem;
+      border-radius: 3px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-action svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .btn-plan {
+      background: var(--dark);
+      color: var(--gold-light);
+      border: none;
+    }
+
+    .btn-plan:hover {
+      background: var(--gold-dark);
+      color: var(--white);
+    }
+
+    .btn-browse {
+      background: transparent;
+      color: var(--charcoal);
+      border: 1px solid var(--charcoal);
+    }
+
+    .btn-browse:hover {
+      border-color: var(--gold);
+      color: var(--gold-dark);
+      background: rgba(196,160,106,0.06);
+    }
+
+    /* Upcoming events */
+    .events-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem 1.75rem;
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .event-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      background: var(--bg);
+    }
+
+    .event-item:hover {
+      border-color: var(--gold);
+      transform: translateX(3px);
+      box-shadow: 0 4px 16px rgba(196,160,106,0.1);
+    }
+
+    .event-date {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 42px;
+      background: var(--dark);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .event-month {
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .event-day {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .event-details { flex: 1; }
+
+    .event-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.15rem;
+    }
+
+    .event-meta {
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .event-meta span {
+      margin-right: 0.75rem;
+    }
+
+    .event-guests {
+      display: flex;
+      align-items: center;
+    }
+
+    .guest-pip {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      background: linear-gradient(135deg, #E8E0D4, #D5C9BA);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-left: -8px;
+    }
+
+    .guest-pip:first-child { margin-left: 0; }
+
+    .pip-more {
+      background: var(--dark);
+      color: var(--gold-light);
+      font-size: 0.58rem;
+    }
+
+    .chevron {
+      width: 16px;
+      height: 16px;
+      stroke: var(--muted);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.7;
+    }
+
+    .empty-state span {
+      display: block;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── EDIT MODE ── */
+    .profile-card { position: relative; }
+
+    .btn-edit-profile {
+      position: absolute;
+      top: 1.25rem; right: 1.25rem;
+      display: flex; align-items: center; gap: 0.4rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.38rem 0.75rem;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .btn-edit-profile:hover {
+      border-color: var(--gold); color: var(--gold-dark);
+      background: rgba(196,160,106,0.06);
+    }
+    .btn-edit-profile svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Avatar edit overlay */
+    .avatar-wrap { position: relative; flex-shrink: 0; cursor: default; }
+    .avatar-wrap.editable { cursor: pointer; }
+    .avatar-overlay {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: rgba(26,23,20,0.52);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .avatar-wrap.editable:hover .avatar-overlay { opacity: 1; }
+    .avatar-overlay svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .avatar-input { display: none; }
+
+    /* Profile fields */
+    .profile-field-view { display: block; }
+    .profile-field-edit { display: none; }
+
+    .edit-input, .edit-textarea {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; color: var(--dark);
+      background: var(--bg);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      width: 100%; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      margin-top: 0.15rem;
+    }
+    .edit-input:focus, .edit-textarea:focus {
+      border-color: var(--gold); background: var(--white);
+      box-shadow: 0 0 0 3px rgba(196,160,106,0.11);
+    }
+    .edit-input.name-input {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 600;
+    }
+    .edit-textarea { resize: vertical; min-height: 72px; line-height: 1.55; }
+    .edit-label {
+      font-size: 0.62rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-top: 0.75rem; display: block;
+    }
+
+    /* Edit row for contact fields */
+    .edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+
+    /* Bio read view */
+    .profile-bio {
+      font-size: 0.78rem; color: var(--muted);
+      line-height: 1.65; margin-top: 0.85rem;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    .profile-contact-row {
+      display: flex; gap: 1.25rem; flex-wrap: wrap;
+      margin-top: 0.65rem;
+    }
+    .profile-contact-item {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.74rem; color: var(--muted);
+    }
+    .profile-contact-item svg { width: 13px; height: 13px; stroke: var(--gold); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+    /* Save / Cancel bar */
+    .edit-actions {
+      display: none;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+      padding-top: 1.1rem;
+      border-top: 1px solid var(--border);
+    }
+    .btn-save {
+      flex: 1; padding: 0.65rem 1rem;
+      background: var(--dark); color: var(--white);
+      border: none; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-save:hover { background: var(--charcoal); }
+    .btn-cancel {
+      flex: 1; padding: 0.65rem 1rem;
+      background: transparent; color: var(--charcoal);
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-cancel:hover { border-color: var(--red, #B84040); color: #B84040; }
+
+    /* Edit mode active state */
+    body.edit-mode .profile-field-view { display: none; }
+    body.edit-mode .profile-field-edit { display: block; }
+    body.edit-mode .avatar-wrap { cursor: pointer; }
+    body.edit-mode .edit-actions { display: flex; }
+    body.edit-mode .btn-edit-profile { display: none; }
+
+    /* Divider */
+    .gold-divider {
+      width: 36px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    /* ── RECENT CONVOS ── */
+    .convos-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem 3rem;
+    }
+
+    .convos-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1.5rem 1.75rem;
+    }
+
+    .convo-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .convo-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.95rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      border-radius: 3px;
+    }
+
+    .convo-item:last-child { border-bottom: none; }
+
+    .convo-item:hover { background: var(--bg); padding-left: 0.5rem; }
+
+    .convo-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #E8E0D4, #D5C9BA);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      flex-shrink: 0;
+      border: 1.5px solid var(--border);
+      position: relative;
+    }
+
+    .convo-avatar.unread::after {
+      content: '';
+      width: 9px;
+      height: 9px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+
+    .convo-body { flex: 1; min-width: 0; }
+
+    .convo-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.2rem;
+    }
+
+    .convo-preview {
+      font-size: 0.78rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .convo-preview.bold {
+      color: var(--charcoal);
+      font-weight: 600;
+    }
+
+    .convo-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .convo-time {
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
+    }
+
+    .unread-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--white);
+      font-size: 0.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── GUEST LIST HEADER ACTIONS ── */
+    .card-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .btn-gl {
+      display: flex; align-items: center; gap: 0.3rem;
+      padding: 0.28rem 0.6rem;
+      border-radius: 5px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.63rem; font-weight: 700;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; border: 1px solid;
+      white-space: nowrap;
+    }
+    .btn-gl svg { width: 11px; height: 11px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    .btn-gl-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+    .btn-gl-ghost:hover { border-color: var(--gold); color: var(--gold-dark); background: rgba(196,160,106,0.06); }
+    .btn-gl-solid { background: var(--dark); color: var(--gold-light); border-color: var(--dark); }
+    .btn-gl-solid:hover { background: var(--charcoal); }
+
+    /* ── MODAL BACKDROP ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(26,23,20,0.45);
+      z-index: 200;
+      align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 14px;
+      width: 100%; max-width: 460px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      overflow: hidden;
+      animation: modalIn 0.22s ease;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 1.5rem 0;
+    }
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem; font-weight: 600; color: var(--dark);
+    }
+    .modal-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: 0.25rem;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: color 0.2s, background 0.2s;
+    }
+    .modal-close:hover { color: var(--dark); background: var(--bg); }
+    .modal-close svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+    .modal-body { padding: 1rem 1.5rem 1.5rem; }
+    .modal-sub {
+      font-size: 0.75rem; color: var(--muted);
+      line-height: 1.55; margin-bottom: 1.1rem;
+    }
+
+    /* Modal form elements */
+    .modal-input, .modal-select {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; color: var(--dark);
+      background: var(--bg);
+      border: 1.5px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 0.68rem 0.85rem;
+      width: 100%; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .modal-input:focus, .modal-select:focus {
+      border-color: var(--gold); background: var(--white);
+      box-shadow: 0 0 0 3px rgba(196,160,106,0.11);
+    }
+    .modal-input::placeholder { color: rgba(122,112,104,0.5); }
+    .modal-select { background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5l5 5 5-5' stroke='%237A7068' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.85rem center; padding-right: 2.5rem; cursor: pointer; }
+    .modal-label {
+      font-size: 0.65rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--charcoal); display: block; margin-bottom: 0.4rem;
+    }
+    .modal-field { margin-bottom: 1rem; }
+    .modal-field:last-of-type { margin-bottom: 0; }
+
+    /* Friend checkboxes */
+    .friend-list { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 1.25rem; }
+    .friend-check-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.6rem 0.65rem;
+      border-radius: 8px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .friend-check-row:hover { background: var(--bg); }
+    .friend-check-row input[type="checkbox"] { display: none; }
+    .friend-check-box {
+      width: 18px; height: 18px; border-radius: 5px;
+      border: 2px solid rgba(0,0,0,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.18s; background: var(--white);
+    }
+    .friend-check-row input:checked ~ .friend-check-box {
+      background: var(--gold); border-color: var(--gold);
+    }
+    .friend-check-row input:checked ~ .friend-check-box::after {
+      content: '';
+      width: 5px; height: 9px;
+      border: 2px solid white; border-top: none; border-left: none;
+      transform: rotate(45deg) translate(-1px, -1px);
+      display: block;
+    }
+    .friend-check-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, #E8E0D4, #D5C9BA);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68rem; font-weight: 700; color: var(--charcoal);
+      border: 1.5px solid var(--border); flex-shrink: 0;
+    }
+    .friend-check-info { flex: 1; }
+    .friend-check-name { font-size: 0.83rem; font-weight: 600; color: var(--dark); }
+    .friend-check-meta { font-size: 0.7rem; color: var(--muted); margin-top: 0.05rem; }
+
+    /* Modal step nav */
+    .modal-steps { display: flex; gap: 0.4rem; margin-bottom: 1.1rem; }
+    .modal-step-dot { width: 22px; height: 3px; border-radius: 2px; background: var(--border); transition: background 0.25s; }
+    .modal-step-dot.active { background: var(--gold); }
+    .modal-step-dot.done   { background: var(--gold-light); }
+
+    /* Modal footer */
+    .modal-footer {
+      display: flex; gap: 0.6rem;
+      padding: 0 1.5rem 1.5rem;
+    }
+    .btn-modal-primary {
+      flex: 1; padding: 0.75rem 1rem;
+      background: var(--dark); color: var(--white);
+      border: none; border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-modal-primary:hover { background: var(--charcoal); }
+    .btn-modal-secondary {
+      padding: 0.75rem 1rem;
+      background: transparent; color: var(--charcoal);
+      border: 1.5px solid var(--border); border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-modal-secondary:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* Success toast */
+    .toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--dark); color: var(--white);
+      padding: 0.75rem 1.4rem; border-radius: 10px;
+      font-size: 0.78rem; font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      z-index: 300; pointer-events: none; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── MOBILE RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem 1.25rem;
+      }
+
+      .logo {
+        font-size: 1.6rem;
+      }
+
+      .dashboard {
+        grid-template-columns: 1fr;
+        padding: 1.5rem 1rem;
+        gap: 1.25rem;
+      }
+
+      .profile-top {
+        gap: 0.85rem;
+      }
+
+      .avatar {
+        width: 64px;
+        height: 64px;
+      }
+
+      .profile-stats {
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .btn-action {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .card-header-actions {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+
+      .convos-section {
+        padding: 0 1rem 2rem;
+      }
+
+      .modal {
+        margin: 0 1rem;
+        max-width: calc(100% - 2rem);
+      }
+
+      .modal-footer {
+        flex-direction: column-reverse;
+      }
+
+      .btn-modal-secondary {
+        width: 100%;
+        text-align: center;
+      }
+
+      .event-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .event-meta span {
+        margin-right: 0;
+      }
+
+      .edit-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .badges {
+        flex-wrap: wrap;
+      }
+
+      .card-header-actions {
+        justify-content: flex-start;
+      }
+
+      .guest-status {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="festv-index.html" class="logo">FEST<span class="v">V</span></a>
+    <div class="header-icons">
+      <button class="icon-btn" title="Language">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </button>
+      <button class="icon-btn" title="Profile">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+
+    <!-- LEFT COLUMN -->
+    <div class="left-col">
+
+      <!-- Profile Card -->
+      <div class="profile-card" id="profileCard">
+
+        <!-- Edit Profile button (read mode only) -->
+        <button class="btn-edit-profile" id="btnEditProfile">
+          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit Profile
+        </button>
+
+        <div class="profile-top">
+
+          <!-- Avatar with edit overlay -->
+          <div class="avatar-wrap" id="avatarWrap">
+            <img class="avatar" id="avatarImg"
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80"
+              alt="Profile photo">
+            <div class="avatar-overlay">
+              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <input type="file" class="avatar-input" id="avatarInput" accept="image/*">
+          </div>
+
+          <div class="profile-info" style="flex:1;">
+
+            <!-- Name: read -->
+            <div class="profile-field-view profile-name" id="viewName">Isabelle Monroe</div>
+            <!-- Name: edit -->
+            <div class="profile-field-edit">
+              <input class="edit-input name-input" id="editName" type="text" value="Isabelle Monroe">
+            </div>
+
+            <!-- SVG defs for half star -->
+            <svg width="0" height="0" style="position:absolute">
+              <defs>
+                <linearGradient id="halfGold" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="50%" stop-color="#C4A06A"/>
+                  <stop offset="50%" stop-color="transparent"/>
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <div class="stars profile-field-view">
+              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <svg viewBox="0 0 24 24" class="star-half"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span class="rating-value">4.5 / 5</span>
+            </div>
+
+            <div class="badges profile-field-view">
+              <span class="badge badge-gold">Super Host</span>
+              <span class="badge badge-dark">Top Planner</span>
+            </div>
+
+            <!-- Contact (edit mode) -->
+            <div class="profile-field-edit">
+              <div style="margin-top:0.6rem;">
+                <label class="edit-label">City</label>
+                <input class="edit-input" id="editCity" type="text" value="Chicago, IL">
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bio read -->
+        <div class="profile-bio profile-field-view" id="viewBio">
+          Passionate event planner with 6+ years creating unforgettable experiences — from intimate dinners to large-scale galas. Based in Chicago.
+        </div>
+        <!-- Contact read -->
+        <div class="profile-contact-row profile-field-view" id="viewContact">
+          <span class="profile-contact-item">
+            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Chicago, IL
+          </span>
+        </div>
+
+        <!-- Bio edit -->
+        <div class="profile-field-edit" style="margin-top:0.75rem;">
+          <label class="edit-label">Bio</label>
+          <textarea class="edit-textarea" id="editBio">Passionate event planner with 6+ years creating unforgettable experiences — from intimate dinners to large-scale galas. Based in Chicago.</textarea>
+        </div>
+
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Events Planned</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">312</span>
+            <span class="stat-label">Guests Hosted</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="statFriends">8</span>
+            <span class="stat-label">Friends</span>
+          </div>
+        </div>
+
+        <!-- Save / Cancel -->
+        <div class="edit-actions" id="editActions">
+          <button class="btn-cancel" id="btnCancel">Cancel</button>
+          <button class="btn-save" id="btnSave">Save Changes</button>
+        </div>
+
+      </div>
+
+      <!-- Guest List -->
+      <div class="guest-list-card">
+        <div class="card-header">
+          <div class="card-title">Guest List</div>
+          <div class="card-header-actions">
+            <button class="btn-gl btn-gl-ghost" id="btnAddFriend">
+              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              Add Friend
+            </button>
+            <button class="btn-gl btn-gl-solid" id="btnCreateGuestlist">
+              <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Create Guestlist
+            </button>
+            <a href="#" class="card-link" style="margin-left:0.25rem;">View All</a>
+          </div>
+        </div>
+        <div class="guest-list">
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder">JR</div>
+            <div class="guest-info">
+              <div class="guest-name">Jordan Reed</div>
+              <div class="guest-meta">3 events together</div>
+            </div>
+            <span class="guest-status status-going">Going</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder">ML</div>
+            <div class="guest-info">
+              <div class="guest-name">Maya Lin</div>
+              <div class="guest-meta">7 events together</div>
+            </div>
+            <span class="guest-status status-going">Going</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder">CS</div>
+            <div class="guest-info">
+              <div class="guest-name">Carlos Soto</div>
+              <div class="guest-meta">1 event together</div>
+            </div>
+            <span class="guest-status status-invited">Invited</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder">PW</div>
+            <div class="guest-info">
+              <div class="guest-name">Priya Watts</div>
+              <div class="guest-meta">5 events together</div>
+            </div>
+            <span class="guest-status status-going">Going</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder">TN</div>
+            <div class="guest-info">
+              <div class="guest-name">Tyler Nash</div>
+              <div class="guest-meta">2 events together</div>
+            </div>
+            <span class="guest-status status-invited">Invited</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Completed Events -->
+      <div class="guest-list-card" style="margin-top:1.25rem;">
+        <div class="card-header">
+          <div class="card-title">Completed Events</div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div class="guest-list" id="completedEventsList">
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎉</div>
+            <div class="guest-info">
+              <div class="guest-name">Garden Anniversary Dinner</div>
+              <div class="guest-meta">March 22, 2026 · 48 guests</div>
+            </div>
+            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎶</div>
+            <div class="guest-info">
+              <div class="guest-name">Rooftop New Year's Eve</div>
+              <div class="guest-meta">Dec 31, 2025 · 120 guests</div>
+            </div>
+            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🥂</div>
+            <div class="guest-info">
+              <div class="guest-name">Bridal Shower Brunch</div>
+              <div class="guest-meta">Nov 9, 2025 · 30 guests</div>
+            </div>
+            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
+          </div>
+
+          <div class="guest-row">
+            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎂</div>
+            <div class="guest-info">
+              <div class="guest-name">50th Birthday Gala</div>
+              <div class="guest-meta">Oct 4, 2025 · 85 guests</div>
+            </div>
+            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="right-col">
+
+      <!-- Action Buttons -->
+      <div class="actions-card">
+        <div class="actions-title">Quick Actions</div>
+        <div class="action-buttons">
+          <button class="btn-action btn-plan" onclick="window.location.href='/createevent.html'">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            Plan Event
+          </button>
+          <button class="btn-action btn-browse" onclick="window.location.href='/browsevendors.html'">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Browse Vendors
+          </button>
+        </div>
+      </div>
+
+      <!-- Budget Tracker -->
+      <div class="events-card" id="budgetCard">
+        <div class="card-header">
+          <div class="card-title">Budget Tracker</div>
+          <button class="btn-gl btn-gl-ghost" id="btnAddBudget" style="font-size:0.63rem;">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            +$500
+          </button>
+        </div>
+        <div style="margin-bottom:0.5rem;">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.55rem;">
+            <span style="font-size:0.75rem;font-weight:600;color:var(--dark);">
+              <span id="budgetUsedLabel">$8,400</span> <span style="color:var(--muted);font-weight:400;">spent</span>
+            </span>
+            <span style="font-size:0.72rem;color:var(--muted);">of $15,000 budget</span>
+          </div>
+          <div style="height:8px;background:rgba(0,0,0,0.07);border-radius:999px;overflow:hidden;">
+            <div id="budgetBar" style="height:100%;background:var(--gold);border-radius:999px;transition:width 0.4s ease;width:56%;"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
+            <span style="font-size:0.65rem;color:var(--muted);" id="budgetPctLabel">56% used</span>
+            <span style="font-size:0.65rem;color:#3A8A55;font-weight:600;" id="budgetLeftLabel">$6,600 remaining</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Quotes -->
+      <div class="events-card" id="quotesCard" style="display:none;">
+        <div class="card-header">
+          <div class="card-title" style="display:flex;align-items:center;gap:0.5rem;">
+            Quotes Received
+            <span id="quotesBadge" style="display:none;background:var(--gold);color:var(--dark);font-size:0.6rem;font-weight:700;min-width:18px;height:18px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 0.35rem;"></span>
+          </div>
+          <a href="#" class="card-link" onclick="loadPendingQuotes(); return false;">Refresh</a>
+        </div>
+        <div id="quotesList" style="display:flex;flex-direction:column;"></div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="events-card" id="activityCard">
+        <div class="card-header">
+          <div class="card-title">Recent Activity</div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+        <div id="activityList" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="events-card">
+        <div class="card-header">
+          <div class="card-title">Upcoming Events</div>
+          <a href="#" class="card-link">View All</a>
+        </div>
+
+        <div class="event-list" id="upcomingEventsList">
+
+          <a href="#" class="event-item">
+            <div class="event-date">
+              <span class="event-month">May</span>
+              <span class="event-day">17</span>
+            </div>
+            <div class="event-details">
+              <div class="event-name">Rooftop Summer Soiree</div>
+              <div class="event-meta">
+                <span>&#128205; The Skyline Loft, Chicago</span>
+                <span>&#128336; 7:00 PM</span>
+              </div>
+            </div>
+            <div class="event-guests">
+              <div class="guest-pip">JR</div>
+              <div class="guest-pip">ML</div>
+              <div class="guest-pip">CS</div>
+              <div class="guest-pip pip-more">+12</div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+
+          <a href="#" class="event-item">
+            <div class="event-date">
+              <span class="event-month">Jun</span>
+              <span class="event-day">4</span>
+            </div>
+            <div class="event-details">
+              <div class="event-name">Anniversary Dinner</div>
+              <div class="event-meta">
+                <span>&#128205; Maison Noir, NYC</span>
+                <span>&#128336; 8:30 PM</span>
+              </div>
+            </div>
+            <div class="event-guests">
+              <div class="guest-pip">PW</div>
+              <div class="guest-pip">TN</div>
+              <div class="guest-pip pip-more">+4</div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+
+          <a href="#" class="event-item">
+            <div class="event-date">
+              <span class="event-month">Jul</span>
+              <span class="event-day">22</span>
+            </div>
+            <div class="event-details">
+              <div class="event-name">Garden Wedding Reception</div>
+              <div class="event-meta">
+                <span>&#128205; Rosewood Estate, Austin</span>
+                <span>&#128336; 4:00 PM</span>
+              </div>
+            </div>
+            <div class="event-guests">
+              <div class="guest-pip">JR</div>
+              <div class="guest-pip">ML</div>
+              <div class="guest-pip">PW</div>
+              <div class="guest-pip pip-more">+38</div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+
+          <a href="#" class="event-item">
+            <div class="event-date">
+              <span class="event-month">Aug</span>
+              <span class="event-day">9</span>
+            </div>
+            <div class="event-details">
+              <div class="event-name">Corporate Launch Party</div>
+              <div class="event-meta">
+                <span>&#128205; The Grand Hall, LA</span>
+                <span>&#128336; 6:00 PM</span>
+              </div>
+            </div>
+            <div class="event-guests">
+              <div class="guest-pip">CS</div>
+              <div class="guest-pip">TN</div>
+              <div class="guest-pip pip-more">+21</div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RECENT CONVERSATIONS -->
+  <div class="convos-section">
+    <div class="convos-card">
+      <div class="card-header">
+        <div class="card-title">Recent Conversations</div>
+        <a href="#" class="card-link">View All</a>
+      </div>
+      <div class="convo-list">
+
+        <div class="convo-item">
+          <div class="convo-avatar unread">JR</div>
+          <div class="convo-body">
+            <div class="convo-name">Jordan Reed</div>
+            <div class="convo-preview bold">Are we still on for the rooftop setup at 5?</div>
+          </div>
+          <div class="convo-right">
+            <span class="convo-time">2m ago</span>
+            <span class="unread-badge">2</span>
+          </div>
+        </div>
+
+        <div class="convo-item">
+          <div class="convo-avatar unread">ML</div>
+          <div class="convo-body">
+            <div class="convo-name">Maya Lin</div>
+            <div class="convo-preview bold">I sent over the catering confirmation!</div>
+          </div>
+          <div class="convo-right">
+            <span class="convo-time">18m ago</span>
+            <span class="unread-badge">1</span>
+          </div>
+        </div>
+
+        <div class="convo-item">
+          <div class="convo-avatar">CS</div>
+          <div class="convo-body">
+            <div class="convo-name">Carlos Soto</div>
+            <div class="convo-preview">Sounds good, I'll be there by 7!</div>
+          </div>
+          <div class="convo-right">
+            <span class="convo-time">1h ago</span>
+          </div>
+        </div>
+
+        <div class="convo-item">
+          <div class="convo-avatar">PW</div>
+          <div class="convo-body">
+            <div class="convo-name">Priya Watts</div>
+            <div class="convo-preview">Thanks for the invite, so excited!</div>
+          </div>
+          <div class="convo-right">
+            <span class="convo-time">3h ago</span>
+          </div>
+        </div>
+
+        <div class="convo-item">
+          <div class="convo-avatar">TN</div>
+          <div class="convo-body">
+            <div class="convo-name">Tyler Nash</div>
+            <div class="convo-preview">Can you send me the venue address again?</div>
+          </div>
+          <div class="convo-right">
+            <span class="convo-time">Yesterday</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADD FRIEND MODAL ── -->
+  <div class="modal-backdrop" id="addFriendModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Invite a Friend</div>
+        <button class="modal-close" data-close="addFriendModal">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-sub">Send them a FESTV invite link. They'll be added to your friends list once they join.</p>
+        <div class="modal-field">
+          <label class="modal-label">Email Address</label>
+          <input class="modal-input" id="inviteEmail" type="email" placeholder="friend@email.com">
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin:0.85rem 0;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+          <span style="font-size:0.65rem;color:var(--muted);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">or</span>
+          <div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <div class="modal-field">
+          <label class="modal-label">Phone Number</label>
+          <input class="modal-input" id="invitePhone" type="tel" placeholder="+1 (555) 000-0000">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-secondary" data-close="addFriendModal">Cancel</button>
+        <button class="btn-modal-primary" id="btnSendInvite">Send Invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CREATE GUESTLIST MODAL ── -->
+  <div class="modal-backdrop" id="createGuestlistModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <div class="modal-title" id="glModalTitle">New Guest List</div>
+        <button class="modal-close" data-close="createGuestlistModal">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-steps">
+          <div class="modal-step-dot active" id="glDot1"></div>
+          <div class="modal-step-dot" id="glDot2"></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div id="glStep1">
+          <div class="modal-field">
+            <label class="modal-label">Guest List Name</label>
+            <input class="modal-input" id="glName" type="text" placeholder="e.g. VIP Table, Wedding Party…">
+          </div>
+          <div class="modal-field">
+            <label class="modal-label">Event</label>
+            <select class="modal-select" id="glEvent">
+              <option value="" disabled selected>Select an event</option>
+              <option>Rooftop Summer Soiree — May 17</option>
+              <option>Anniversary Dinner — Jun 4</option>
+              <option>Garden Wedding Reception — Jul 22</option>
+              <option>Corporate Launch Party — Aug 9</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div id="glStep2" style="display:none;">
+          <p class="modal-sub" style="margin-bottom:0.9rem;">Select friends to add to this guest list.</p>
+          <div class="friend-list">
+            <label class="friend-check-row">
+              <input type="checkbox" value="Jordan Reed">
+              <div class="friend-check-box"></div>
+              <div class="friend-check-avatar">JR</div>
+              <div class="friend-check-info">
+                <div class="friend-check-name">Jordan Reed</div>
+                <div class="friend-check-meta">3 events together</div>
+              </div>
+            </label>
+            <label class="friend-check-row">
+              <input type="checkbox" value="Maya Lin">
+              <div class="friend-check-box"></div>
+              <div class="friend-check-avatar">ML</div>
+              <div class="friend-check-info">
+                <div class="friend-check-name">Maya Lin</div>
+                <div class="friend-check-meta">7 events together</div>
+              </div>
+            </label>
+            <label class="friend-check-row">
+              <input type="checkbox" value="Carlos Soto">
+              <div class="friend-check-box"></div>
+              <div class="friend-check-avatar">CS</div>
+              <div class="friend-check-info">
+                <div class="friend-check-name">Carlos Soto</div>
+                <div class="friend-check-meta">1 event together</div>
+              </div>
+            </label>
+            <label class="friend-check-row">
+              <input type="checkbox" value="Priya Watts">
+              <div class="friend-check-box"></div>
+              <div class="friend-check-avatar">PW</div>
+              <div class="friend-check-info">
+                <div class="friend-check-name">Priya Watts</div>
+                <div class="friend-check-meta">5 events together</div>
+              </div>
+            </label>
+            <label class="friend-check-row">
+              <input type="checkbox" value="Tyler Nash">
+              <div class="friend-check-box"></div>
+              <div class="friend-check-avatar">TN</div>
+              <div class="friend-check-info">
+                <div class="friend-check-name">Tyler Nash</div>
+                <div class="friend-check-meta">2 events together</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-secondary" id="glBackBtn" style="display:none;" >Back</button>
+        <button class="btn-modal-primary" id="glNextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // ── AUTH GUARD ──
+      var token = localStorage.getItem('accessToken');
+      if (!token) { window.location.href = 'signin.html'; return; }
+
+      // ── POPULATE USER NAME ──
+      (function() {
+        try {
+          var user = JSON.parse(localStorage.getItem('user') || '{}');
+          var fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+          if (fullName) {
+            document.getElementById('viewName').textContent = fullName;
+            document.getElementById('editName').value = fullName;
+          }
+        } catch(e) {}
+      })();
+
+      // ── localStorage keys ──
+      var LS_BUDGET   = 'festv_budget_used';
+      var LS_ACTIVITY = 'festv_activity';
+      var LS_FRIENDS  = 'festv_friends_count';
+
+      var BUDGET_TOTAL = 15000;
+
+      // ── Default activity items (used when nothing is in localStorage) ──
+      var DEFAULT_ACTIVITY = [
+        { icon: '📅', text: 'Rooftop Summer Soiree created', time: '2 days ago' },
+        { icon: '✉️', text: 'Invite sent to Tyler Nash', time: '3 days ago' },
+        { icon: '📋', text: 'VIP Table guest list created', time: '5 days ago' },
+        { icon: '🎉', text: 'Garden Anniversary Dinner marked done', time: '1 week ago' },
+        { icon: '👥', text: 'Maya Lin added as friend', time: '2 weeks ago' },
+      ];
+
+      // ──────────────────────────────────────────────────────────────
+      // BUDGET
+      // ──────────────────────────────────────────────────────────────
+      function getBudgetUsed() {
+        var stored = localStorage.getItem(LS_BUDGET);
+        return stored !== null ? parseInt(stored, 10) : 8400;
+      }
+
+      function saveBudgetUsed(val) {
+        localStorage.setItem(LS_BUDGET, String(val));
+      }
+
+      function renderBudget(used) {
+        var pct = Math.min(100, Math.round((used / BUDGET_TOTAL) * 100));
+        var remaining = BUDGET_TOTAL - used;
+        document.getElementById('budgetUsedLabel').textContent = '$' + used.toLocaleString();
+        document.getElementById('budgetBar').style.width = pct + '%';
+        document.getElementById('budgetPctLabel').textContent = pct + '% used';
+        document.getElementById('budgetLeftLabel').textContent = '$' + Math.max(0, remaining).toLocaleString() + ' remaining';
+      }
+
+      // Init budget
+      var budgetUsed = getBudgetUsed();
+      renderBudget(budgetUsed);
+
+      document.getElementById('btnAddBudget').addEventListener('click', function () {
+        budgetUsed += 500;
+        saveBudgetUsed(budgetUsed);
+        renderBudget(budgetUsed);
+        prependActivity({ icon: '💰', text: '+$500 added to budget tracker', time: 'Just now' });
+        showToast('Budget updated: $' + budgetUsed.toLocaleString() + ' spent ✓');
+      });
+
+      // ──────────────────────────────────────────────────────────────
+      // ACTIVITY
+      // ──────────────────────────────────────────────────────────────
+      function getActivity() {
+        var stored = localStorage.getItem(LS_ACTIVITY);
+        if (stored) {
+          try { return JSON.parse(stored); } catch (e) { /* fall through */ }
+        }
+        return DEFAULT_ACTIVITY.slice();
+      }
+
+      function saveActivity(items) {
+        localStorage.setItem(LS_ACTIVITY, JSON.stringify(items.slice(0, 5)));
+      }
+
+      function prependActivity(item) {
+        var items = getActivity();
+        items.unshift(item);
+        items = items.slice(0, 5);
+        saveActivity(items);
+        renderActivity(items);
+      }
+
+      function renderActivity(items) {
+        var list = document.getElementById('activityList');
+        list.innerHTML = '';
+        items.forEach(function (item) {
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;align-items:center;gap:0.75rem;padding:0.55rem 0;border-bottom:1px solid var(--border);';
+          row.innerHTML =
+            '<span style="font-size:1rem;flex-shrink:0;">' + item.icon + '</span>' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="font-size:0.8rem;font-weight:600;color:var(--dark);">' + item.text + '</div>' +
+              '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;">' + item.time + '</div>' +
+            '</div>';
+          list.appendChild(row);
+        });
+        // remove border from last item
+        var rows = list.querySelectorAll('div');
+        if (rows.length) rows[rows.length - 1].style.borderBottom = 'none';
+      }
+
+      // Init activity
+      renderActivity(getActivity());
+
+      // ──────────────────────────────────────────────────────────────
+      // FRIENDS COUNT
+      // ──────────────────────────────────────────────────────────────
+      function getFriendsCount() {
+        var stored = localStorage.getItem(LS_FRIENDS);
+        return stored !== null ? parseInt(stored, 10) : 8;
+      }
+
+      function saveFriendsCount(val) {
+        localStorage.setItem(LS_FRIENDS, String(val));
+      }
+
+      function renderFriendsCount(n) {
+        document.getElementById('statFriends').textContent = n;
+      }
+
+      // Init friends count
+      renderFriendsCount(getFriendsCount());
+
+      // ──────────────────────────────────────────────────────────────
+      // PROFILE EDIT
+      // ──────────────────────────────────────────────────────────────
+      var saved = {
+        name:   document.getElementById('editName').value,
+        bio:    document.getElementById('editBio').value,
+        city:   document.getElementById('editCity').value,
+        avatar: document.getElementById('avatarImg').src
+      };
+
+      function enterEditMode() {
+        document.getElementById('editName').value = document.getElementById('viewName').textContent.trim();
+        document.getElementById('editBio').value  = document.getElementById('viewBio').textContent.trim();
+        document.getElementById('editCity').value = saved.city;
+        document.body.classList.add('edit-mode');
+        document.getElementById('avatarWrap').classList.add('editable');
+        document.getElementById('editName').focus();
+        detectLocation();
+      }
+
+      function detectLocation() {
+        if (!navigator.geolocation) return;
+        var cityInput = document.getElementById('editCity');
+        cityInput.placeholder = 'Detecting location…';
+        navigator.geolocation.getCurrentPosition(
+          function (pos) {
+            var lat = pos.coords.latitude;
+            var lon = pos.coords.longitude;
+            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon)
+              .then(function (r) { return r.json(); })
+              .then(function (data) {
+                var a = data.address || {};
+                var city  = a.city || a.town || a.village || a.county || '';
+                var state = a.state || '';
+                if (city) {
+                  cityInput.value = state ? city + ', ' + state : city;
+                  saved.city = cityInput.value;
+                }
+                cityInput.placeholder = 'City, State';
+              })
+              .catch(function () { cityInput.placeholder = 'City, State'; });
+          },
+          function () { cityInput.placeholder = 'City, State'; },
+          { timeout: 6000 }
+        );
+      }
+
+      function commitSave() {
+        var name = document.getElementById('editName').value.trim() || saved.name;
+        var bio  = document.getElementById('editBio').value.trim()  || saved.bio;
+        var city = document.getElementById('editCity').value.trim() || saved.city;
+
+        // Update read views
+        document.getElementById('viewName').textContent = name;
+        document.getElementById('viewBio').textContent  = bio;
+
+        // Update contact read view
+        var items = document.querySelectorAll('.profile-contact-item');
+        if (items[0]) items[0].childNodes[items[0].childNodes.length - 1].textContent = city;
+
+        // Persist
+        saved = { name: name, bio: bio, city: city, avatar: document.getElementById('avatarImg').src };
+
+        exitEditMode();
+      }
+
+      function cancelEdit() {
+        document.getElementById('avatarImg').src = saved.avatar;
+        exitEditMode();
+      }
+
+      function exitEditMode() {
+        document.body.classList.remove('edit-mode');
+        document.getElementById('avatarWrap').classList.remove('editable');
+      }
+
+      // ── Avatar file pick ──
+      document.getElementById('avatarWrap').addEventListener('click', function () {
+        if (!document.body.classList.contains('edit-mode')) return;
+        document.getElementById('avatarInput').click();
+      });
+
+      document.getElementById('avatarInput').addEventListener('change', function () {
+        var file = this.files[0];
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('avatarImg').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // ── Button listeners ──
+      document.getElementById('btnEditProfile').addEventListener('click', enterEditMode);
+      document.getElementById('btnSave').addEventListener('click', commitSave);
+      document.getElementById('btnCancel').addEventListener('click', cancelEdit);
+
+      // ──────────────────────────────────────────────────────────────
+      // MODAL HELPERS
+      // ──────────────────────────────────────────────────────────────
+      function openModal(id)  { document.getElementById(id).classList.add('open'); }
+      function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+      function showToast(msg) {
+        var t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        setTimeout(function () { t.classList.remove('show'); }, 3000);
+      }
+
+      // Close on backdrop click or [data-close] buttons
+      document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
+        backdrop.addEventListener('click', function (e) {
+          if (e.target === backdrop) closeModal(backdrop.id);
+        });
+      });
+      document.querySelectorAll('[data-close]').forEach(function (btn) {
+        btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-close')); });
+      });
+
+      // ──────────────────────────────────────────────────────────────
+      // ADD FRIEND MODAL
+      // ──────────────────────────────────────────────────────────────
+      document.getElementById('btnAddFriend').addEventListener('click', function () {
+        document.getElementById('inviteEmail').value = '';
+        document.getElementById('invitePhone').value = '';
+        openModal('addFriendModal');
+        setTimeout(function () { document.getElementById('inviteEmail').focus(); }, 100);
+      });
+
+      document.getElementById('btnSendInvite').addEventListener('click', function () {
+        var email = document.getElementById('inviteEmail').value.trim();
+        var phone = document.getElementById('invitePhone').value.trim();
+        if (!email && !phone) {
+          document.getElementById('inviteEmail').focus();
+          return;
+        }
+        closeModal('addFriendModal');
+
+        // Increment friends count in localStorage
+        var count = getFriendsCount() + 1;
+        saveFriendsCount(count);
+        renderFriendsCount(count);
+
+        // Prepend activity
+        var contact = email || phone;
+        prependActivity({ icon: '✉️', text: 'Invite sent to ' + contact, time: 'Just now' });
+
+        showToast('Invite sent to ' + contact + ' ✓');
+      });
+
+      // ──────────────────────────────────────────────────────────────
+      // CREATE GUESTLIST MODAL
+      // ──────────────────────────────────────────────────────────────
+      var glStep = 1;
+
+      function setGlStep(step) {
+        glStep = step;
+        document.getElementById('glStep1').style.display = step === 1 ? 'block' : 'none';
+        document.getElementById('glStep2').style.display = step === 2 ? 'block' : 'none';
+        document.getElementById('glDot1').className = 'modal-step-dot ' + (step === 1 ? 'active' : 'done');
+        document.getElementById('glDot2').className = 'modal-step-dot ' + (step === 2 ? 'active' : '');
+        document.getElementById('glBackBtn').style.display = step === 2 ? 'inline-flex' : 'none';
+        document.getElementById('glNextBtn').textContent = step === 2 ? 'Create Guest List' : 'Next';
+        document.getElementById('glModalTitle').textContent = step === 2 ? 'Add Guests' : 'New Guest List';
+      }
+
+      document.getElementById('btnCreateGuestlist').addEventListener('click', function () {
+        document.getElementById('glName').value = '';
+        document.getElementById('glEvent').value = '';
+        document.querySelectorAll('#createGuestlistModal input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+        setGlStep(1);
+        openModal('createGuestlistModal');
+        setTimeout(function () { document.getElementById('glName').focus(); }, 100);
+      });
+
+      document.getElementById('glBackBtn').addEventListener('click', function () { setGlStep(1); });
+
+      document.getElementById('glNextBtn').addEventListener('click', function () {
+        if (glStep === 1) {
+          if (!document.getElementById('glName').value.trim()) {
+            document.getElementById('glName').focus(); return;
+          }
+          if (!document.getElementById('glEvent').value) {
+            document.getElementById('glEvent').focus(); return;
+          }
+          setGlStep(2);
+        } else {
+          var checked = Array.from(document.querySelectorAll('#createGuestlistModal input[type="checkbox"]:checked'));
+          var name = document.getElementById('glName').value.trim();
+          closeModal('createGuestlistModal');
+
+          // Prepend activity
+          prependActivity({ icon: '📋', text: '"' + name + '" guest list created', time: 'Just now' });
+
+          showToast('"' + name + '" created with ' + checked.length + ' guest' + (checked.length !== 1 ? 's' : '') + ' ✓');
+        }
+      });
+
+      // ── LOAD UPCOMING BOOKINGS ──
+      function loadUpcomingBookings() {
+        var token = localStorage.getItem('accessToken');
+        fetch('/api/v1/bookings/upcoming', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res.success || !res.data || !res.data.length) return; // keep static on no data
+          var list = res.data;
+          var el = document.getElementById('upcomingEventsList');
+          if (!el) return;
+          el.innerHTML = list.slice(0, 4).map(function(b) {
+            var d = b.eventDate ? new Date(b.eventDate) : null;
+            var month = d ? d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
+            var day   = d ? d.getDate() : '—';
+            var title = (b.eventRequest && b.eventRequest.title) || 'Event';
+            var city  = (b.eventRequest && b.eventRequest.venueCity) ? b.eventRequest.venueCity : '';
+            var vendor = (b.provider && b.provider.businessName) ? b.provider.businessName : '';
+            var location = [vendor, city].filter(Boolean).join(' · ');
+            return '<a href="#" class="event-item">' +
+              '<div class="event-date"><span class="event-month">' + month + '</span><span class="event-day">' + day + '</span></div>' +
+              '<div class="event-details"><div class="event-name">' + title + '</div><div class="event-meta"><span>&#128205; ' + location + '</span></div></div>' +
+              '<svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>' +
+            '</a>';
+          }).join('');
+        })
+        .catch(function() {}); // silently keep static
+      }
+
+      // ── LOAD EVENT REQUESTS (completed / past) ──
+      function loadMyEventRequests() {
+        var token = localStorage.getItem('accessToken');
+        fetch('/api/v1/event-requests/my-requests', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res.success || !res.data || !res.data.length) return;
+          var completed = res.data.filter(function(e) { return e.booking && e.booking.status === 'COMPLETED'; });
+          if (!completed.length) return;
+          var el = document.getElementById('completedEventsList');
+          if (!el) return;
+          var icons = ['🎉', '🎶', '🥂', '🎂', '🎊'];
+          el.innerHTML = completed.slice(0, 4).map(function(e, i) {
+            var d = e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+            return '<div class="guest-row">' +
+              '<div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">' + (icons[i % icons.length]) + '</div>' +
+              '<div class="guest-info"><div class="guest-name">' + e.title + '</div><div class="guest-meta">' + d + (e.guestCount ? ' · ' + e.guestCount + ' guests' : '') + '</div></div>' +
+              '<span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>' +
+            '</div>';
+          }).join('');
+        })
+        .catch(function() {});
+      }
+
+      // ── LOAD PENDING QUOTES ──
+      function loadPendingQuotes() {
+        fetch('/api/v1/event-requests/my-requests', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res.success || !res.data || !res.data.length) return;
+          var quoted = res.data.filter(function(e) { return e.status === 'QUOTED' || e.status === 'MATCHING' || e.status === 'SUBMITTED'; });
+          if (!quoted.length) return;
+          return Promise.all(quoted.map(function(e) {
+            return fetch('/api/v1/quotes/event/' + e.id, {
+              headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(qr) {
+              var qs = (qr.data || []).filter(function(q) { return q.status === 'SENT' || q.status === 'VIEWED'; });
+              return { event: e, quotes: qs };
+            })
+            .catch(function() { return { event: e, quotes: [] }; });
+          }));
+        })
+        .then(function(results) {
+          if (!results) return;
+          var allQuotes = [];
+          results.forEach(function(r) {
+            r.quotes.forEach(function(q) { allQuotes.push({ quote: q, event: r.event }); });
+          });
+          var card = document.getElementById('quotesCard');
+          var list = document.getElementById('quotesList');
+          var badge = document.getElementById('quotesBadge');
+          if (!allQuotes.length) { if (card) card.style.display = 'none'; return; }
+          if (card) card.style.display = 'block';
+          if (badge) { badge.textContent = allQuotes.length; badge.style.display = 'inline-flex'; }
+          if (!list) return;
+          list.innerHTML = allQuotes.map(function(item) {
+            var q = item.quote;
+            var e = item.event;
+            var vendor = q.provider ? (q.provider.businessName || [q.provider.user && q.provider.user.firstName, q.provider.user && q.provider.user.lastName].filter(Boolean).join(' ') || 'Vendor') : 'Vendor';
+            var type = q.provider ? (q.provider.providerType || '') : '';
+            var typeLabel = type.replace(/_/g, ' ');
+            var amount = q.totalAmount ? '$' + parseFloat(q.totalAmount).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '—';
+            var serviceName = (q.items && q.items[0]) ? q.items[0].name : '';
+            var msg = q.message ? q.message : '';
+            var rowId = 'qrow-' + q.id;
+            return '<div id="' + rowId + '" style="padding:0.9rem 0;border-bottom:1px solid var(--border);">' +
+              '<div style="display:flex;align-items:flex-start;gap:0.75rem;">' +
+                '<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);display:flex;align-items:center;justify-content:center;font-size:0.72rem;font-weight:700;color:var(--charcoal);flex-shrink:0;border:1.5px solid var(--border);">' + vendor.split(' ').map(function(w){ return w[0]; }).slice(0,2).join('') + '</div>' +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div style="font-size:0.85rem;font-weight:600;color:var(--dark);">' + vendor + (typeLabel ? ' <span style="font-size:0.65rem;color:var(--muted);font-weight:400;">· ' + typeLabel + '</span>' : '') + '</div>' +
+                  '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.1rem;">' + e.title + (serviceName ? ' · ' + serviceName : '') + '</div>' +
+                  (msg ? '<div style="font-size:0.72rem;color:var(--charcoal);margin-top:0.35rem;line-height:1.55;font-style:italic;">"' + msg.slice(0,120) + (msg.length>120?'…':'') + '"</div>' : '') +
+                '</div>' +
+                '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.25rem;font-weight:600;color:var(--dark);flex-shrink:0;">' + amount + '</div>' +
+              '</div>' +
+              '<div style="display:flex;gap:0.5rem;margin-top:0.65rem;">' +
+                '<button onclick="acceptPlannerQuote(\'' + q.id + '\',\'' + rowId + '\')" style="flex:1;padding:0.5rem;background:var(--dark);color:var(--gold-light);border:none;border-radius:6px;font-family:\'Montserrat\',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">Accept</button>' +
+                '<button onclick="rejectPlannerQuote(\'' + q.id + '\',\'' + rowId + '\')" style="flex:1;padding:0.5rem;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:6px;font-family:\'Montserrat\',sans-serif;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s,color 0.2s;" onmouseover="this.style.borderColor=\'#B84040\';this.style.color=\'#B84040\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.color=\'var(--muted)\'">Decline</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        })
+        .catch(function() {});
+      }
+
+      function acceptPlannerQuote(quoteId, rowId) {
+        fetch('/api/v1/quotes/' + quoteId + '/accept', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (!res.success) throw new Error(res.message || 'Failed to accept quote');
+          var row = document.getElementById(rowId);
+          if (row) { row.style.opacity = '0'; row.style.transition = 'opacity 0.3s'; setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 350); }
+          prependActivity({ icon: '✅', text: 'Quote accepted — booking created!', time: 'Just now' });
+          showToast('Quote accepted! Your booking is confirmed. ✓');
+          loadUpcomingBookings();
+        })
+        .catch(function(err) { showToast(err.message || 'Could not accept quote. Please try again.'); });
+      }
+
+      function rejectPlannerQuote(quoteId, rowId) {
+        fetch('/api/v1/quotes/' + quoteId + '/reject', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({})
+        })
+        .then(function(r) { return r.json(); })
+        .then(function() {
+          var row = document.getElementById(rowId);
+          if (row) { row.style.opacity = '0'; row.style.transition = 'opacity 0.3s'; setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 350); }
+          showToast('Quote declined.');
+        })
+        .catch(function() { showToast('Could not decline quote. Please try again.'); });
+      }
+
+      loadUpcomingBookings();
+      loadMyEventRequests();
+      loadPendingQuotes();
+
+    });
+  </script>
+
+</body>
+</html>
+
