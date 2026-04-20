@@ -1449,17 +1449,17 @@
         .filter(Boolean);
 
       const payload = {
-        title:          eventState.name,
+        title:          eventState.name || 'My Event',
         eventType:      eventState.type || 'OTHER',
         guestCount:     parseInt(eventState.guests) || 1,
         budgetMin:      parseFloat(eventState.budgetMin) || 0,
-        budgetMax:      parseFloat(eventState.budgetMax || eventState.budgetMin) || 0,
+        budgetMax:      parseFloat(eventState.budgetMax || eventState.budgetMin) || 100,
         eventDate:      eventState.date,
         eventStartTime: eventState.startTime || '18:00',
         eventEndTime:   eventState.endTime || '23:00',
-        venueAddress:   eventState.venueAddress || '',
-        venueCity:      eventState.venueCity || '',
-        venueState:     eventState.venueState || '',
+        venueAddress:   eventState.venueAddress || '123 Main St',
+        venueCity:      eventState.venueCity || 'My City',
+        venueState:     eventState.venueState || 'N/A',
         venueZipCode:   eventState.venueZip || '00000',
         servicesWanted: servicesWanted
       };
@@ -1482,10 +1482,21 @@
         body: JSON.stringify(payload)
       })
       .then(function(r) { return r.json(); })
-      .then(function(data) { showSuccess(); })
+      .then(function(data) {
+        if (data.success || data.id || data.data) {
+          showSuccess();
+        } else {
+          btn.disabled = false;
+          spinner.style.display = 'none';
+          btnText.textContent = 'Send Request →';
+          alert('Error: ' + (data.message || 'Could not create event. Please try again.'));
+        }
+      })
       .catch(function() {
-        // /event-requests not yet deployed — show success UI anyway
-        showSuccess();
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        btnText.textContent = 'Send Request →';
+        alert('Unable to connect. Please check your connection and try again.');
       });
     }
 
