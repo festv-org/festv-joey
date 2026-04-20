@@ -1009,13 +1009,13 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-submit">Find My Vendors →</button>
+      <button type="submit" class="btn-submit">Browse Vendors →</button>
 
     </form>
   </div>
 
-  <!-- PROGRESS BAR -->
-  <div class="progress-bar" id="progressBar" style="display:none;">
+  <!-- REMOVED: progress bar, vendor modal, step 2, step 3 — flow now continues in browsevendors.html -->
+  <div style="display:none;">
     <div class="progress-steps">
       <div class="prog-step done" id="prog1"><div class="prog-num">1</div> Event Details</div>
       <div class="prog-line" id="progLine1"></div>
@@ -1146,9 +1146,34 @@
       }
     })();
 
-    /* ── STATE ── */
+    /* ── FORM SUBMIT: save event to localStorage → go to browse ── */
+    document.getElementById('eventForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var pendingEvent = {
+        name:         document.getElementById('eventName').value.trim(),
+        date:         document.getElementById('eventDate').value,
+        startTime:    document.getElementById('startTime').value,
+        endTime:      document.getElementById('endTime').value,
+        venueAddress: document.getElementById('venueAddress').value.trim(),
+        venueCity:    document.getElementById('venueCity').value.trim(),
+        venueState:   document.getElementById('venueState').value.trim(),
+        venueZip:     document.getElementById('venueZip').value.trim(),
+        budgetMin:    document.getElementById('budgetMin').value,
+        budgetMax:    document.getElementById('budgetMax').value,
+        guests:       document.getElementById('guestCount').value,
+        type:         document.getElementById('eventType').value || 'OTHER',
+        selectedCats: [...document.querySelectorAll('.vendor-check input:checked')].map(function(c) { return c.value; }),
+        requests:     [],
+        createdAt:    new Date().toISOString()
+      };
+      localStorage.setItem('pendingEvent', JSON.stringify(pendingEvent));
+      window.location.href = 'browsevendors.html';
+    });
+
+
+    /* ── old step 2/3 state (unused) ── */
     let eventState = {};
-    let selectedVendors = {}; // keyed by category
+    let selectedVendors = {};
     let activeCatFilter = 'all';
 
     const vendorData = {
