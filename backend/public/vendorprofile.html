@@ -1365,7 +1365,7 @@
           var name = typeof s === 'string' ? s : s.name;
           var price = typeof s === 'object' && s.price ? s.price : '';
           return '<label style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 1rem;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color 0.2s;">'
-            + '<input type="radio" name="srService" value="' + name + '"' + (i === 0 ? ' checked' : '') + ' style="accent-color:var(--gold);">'
+            + '<input type="checkbox" name="srService" value="' + name + '"' + (i === 0 ? ' checked' : '') + ' style="accent-color:var(--gold);">'
             + '<span style="font-size:0.82rem;color:var(--dark);flex:1;">' + name + '</span>'
             + (price ? '<span style="font-size:0.75rem;color:var(--gold-dark);font-weight:600;">' + price + '</span>' : '')
             + '</label>';
@@ -1384,16 +1384,17 @@
 
       // Send request button
       document.getElementById('btnSendRequest').addEventListener('click', function() {
-        var service = document.querySelector('input[name="srService"]:checked');
+        var checkedServices = [...document.querySelectorAll('input[name="srService"]:checked')];
         var notes = document.getElementById('srNotes').value.trim();
         var errEl = document.getElementById('srError');
         errEl.style.display = 'none';
 
-        if (!service) {
-          errEl.textContent = 'Please select a service.';
+        if (!checkedServices.length) {
+          errEl.textContent = 'Please select at least one service.';
           errEl.style.display = 'block';
           return;
         }
+        var service = { value: checkedServices.map(function(c) { return c.value; }).join(', ') };
 
         var token = localStorage.getItem('accessToken');
         if (!token) {
