@@ -989,15 +989,7 @@
 
     // ── Done: go to dashboard ──
     document.getElementById('btnToDashboard').addEventListener('click', function () {
-      var type = selectedTypes[0];
-      var dest = {
-        DJ:           'djdashboard.html',
-        PHOTOGRAPHER: 'photographerdashboard.html',
-        CATERER:      'catererdashboard.html',
-        BARTENDER:    'bartenderdashboard.html',
-        OTHER:        'restodashboard.html',
-      };
-      window.location.href = dest[type] || 'djdashboard.html';
+      window.location.href = 'vendordashboard.html';
     });
 
     // ── Global helpers (called from inline onclick) ──
