@@ -927,36 +927,63 @@
 
   <!-- SEND REQUEST SECTION (shown when fromEvent=1) -->
   <div id="sendRequestSection" style="display:none; max-width:900px; margin:2rem auto; padding:0 2rem;">
-    <div style="background:var(--white); border:1.5px solid var(--gold); border-radius:16px; padding:2rem;">
-      <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-dark); margin-bottom:1rem;">Send Request</div>
-      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--dark); margin-bottom:0.5rem;">Ready to book <span id="srVendorName"></span>?</h3>
-      <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.5rem;">Select a service, add any notes, and send your request. The vendor will review and send you a quote.</p>
+
+    <!-- STEP 1: Selected Services summary -->
+    <div id="srStep1" style="background:var(--white); border:1.5px solid var(--gold); border-radius:16px; padding:2rem;">
+      <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-dark); margin-bottom:0.5rem;">Your Selection</div>
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--dark); margin-bottom:1.25rem;"><span id="srVendorName"></span></h3>
 
       <div style="margin-bottom:1.25rem;">
-        <label style="font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--charcoal); display:block; margin-bottom:0.6rem;">Selected Services</label>
+        <div style="font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--charcoal); margin-bottom:0.6rem;">Selected Services</div>
         <div id="srServiceList">
           <div id="srNoServices" style="font-size:0.78rem; color:var(--muted); padding:0.5rem 0;">No services selected yet — scroll down and click <strong>+ Select</strong> on any service.</div>
         </div>
       </div>
 
+      <div id="srError1" style="color:#B84040; font-size:0.75rem; margin-bottom:0.75rem; display:none;"></div>
+      <button id="btnReviewRequest" style="width:100%; padding:1rem; background:var(--dark); color:var(--gold-light); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Review Request →</button>
+    </div>
+
+    <!-- STEP 2: Review before sending -->
+    <div id="srStep2" style="display:none; background:var(--white); border:1.5px solid var(--gold); border-radius:16px; padding:2rem;">
+      <button onclick="document.getElementById('srStep1').style.display='block'; document.getElementById('srStep2').style.display='none';" style="background:none;border:none;color:var(--muted);font-size:0.75rem;cursor:pointer;margin-bottom:1rem;font-family:'Montserrat',sans-serif;">← Edit Selection</button>
+      <div style="font-size:0.68rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold-dark); margin-bottom:0.5rem;">Review Request</div>
+      <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--dark); margin-bottom:1.5rem;">Confirm &amp; Send</h3>
+
+      <!-- Event details -->
+      <div style="background:var(--bg); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
+        <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:0.75rem;">Event Details</div>
+        <div style="font-size:1rem; font-weight:600; color:var(--dark); margin-bottom:0.3rem;" id="rvEventName"></div>
+        <div style="font-size:0.78rem; color:var(--muted);" id="rvEventDetails"></div>
+      </div>
+
+      <!-- Vendor + services -->
+      <div style="background:var(--bg); border-radius:12px; padding:1.25rem; margin-bottom:1.25rem;">
+        <div style="font-size:0.65rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:0.75rem;">Vendor &amp; Services</div>
+        <div style="font-size:0.9rem; font-weight:600; color:var(--dark); margin-bottom:0.5rem;" id="rvVendorName"></div>
+        <div id="rvServicesList" style="display:flex; flex-direction:column; gap:0.4rem;"></div>
+        <div id="rvEstimate" style="margin-top:0.75rem; font-size:0.78rem; font-weight:700; color:var(--gold-dark);"></div>
+      </div>
+
+      <!-- Notes -->
       <div style="margin-bottom:1.25rem;">
-        <label style="font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--charcoal); display:block; margin-bottom:0.6rem;">Additional Notes <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></label>
+        <div style="font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--charcoal); margin-bottom:0.6rem;">Additional Notes <span style="font-weight:400; text-transform:none; letter-spacing:0;">(optional)</span></div>
         <textarea id="srNotes" placeholder="Any special requests, questions, or details for this vendor…" style="width:100%; padding:0.85rem 1rem; border:1.5px solid var(--border); border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; color:var(--dark); background:var(--bg); resize:vertical; min-height:80px; outline:none;"></textarea>
       </div>
 
       <div id="srError" style="color:#B84040; font-size:0.75rem; margin-bottom:0.75rem; display:none;"></div>
-
-      <button id="btnSendRequest" style="width:100%; padding:1rem; background:var(--dark); color:var(--gold-light); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Send Request →</button>
-
-      <!-- Success state -->
-      <div id="srSuccess" style="display:none; text-align:center; padding:1.5rem 0;">
-        <div style="font-size:2rem; margin-bottom:0.5rem;">✅</div>
-        <div style="font-family:'Cormorant Garamond',serif; font-size:1.4rem; color:var(--dark); margin-bottom:0.4rem;">Request Sent!</div>
-        <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.25rem;">Your request has been sent to <span id="srSuccessVendor"></span>. They'll review your event and send you a quote.</p>
-        <a href="browsevendors.html" style="display:inline-block; padding:0.75rem 1.5rem; background:var(--dark); color:var(--gold-light); border-radius:8px; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; margin-right:0.5rem;">Browse More Vendors</a>
-        <a href="plannerdashboard.html" style="display:inline-block; padding:0.75rem 1.5rem; background:transparent; color:var(--muted); border:1.5px solid var(--border); border-radius:8px; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">View Dashboard</a>
-      </div>
+      <button id="btnSendRequest" style="width:100%; padding:1rem; background:var(--dark); color:var(--gold-light); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Send to Vendor →</button>
     </div>
+
+    <!-- STEP 3: Success -->
+    <div id="srSuccess" style="display:none; background:var(--white); border:1.5px solid var(--border); border-radius:16px; padding:2.5rem; text-align:center;">
+      <div style="font-size:2.5rem; margin-bottom:0.75rem;">✅</div>
+      <div style="font-family:'Cormorant Garamond',serif; font-size:1.8rem; color:var(--dark); margin-bottom:0.5rem;">Request Sent!</div>
+      <p style="font-size:0.78rem; color:var(--muted); margin-bottom:1.5rem;">Your request has been sent to <strong id="srSuccessVendor"></strong>. They'll review your event details and send you a quote.</p>
+      <a href="browsevendors.html" style="display:inline-block; padding:0.75rem 1.5rem; background:var(--dark); color:var(--gold-light); border-radius:8px; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; margin-right:0.5rem;">Browse More Vendors</a>
+      <a href="plannerdashboard.html" style="display:inline-block; padding:0.75rem 1.5rem; background:transparent; color:var(--muted); border:1.5px solid var(--border); border-radius:8px; font-size:0.72rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none;">View Dashboard</a>
+    </div>
+
   </div>
 
   <!-- VENDOR INFO BAR -->
@@ -1408,6 +1435,51 @@
         renderSelectedServices();
       };
 
+      // Review Request button — populate step 2 and advance
+      document.getElementById('btnReviewRequest').addEventListener('click', function() {
+        var errEl1 = document.getElementById('srError1');
+        errEl1.style.display = 'none';
+        if (!_selectedServices.length) {
+          errEl1.textContent = 'Select at least one service before reviewing.';
+          errEl1.style.display = 'block';
+          return;
+        }
+
+        // Populate event details
+        document.getElementById('rvEventName').textContent = ev.name || 'Your Event';
+        var parts = [];
+        if (ev.date) parts.push(new Date(ev.date + 'T12:00:00').toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }));
+        if (ev.guests) parts.push(ev.guests + ' guests');
+        if (ev.venueCity) parts.push(ev.venueCity + (ev.venueState ? ', ' + ev.venueState : ''));
+        if (ev.startTime) parts.push(ev.startTime + (ev.endTime ? ' – ' + ev.endTime : ''));
+        document.getElementById('rvEventDetails').textContent = parts.join('  ·  ');
+
+        // Populate vendor + services
+        document.getElementById('rvVendorName').textContent = window._currentVendorName || '';
+        var svcHtml = _selectedServices.map(function(s) {
+          return '<div style="display:flex;justify-content:space-between;font-size:0.8rem;padding:0.4rem 0;border-bottom:1px solid var(--border);">'
+            + '<span style="color:var(--dark);font-weight:500;">' + s.name + '</span>'
+            + (s.price ? '<span style="color:var(--gold-dark);">' + s.price + '</span>' : '')
+            + '</div>';
+        }).join('');
+        document.getElementById('rvServicesList').innerHTML = svcHtml;
+
+        // Estimate total from numeric prices
+        var total = 0;
+        _selectedServices.forEach(function(s) {
+          var m = s.price && s.price.match(/\$([\d,]+)/);
+          if (m) total += parseInt(m[1].replace(/,/g, ''));
+        });
+        document.getElementById('rvEstimate').textContent = total > 0
+          ? 'Estimated starting from $' + total.toLocaleString()
+          : 'Contact vendor for pricing';
+
+        // Swap steps
+        document.getElementById('srStep1').style.display = 'none';
+        document.getElementById('srStep2').style.display = 'block';
+        document.getElementById('sendRequestSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+
       // Send request button
       document.getElementById('btnSendRequest').addEventListener('click', function() {
         var notes = document.getElementById('srNotes').value.trim();
@@ -1417,7 +1489,6 @@
         if (!_selectedServices.length) {
           errEl.textContent = 'Please select at least one service from the profile below.';
           errEl.style.display = 'block';
-          document.querySelector('.services-list') && document.querySelector('.services-list').scrollIntoView({ behavior: 'smooth' });
           return;
         }
         var service = { value: _selectedServices.map(function(s) { return s.name; }).join(', ') };
@@ -1473,22 +1544,20 @@
             localStorage.setItem('pendingEvent', JSON.stringify(ev));
 
             // Show success
-            document.getElementById('btnSendRequest').style.display = 'none';
-            document.getElementById('srNotes').style.display = 'none';
-            document.getElementById('srServiceList').style.display = 'none';
-            document.querySelector('#sendRequestSection label').style.display = 'none';
-            document.querySelectorAll('#sendRequestSection label').forEach(function(l) { l.style.display = 'none'; });
+            document.getElementById('srStep2').style.display = 'none';
             document.getElementById('srSuccess').style.display = 'block';
+            document.getElementById('srSuccessVendor').textContent = window._currentVendorName || 'the vendor';
+            document.getElementById('sendRequestSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
           } else {
             btn.disabled = false;
-            btn.textContent = 'Send Request →';
+            btn.textContent = 'Send to Vendor →';
             errEl.textContent = data.message || 'Could not send request. Please try again.';
             errEl.style.display = 'block';
           }
         })
         .catch(function() {
           btn.disabled = false;
-          btn.textContent = 'Send Request →';
+          btn.textContent = 'Send to Vendor →';
           errEl.textContent = 'Unable to connect. Please try again.';
           errEl.style.display = 'block';
         });
