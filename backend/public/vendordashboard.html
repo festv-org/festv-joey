@@ -1394,7 +1394,7 @@
         var contactRows = [];
         var email    = (p.user && p.user.email) || '';
         var phone    = (p.user && p.user.phoneNumber) || '';
-        var cityState = [(p.user && p.user.city), (p.user && p.user.state)].filter(Boolean).join(', ');
+        var cityState = [(p.user && p.user.city), (p.user && p.user.state), (p.user && p.user.country)].filter(Boolean).join(', ');
         var location = cityState || (p.serviceAreas && p.serviceAreas[0]) || '';
         var website  = p.websiteUrl || p.website || '';
         if (email)    contactRows.push({ icon: '✉️', label: email });

@@ -472,13 +472,24 @@
           <div class="error-msg" id="err-1"></div>
 
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group" style="flex:2;">
               <label class="form-label">Business Name <span class="req">*</span></label>
               <input class="form-input" id="s1-businessName" type="text" placeholder="Milo Sound & Lights">
             </div>
+          </div>
+
+          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">City <span class="req">*</span></label>
-              <input class="form-input" id="s1-city" type="text" placeholder="Miami">
+              <label class="form-label">City</label>
+              <input class="form-input" id="s1-city" type="text" placeholder="Toronto">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Province</label>
+              <input class="form-input" id="s1-province" type="text" placeholder="Ontario">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input class="form-input" id="s1-country" type="text" placeholder="Canada">
             </div>
           </div>
 
@@ -765,6 +776,11 @@
         if (p.hourlyRate)          document.getElementById('s1-hourlyRate').value    = p.hourlyRate;
         if (p.minimumHours)        document.getElementById('s1-minHours').value      = p.minimumHours;
 
+        // Location from user object
+        if (p.user && p.user.city)    document.getElementById('s1-city').value     = p.user.city;
+        if (p.user && p.user.state)   document.getElementById('s1-province').value = p.user.state;
+        if (p.user && p.user.country) document.getElementById('s1-country').value  = p.user.country;
+
         // Vendor type pills
         var types = p.providerTypes || (p.primaryType ? [p.primaryType] : []);
         types.forEach(function (t) {
@@ -847,8 +863,22 @@
         if (mh) payload.minimumHours = mh;
       }
 
+      var city     = document.getElementById('s1-city').value.trim();
+      var province = document.getElementById('s1-province').value.trim();
+      var country  = document.getElementById('s1-country').value.trim();
+
       btn.classList.add('loading');
       var profileMethod = existingProfile ? 'PUT' : 'POST';
+
+      // Save location to user profile in parallel
+      if (city || province || country) {
+        var userPayload = {};
+        if (city)     userPayload.city    = city;
+        if (province) userPayload.state   = province;
+        if (country)  userPayload.country = country;
+        authFetch('/users/profile', { method: 'PUT', body: JSON.stringify(userPayload) }).catch(function(){});
+      }
+
       authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(payload) })
         .then(function (data) {
           btn.classList.remove('loading');
