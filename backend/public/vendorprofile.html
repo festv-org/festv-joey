@@ -1372,7 +1372,10 @@
         }).join('');
       }
 
-      // Will be called after vendor data loads
+      // Show default services immediately so the list is never empty
+      buildServiceList((defaultSrServices.VENUE).map(function(s) { return { name: s }; }));
+
+      // Will be called after vendor data loads — updates with real services
       window._buildSrServices = function(vendorName, providerType, apiServices) {
         document.getElementById('srVendorName').textContent = vendorName;
         document.getElementById('srSuccessVendor').textContent = vendorName;
