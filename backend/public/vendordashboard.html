@@ -1167,6 +1167,9 @@
     var token = localStorage.getItem('accessToken');
     var _activeRequestId = null;
 
+    // Redirect to setup if no token
+    if (!token) { window.location.href = 'signin.html'; return; }
+
     // ── Load incoming requests ──
     function loadRequests() {
       var list = document.getElementById('incomingList');
@@ -1216,6 +1219,12 @@
             + '</div>'
             + '</div>';
         }).join('');
+      })
+      .then(function(data) {
+        // If provider profile doesn't exist yet, redirect to setup
+        if (data && data.error && data.error.toLowerCase().includes('provider profile')) {
+          window.location.href = 'vendorsetup.html';
+        }
       })
       .catch(function(err) {
         list.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">Could not load requests. Please refresh.</div>';

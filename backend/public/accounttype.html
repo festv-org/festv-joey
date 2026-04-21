@@ -1012,7 +1012,7 @@
             }
             successTitle.textContent = 'Application Submitted';
             successSub.textContent   = 'Thanks for signing up as a ' + label + '. Our team will review your details and reach out within 1–2 business days.';
-            showVerifyOverlay(email, payload.accessToken, 'vendordashboard.html');
+            showVerifyOverlay(email, payload.accessToken, 'vendorsetup.html');
           } else {
             errEl.textContent = data.message || data.error || 'Registration failed. Please try again.';
             errEl.style.display = 'block';
