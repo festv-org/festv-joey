@@ -712,6 +712,7 @@
     var pendingServices = [];
     var pendingMenuItems = [];
     var createdProfileId = null;
+    var existingProfile  = null; // set if vendor already has a profile
 
     // ── Auth helper ──
     function authFetch(url, opts) {
@@ -745,6 +746,42 @@
     function clearError(id) {
       document.getElementById(id).classList.remove('show');
     }
+
+    // ── Pre-fill if vendor already has a profile ──
+    authFetch('/providers/profile/me')
+      .then(function (data) {
+        var p = data.data || data;
+        if (!p || !p.id) return;
+        existingProfile  = p;
+        createdProfileId = p.id;
+
+        // Business name & description
+        if (p.businessName)        document.getElementById('s1-businessName').value = p.businessName;
+        if (p.businessDescription) document.getElementById('s1-description').value  = p.businessDescription;
+        if (p.minimumBudget)       document.getElementById('s1-minBudget').value     = p.minimumBudget;
+        if (p.maximumBudget)       document.getElementById('s1-maxBudget').value     = p.maximumBudget;
+        if (p.pricePerPerson)      document.getElementById('s1-pricePerPerson').value = p.pricePerPerson;
+        if (p.minGuestCount)       document.getElementById('s1-minGuests').value     = p.minGuestCount;
+        if (p.hourlyRate)          document.getElementById('s1-hourlyRate').value    = p.hourlyRate;
+        if (p.minimumHours)        document.getElementById('s1-minHours').value      = p.minimumHours;
+
+        // Vendor type pills
+        var types = p.providerTypes || (p.primaryType ? [p.primaryType] : []);
+        types.forEach(function (t) {
+          selectedTypes.push(t);
+          var pill = document.querySelector('.type-pill[data-type="' + t + '"]');
+          if (pill) pill.classList.add('selected');
+        });
+
+        // Show/hide pricing sections based on type
+        var isFoodVendor = selectedTypes.some(function (t) { return t === 'CATERER' || t === 'BARTENDER' || t === 'OTHER'; });
+        document.getElementById('perpersonSection').style.display = isFoodVendor ? '' : 'none';
+        document.getElementById('hourlySection').style.display    = isFoodVendor ? 'none' : '';
+
+        // Update button text to reflect editing
+        document.getElementById('btn1').textContent = 'Update Profile →';
+      })
+      .catch(function () {}); // no profile yet, that's fine
 
     // ── Vendor type pills ──
     document.querySelectorAll('.type-pill').forEach(function (pill) {
@@ -811,11 +848,12 @@
       }
 
       btn.classList.add('loading');
-      authFetch('/providers/profile', { method: 'POST', body: JSON.stringify(payload) })
+      var profileMethod = existingProfile ? 'PUT' : 'POST';
+      authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(payload) })
         .then(function (data) {
           btn.classList.remove('loading');
           if (data.success || data.data) {
-            createdProfileId = data.data && data.data.id;
+            createdProfileId = (data.data && data.data.id) || createdProfileId;
             goToStep(2);
           } else {
             var msg = data.error || data.message || 'Failed to save profile.';
