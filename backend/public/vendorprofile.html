@@ -1546,8 +1546,10 @@
         btn.disabled = true;
         btn.textContent = 'Sending…';
 
-        var typeMap = { DJ: 'DJ', PHOTOGRAPHER: 'PHOTOGRAPHER', VENUE: 'VENUE', CATERER: 'CATERER', BARTENDER: 'BARTENDER' };
-        var vendorType = window._currentVendorType || 'VENUE';
+        // Map to valid ProviderType enum values (no VENUE in schema)
+        var validTypes = ['CATERER','DJ','DECORATOR','MUSICIAN','PHOTOGRAPHER','VIDEOGRAPHER','FLORIST','EVENT_PLANNER','BARTENDER','RENTAL_EQUIPMENT','OTHER'];
+        var rawType = window._currentVendorType || 'OTHER';
+        var vendorType = validTypes.indexOf(rawType) !== -1 ? rawType : 'OTHER';
 
         var payload = {
           title:          ev.name,
@@ -1594,7 +1596,9 @@
           } else {
             btn.disabled = false;
             btn.textContent = 'Send to Vendor →';
-            errEl.textContent = data.message || 'Could not send request. Please try again.';
+            var msg = data.error || data.message || 'Could not send request. Please try again.';
+            if (data.details && data.details.length) msg += ' (' + data.details.map(function(d){return d.field+': '+d.message;}).join('; ') + ')';
+            errEl.textContent = msg;
             errEl.style.display = 'block';
           }
         })
