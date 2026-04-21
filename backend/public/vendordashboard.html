@@ -1223,10 +1223,21 @@
 
         // Hero
         document.getElementById('heroName').textContent = p.businessName;
-        var typeLabel = p.primaryType
-          ? p.primaryType.charAt(0) + p.primaryType.slice(1).toLowerCase().replace(/_/g,' ')
-          : (p.providerTypes && p.providerTypes[0]) || '';
-        document.getElementById('heroCategory').textContent = typeLabel;
+        var typeLabels = {
+          CATERER:          'Caterer',
+          DJ:               'DJ',
+          DECORATOR:        'Decorator',
+          MUSICIAN:         'Musician',
+          PHOTOGRAPHER:     'Photographer',
+          VIDEOGRAPHER:     'Videographer',
+          FLORIST:          'Florist',
+          EVENT_PLANNER:    'Event Planner',
+          BARTENDER:        'Bartender',
+          RENTAL_EQUIPMENT: 'Rental & Equipment',
+          OTHER:            'Restaurant / Venue',
+        };
+        var rawType = p.primaryType || (p.providerTypes && p.providerTypes[0]) || '';
+        document.getElementById('heroCategory').textContent = typeLabels[rawType] || rawType;
 
         if (p.averageRating && p.totalReviews) {
           document.getElementById('heroRatingVal').textContent = p.averageRating.toFixed(1);
