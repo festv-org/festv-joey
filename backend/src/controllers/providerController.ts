@@ -650,17 +650,21 @@ export const getAvailability = asyncHandler(async (req: AuthenticatedRequest, re
 // Get menu items for a provider (public)
 export const getMenuItems = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { providerId } = req.params;
-  
+
   const profile = await prisma.providerProfile.findUnique({
     where: { id: providerId },
+    select: { id: true, userId: true },
   });
-  
+
   if (!profile) {
     throw new NotFoundError('Provider');
   }
-  
+
+  // Fetch menu items across ALL profiles for this vendor (handles duplicate profile edge case)
   const menuItems = await prisma.menuItem.findMany({
-    where: { providerId },
+    where: {
+      provider: { userId: profile.userId },
+    },
     include: {
       pricingTiers: {
         orderBy: { minQuantity: 'asc' },
@@ -672,7 +676,7 @@ export const getMenuItems = asyncHandler(async (req: AuthenticatedRequest, res: 
       { name: 'asc' },
     ],
   });
-  
+
   res.json({
     success: true,
     data: menuItems,
