@@ -1359,35 +1359,39 @@
           }
         }
 
-        // Menu items (caterers / restaurants)
-        if (p.menuItems && p.menuItems.length) {
-          var menuByCategory = {};
-          p.menuItems.forEach(function (m) {
-            if (!menuByCategory[m.category]) menuByCategory[m.category] = [];
-            menuByCategory[m.category].push(m);
-          });
-          var menuHTML = Object.keys(menuByCategory).map(function (cat) {
-            var items = menuByCategory[cat].map(function (m) {
-              return '<div class="service-row" style="padding:0.6rem 0;border-bottom:1px solid var(--border);">'
-                + '<div class="service-info"><div class="service-name">' + esc(m.name) + '</div>'
-                + (m.description ? '<div class="service-desc">' + esc(m.description) + '</div>' : '')
-                + (m.dietaryInfo && m.dietaryInfo.length ? '<div style="margin-top:0.3rem;">' + m.dietaryInfo.map(function(d){ return '<span style="font-size:0.63rem;background:rgba(196,160,106,0.1);color:var(--gold-dark);padding:0.15rem 0.5rem;border-radius:8px;font-weight:600;">' + esc(d) + '</span> '; }).join('') + '</div>' : '')
-                + '</div>' + (m.price ? '<div class="service-pricing"><div class="service-price" style="font-size:0.85rem;">$' + m.price.toFixed(2) + '</div></div>' : '')
-                + '</div>';
+        // Menu items — fetch directly by profile ID to avoid profile mismatch issues
+        fetch('/api/v1/providers/' + id + '/menu-items')
+          .then(function(r) { return r.json(); })
+          .then(function(menuData) {
+            var items = (menuData.data || menuData || []);
+            if (!items.length) return;
+            var menuByCategory = {};
+            items.forEach(function(m) {
+              var cat = m.category || 'Menu';
+              if (!menuByCategory[cat]) menuByCategory[cat] = [];
+              menuByCategory[cat].push(m);
+            });
+            var menuHTML = Object.keys(menuByCategory).map(function(cat) {
+              var rows = menuByCategory[cat].map(function(m) {
+                return '<div class="service-row" style="padding:0.6rem 0;border-bottom:1px solid var(--border);">'
+                  + '<div class="service-info"><div class="service-name">' + esc(m.name) + '</div>'
+                  + (m.description ? '<div class="service-desc">' + esc(m.description) + '</div>' : '')
+                  + (m.dietaryInfo && m.dietaryInfo.length ? '<div style="margin-top:0.3rem;">' + m.dietaryInfo.map(function(d){ return '<span style="font-size:0.63rem;background:rgba(196,160,106,0.1);color:var(--gold-dark);padding:0.15rem 0.5rem;border-radius:8px;font-weight:600;">' + esc(d) + '</span> '; }).join('') + '</div>' : '')
+                  + '</div>' + (m.price ? '<div class="service-pricing"><div class="service-price" style="font-size:0.85rem;">$' + parseFloat(m.price).toFixed(2) + '</div></div>' : '')
+                  + '</div>';
+              }).join('');
+              return '<div style="margin-bottom:1.25rem;"><div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:0.6rem;">' + esc(cat) + '</div>' + rows + '</div>';
             }).join('');
-            return '<div style="margin-bottom:1.25rem;"><div style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-dark);margin-bottom:0.6rem;">' + esc(cat) + '</div>' + items + '</div>';
-          }).join('');
-
-          // Insert after services card
-          var servicesCard = document.getElementById('services');
-          if (servicesCard && menuHTML) {
-            var menuCard = document.createElement('div');
-            menuCard.className = 'card';
-            menuCard.style.marginTop = '1.5rem';
-            menuCard.innerHTML = '<div class="card-title">Menu</div><div class="gold-rule"></div>' + menuHTML;
-            servicesCard.insertAdjacentElement('afterend', menuCard);
-          }
-        }
+            var servicesCard = document.getElementById('services');
+            if (servicesCard && menuHTML) {
+              var menuCard = document.createElement('div');
+              menuCard.className = 'card';
+              menuCard.style.marginTop = '1.5rem';
+              menuCard.innerHTML = '<div class="card-title">Menu</div><div class="gold-rule"></div>' + menuHTML;
+              servicesCard.insertAdjacentElement('afterend', menuCard);
+            }
+          })
+          .catch(function() {});
 
         // Pricing info in request card
         if (p.minimumBudget || p.pricePerPerson || p.hourlyRate) {
