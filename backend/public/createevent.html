@@ -909,15 +909,15 @@
         <div class="form-row" style="grid-template-columns: 1fr 1fr 110px;">
           <div class="form-group">
             <label for="venueCity">City</label>
-            <input type="text" id="venueCity" placeholder="e.g. Austin">
+            <input type="text" id="venueCity" placeholder="e.g. Toronto">
           </div>
           <div class="form-group">
-            <label for="venueState">State</label>
-            <input type="text" id="venueState" placeholder="e.g. TX">
+            <label for="venueState">Province</label>
+            <input type="text" id="venueState" placeholder="e.g. ON">
           </div>
           <div class="form-group">
-            <label for="venueZip">ZIP</label>
-            <input type="text" id="venueZip" placeholder="78701">
+            <label for="venueZip">Postal Code</label>
+            <input type="text" id="venueZip" placeholder="M5V 3A8">
           </div>
         </div>
       </div>
@@ -1201,29 +1201,29 @@
 
     const vendorData = {
       venue: [
-        { id: null, name: "The Rosewood Estate", location: "Austin, TX", rating: 4.9, reviews: 186, price: "From $3,200", img: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80", featured: true },
-        { id: null, name: "The Skyline Loft", location: "Austin, TX", rating: 4.7, reviews: 112, price: "From $1,800", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80", featured: false },
-        { id: null, name: "Maison Blanche Hall", location: "Austin, TX", rating: 4.8, reviews: 94, price: "From $2,500", img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", featured: false },
+        { id: null, name: "The Rosewood Estate", location: "Toronto, ON", rating: 4.9, reviews: 186, price: "From $3,200", img: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=600&q=80", featured: true },
+        { id: null, name: "The Skyline Loft", location: "Toronto, ON", rating: 4.7, reviews: 112, price: "From $1,800", img: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80", featured: false },
+        { id: null, name: "Maison Blanche Hall", location: "Toronto, ON", rating: 4.8, reviews: 94, price: "From $2,500", img: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80", featured: false },
       ],
       caterer: [
-        { id: null, name: "Harvest & Co.", location: "Austin, TX", rating: 4.9, reviews: 143, price: "From $45/pp", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80", featured: true },
-        { id: null, name: "The Seasonal Table", location: "Austin, TX", rating: 4.6, reviews: 88, price: "From $35/pp", img: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&q=80", featured: false },
-        { id: null, name: "Luxe Bites Catering", location: "Austin, TX", rating: 4.8, reviews: 120, price: "From $55/pp", img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80", featured: false },
+        { id: null, name: "Harvest & Co.", location: "Toronto, ON", rating: 4.9, reviews: 143, price: "From $45/pp", img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80", featured: true },
+        { id: null, name: "The Seasonal Table", location: "Toronto, ON", rating: 4.6, reviews: 88, price: "From $35/pp", img: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&q=80", featured: false },
+        { id: null, name: "Luxe Bites Catering", location: "Toronto, ON", rating: 4.8, reviews: 120, price: "From $55/pp", img: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80", featured: false },
       ],
       dj: [
-        { id: null, name: "DJ Maelo", location: "Austin, TX", rating: 5.0, reviews: 77, price: "From $900", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80", featured: true },
-        { id: null, name: "Vibe Soundworks", location: "Austin, TX", rating: 4.7, reviews: 54, price: "From $700", img: "https://images.unsplash.com/photo-1571266028243-d220c6a8c252?w=600&q=80", featured: false },
-        { id: null, name: "Neon Nights DJ Co.", location: "Austin, TX", rating: 4.8, reviews: 63, price: "From $850", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80", featured: false },
+        { id: null, name: "DJ Maelo", location: "Toronto, ON", rating: 5.0, reviews: 77, price: "From $900", img: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80", featured: true },
+        { id: null, name: "Vibe Soundworks", location: "Toronto, ON", rating: 4.7, reviews: 54, price: "From $700", img: "https://images.unsplash.com/photo-1571266028243-d220c6a8c252?w=600&q=80", featured: false },
+        { id: null, name: "Neon Nights DJ Co.", location: "Toronto, ON", rating: 4.8, reviews: 63, price: "From $850", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80", featured: false },
       ],
       photographer: [
-        { id: null, name: "Lucent Photo Studio", location: "Austin, TX", rating: 4.9, reviews: 201, price: "From $2,200", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80", featured: true },
-        { id: null, name: "Golden Hour Co.", location: "Austin, TX", rating: 4.8, reviews: 139, price: "From $1,800", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80", featured: false },
-        { id: null, name: "Frame & Light", location: "Austin, TX", rating: 4.7, reviews: 95, price: "From $1,500", img: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600&q=80", featured: false },
+        { id: null, name: "Lucent Photo Studio", location: "Toronto, ON", rating: 4.9, reviews: 201, price: "From $2,200", img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&q=80", featured: true },
+        { id: null, name: "Golden Hour Co.", location: "Toronto, ON", rating: 4.8, reviews: 139, price: "From $1,800", img: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=600&q=80", featured: false },
+        { id: null, name: "Frame & Light", location: "Toronto, ON", rating: 4.7, reviews: 95, price: "From $1,500", img: "https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=600&q=80", featured: false },
       ],
       bar: [
-        { id: null, name: "The Craft Bar Co.", location: "Austin, TX", rating: 4.9, reviews: 108, price: "From $18/pp", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80", featured: true },
-        { id: null, name: "Pour & Clink", location: "Austin, TX", rating: 4.7, reviews: 82, price: "From $14/pp", img: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80", featured: false },
-        { id: null, name: "Sip Society Events", location: "Austin, TX", rating: 4.8, reviews: 67, price: "From $20/pp", img: "https://images.unsplash.com/photo-1543668189-8df3b1af7fa2?w=600&q=80", featured: false },
+        { id: null, name: "The Craft Bar Co.", location: "Toronto, ON", rating: 4.9, reviews: 108, price: "From $18/pp", img: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&q=80", featured: true },
+        { id: null, name: "Pour & Clink", location: "Toronto, ON", rating: 4.7, reviews: 82, price: "From $14/pp", img: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80", featured: false },
+        { id: null, name: "Sip Society Events", location: "Toronto, ON", rating: 4.8, reviews: 67, price: "From $20/pp", img: "https://images.unsplash.com/photo-1543668189-8df3b1af7fa2?w=600&q=80", featured: false },
       ]
     };
 

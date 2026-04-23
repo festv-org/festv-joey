@@ -1954,11 +1954,11 @@
                   cityInput.value = state ? city + ', ' + state : city;
                   saved.city = cityInput.value;
                 }
-                cityInput.placeholder = 'City, State';
+                cityInput.placeholder = 'City, Province';
               })
-              .catch(function () { cityInput.placeholder = 'City, State'; });
+              .catch(function () { cityInput.placeholder = 'City, Province'; });
           },
-          function () { cityInput.placeholder = 'City, State'; },
+          function () { cityInput.placeholder = 'City, Province'; },
           { timeout: 6000 }
         );
       }
