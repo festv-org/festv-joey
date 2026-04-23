@@ -896,6 +896,13 @@
       document.getElementById('resultsCount').innerHTML = `<strong>${filtered.length}</strong> vendor${filtered.length !== 1 ? 's' : ''} found`;
     }
 
+    function isVendorSaved(id) {
+      try {
+        var saved = JSON.parse(localStorage.getItem('savedVendors')) || [];
+        return saved.some(function(v) { return v.id === id; });
+      } catch(e) { return false; }
+    }
+
     function renderCards(vendors) {
       const grid = document.getElementById('vendorGrid');
       const noRes = document.getElementById('noResults');
@@ -926,7 +933,10 @@
             <div class="card-price">${v.priceLabel} <span>· ${v.priceRange === 'budget' ? '$' : v.priceRange === 'mid' ? '$$' : v.priceRange === 'premium' ? '$$$' : '$$$$'}</span></div>
             <div class="card-actions">
               <button class="btn-profile" onclick="viewProfile('${v.id}', '${v.name}', '${v.category}')">View Profile</button>
-              <button class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')">♡ Save</button>
+              ${isVendorSaved(v.id)
+                ? `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')" style="background:#3A8A55;color:#fff;border:none;">✓ Saved</button>`
+                : `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')">♡ Save</button>`
+              }
             </div>
           </div>
         </div>
@@ -1151,6 +1161,8 @@
       }
 
       showToast(alreadySaved ? name + ' already saved!' : '♥ ' + name + ' saved' + (ev && ev.name ? ' to ' + ev.name : ''));
+      var btn = document.getElementById('savebtn-' + id);
+      if (btn) { btn.style.background = '#3A8A55'; btn.style.color = '#fff'; btn.style.border = 'none'; btn.textContent = '✓ Saved'; }
     };
 
     /* ── TOAST ── */
