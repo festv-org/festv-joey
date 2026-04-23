@@ -2165,11 +2165,14 @@
             var color = statusColors[r.status] || '#C4A06A';
             var label = statusLabels[r.status] || r.status;
             var name = r.vendorName && r.vendorName !== 'Vendor' ? r.vendorName : (r.vendorType || 'Vendor');
-            var service = r.service || r.vendorType || '';
-            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);">'
-              + '<div><div style="font-size:0.78rem;font-weight:600;color:var(--dark);">' + name + '</div>'
-              + '<div style="font-size:0.7rem;color:var(--muted);">' + service + '</div></div>'
-              + '<span style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + color + ';">' + label + '</span>'
+            var services = r.service ? r.service.split(',').map(function(s) { return s.trim(); }).filter(Boolean) : (r.vendorType ? [r.vendorType] : []);
+            var pillsHtml = services.map(function(s) {
+              return '<span style="display:inline-block;font-size:0.62rem;font-weight:600;padding:0.18rem 0.55rem;background:rgba(196,160,106,0.12);color:var(--gold-dark);border-radius:999px;border:1px solid rgba(196,160,106,0.3);margin-right:0.3rem;margin-top:0.3rem;">' + s + '</span>';
+            }).join('');
+            return '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);gap:0.5rem;">'
+              + '<div style="flex:1;"><div style="font-size:0.78rem;font-weight:600;color:var(--dark);">' + name + '</div>'
+              + (pillsHtml ? '<div style="margin-top:0.1rem;">' + pillsHtml + '</div>' : '') + '</div>'
+              + '<span style="font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + color + ';flex-shrink:0;">' + label + '</span>'
               + '</div>';
           }).join('') : '<div style="font-size:0.78rem;color:var(--muted);padding:0.5rem 0;">No vendor requests sent yet. <a href="browsevendors.html" style="color:var(--gold-dark);">Browse vendors →</a></div>';
 
