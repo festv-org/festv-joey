@@ -284,12 +284,8 @@ export const searchProviders = asyncHandler(async (req: AuthenticatedRequest, re
   const params = providerSearchSchema.parse(req.query);
   const currentUserId = req.user?.id;
   
-  const where: any = {
-    OR: [
-      { verificationStatus: 'VERIFIED' },
-      ...(currentUserId ? [{ userId: currentUserId }] : []),
-    ],
-  };
+  // TODO: restrict to VERIFIED only in production
+  const where: any = {};
   
   // Filter by provider types
   if (params.providerTypes && params.providerTypes.length > 0) {
