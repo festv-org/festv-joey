@@ -876,11 +876,15 @@
       <div class="form-row">
         <div class="form-group">
           <label for="startTime">Start Time</label>
-          <input type="time" id="startTime" required>
+          <select id="startTime">
+            <option value="">Select time...</option>
+          </select>
         </div>
         <div class="form-group">
           <label for="endTime">End Time</label>
-          <input type="time" id="endTime" required>
+          <select id="endTime">
+            <option value="">Select time...</option>
+          </select>
         </div>
       </div>
 
@@ -1257,6 +1261,31 @@
       html += '</div>';
       return html;
     }
+
+    /* ── POPULATE TIME SELECTS ── */
+    (function() {
+      function buildTimeOptions(selectEl, defaultVal) {
+        var times = [];
+        for (var h = 0; h < 24; h++) {
+          for (var m = 0; m < 60; m += 30) {
+            var hour12 = h % 12 === 0 ? 12 : h % 12;
+            var ampm   = h < 12 ? 'AM' : 'PM';
+            var label  = hour12 + ':' + (m === 0 ? '00' : '30') + ' ' + ampm;
+            var value  = (h < 10 ? '0' + h : h) + ':' + (m === 0 ? '00' : '30');
+            times.push({ label: label, value: value });
+          }
+        }
+        times.forEach(function(t) {
+          var opt = document.createElement('option');
+          opt.value = t.value;
+          opt.textContent = t.label;
+          if (t.value === defaultVal) opt.selected = true;
+          selectEl.appendChild(opt);
+        });
+      }
+      buildTimeOptions(document.getElementById('startTime'), '18:00');
+      buildTimeOptions(document.getElementById('endTime'),   '23:00');
+    })();
 
     /* ── VENUE TOGGLE ── */
     var _hasVenue = false;
