@@ -875,10 +875,14 @@
     <img class="hero-cover" id="vp-cover" src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1400&q=80" alt="Venue">
     <div class="hero-overlay">
       <div class="hero-info">
-        <span class="vendor-category-badge" id="vp-badge">Venue</span>
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+          <span class="vendor-category-badge" id="vp-badge">Venue</span>
+          <span id="vp-badge-verified" class="badge badge-green" style="display:none;font-size:0.62rem;padding:0.2rem 0.6rem;">✓ Verified</span>
+          <span id="vp-badge-events" class="badge badge-dark" style="display:none;font-size:0.62rem;padding:0.2rem 0.6rem;"></span>
+        </div>
         <div class="vendor-name" id="vp-name">The Rosewood Estate</div>
         <div class="hero-ratings">
-          <div class="rating-pill">
+          <div class="rating-pill" id="vp-rating-pill">
             <div class="mini-stars">
               <svg viewBox="0 0 24 24" class="star-gold"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
               <svg viewBox="0 0 24 24" class="star-gold"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
@@ -888,11 +892,10 @@
             </div>
             4.9 FESTV &nbsp;<span class="review-cnt">(186)</span>
           </div>
-          <div class="rating-pill">
-            <span style="font-weight:800;font-size:0.78rem;letter-spacing:-0.02em"><span style="color:#4FC3F7">G</span><span style="color:#FF8A65">o</span><span style="color:#FFD54F">o</span><span style="color:#4FC3F7">g</span><span style="color:#81C784">l</span><span style="color:#FF8A65">e</span></span>
-            4.7 &nbsp;<span class="review-cnt">(342)</span>
-          </div>
           <div class="rating-pill" id="vp-location">📍 Austin, TX</div>
+          <div class="rating-pill" id="vp-capacity-pill" style="display:none;">👥 <span id="vp-info-capacity"></span></div>
+          <div class="rating-pill" id="vp-member-pill" style="display:none;">🗓 Member since <span id="vp-info-member"></span></div>
+          <div class="rating-pill" id="vp-response-pill" style="display:none;">⚡ <span id="vp-info-response"></span></div>
         </div>
       </div>
       <div class="hero-cta" id="heroCta">
@@ -995,43 +998,6 @@
     </div>
   </div>
 
-  <!-- VENDOR INFO BAR -->
-  <div class="vendor-info-bar">
-    <div class="vendor-info-bar-inner">
-      <div class="badge-row" id="vp-badge-row">
-        <span id="vp-badge-verified" class="badge badge-green" style="display:none;">Verified</span>
-        <span id="vp-badge-events" class="badge badge-dark" style="display:none;"></span>
-      </div>
-      <div class="info-row">
-        <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-        <div>
-          <div class="info-label">Location</div>
-          <div class="info-value" id="vp-info-location">—</div>
-        </div>
-      </div>
-      <div class="info-row" id="vp-capacity-row">
-        <div class="info-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-        <div>
-          <div class="info-label">Capacity</div>
-          <div class="info-value" id="vp-info-capacity">—</div>
-        </div>
-      </div>
-      <div class="info-row">
-        <div class="info-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-        <div>
-          <div class="info-label">Member Since</div>
-          <div class="info-value" id="vp-info-member">—</div>
-        </div>
-      </div>
-      <div class="info-row" id="vp-response-row" style="display:none;">
-        <div class="info-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-        <div>
-          <div class="info-label">Response Time</div>
-          <div class="info-value" id="vp-info-response">—</div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- PAGE BODY -->
   <div class="page-body">
@@ -1305,44 +1271,44 @@
         document.getElementById('vp-stickyName').textContent = name;
         document.title = 'FESTV — ' + name;
 
-        // Info bar — location
+        // Hero — location pill
         var locationStr = (p.serviceAreas && p.serviceAreas.length)
-          ? p.serviceAreas.join(', ')
+          ? p.serviceAreas[0]
           : (p.user && p.user.city)
             ? (p.user.city + (p.user.state ? ', ' + p.user.state : ''))
-            : 'Location TBD';
-        document.getElementById('vp-info-location').textContent = locationStr;
-
-        // Info bar — capacity (only show for venue-type vendors)
-        var capEl = document.getElementById('vp-info-capacity');
-        var capRow = document.getElementById('vp-capacity-row');
-        if (p.maxGuestCount) {
-          capEl.textContent = 'Up to ' + p.maxGuestCount.toLocaleString() + ' guests';
+            : null;
+        var locPill = document.getElementById('vp-location');
+        if (locationStr) {
+          locPill.textContent = '📍 ' + locationStr;
         } else {
-          capRow.style.display = 'none';
+          locPill.style.display = 'none';
         }
 
-        // Info bar — member since
-        var memberEl = document.getElementById('vp-info-member');
+        // Hero — capacity pill
+        if (p.maxGuestCount) {
+          document.getElementById('vp-info-capacity').textContent = 'Up to ' + p.maxGuestCount.toLocaleString() + ' guests';
+          document.getElementById('vp-capacity-pill').style.display = '';
+        }
+
+        // Hero — member since pill
         if (p.createdAt) {
           var d = new Date(p.createdAt);
-          memberEl.textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+          document.getElementById('vp-info-member').textContent = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+          document.getElementById('vp-member-pill').style.display = '';
         }
 
-        // Info bar — response time
+        // Hero — response time pill
         if (p.responseTimeHours) {
-          var rRow = document.getElementById('vp-response-row');
-          var rEl  = document.getElementById('vp-info-response');
-          rRow.style.display = '';
           var hrs = p.responseTimeHours;
-          rEl.textContent = hrs < 1 ? 'Within 1 hour'
-                          : hrs <= 2 ? 'Within 2 hours'
-                          : hrs <= 4 ? 'Within 4 hours'
-                          : hrs <= 24 ? 'Within ' + Math.round(hrs) + ' hours'
-                          : 'Within ' + Math.round(hrs / 24) + ' days';
+          document.getElementById('vp-info-response').textContent = hrs < 1 ? 'Responds within 1 hr'
+            : hrs <= 2  ? 'Responds within 2 hrs'
+            : hrs <= 4  ? 'Responds within 4 hrs'
+            : hrs <= 24 ? 'Responds within ' + Math.round(hrs) + ' hrs'
+            : 'Responds within ' + Math.round(hrs / 24) + ' days';
+          document.getElementById('vp-response-pill').style.display = '';
         }
 
-        // Info bar — badges
+        // Hero — verified + events badges
         if (p.verificationStatus === 'VERIFIED') {
           document.getElementById('vp-badge-verified').style.display = '';
         }
