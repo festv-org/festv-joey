@@ -317,12 +317,16 @@ export const getQuote = asyncHandler(async (req: AuthenticatedRequest, res: Resp
 export const acceptQuote = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   const { id } = req.params;
-  
+
   const quote = await prisma.quote.findUnique({
     where: { id },
     include: {
       eventRequest: true,
-      provider: true,
+      provider: {
+        include: {
+          user: { select: { city: true, state: true } },
+        },
+      },
     },
   });
   
@@ -381,9 +385,29 @@ export const acceptQuote = asyncHandler(async (req: AuthenticatedRequest, res: R
     });
     
     // Update event request status
+    // If this is a venue/restaurant booking, auto-fill venue address on the event
+    const isVenueProvider = quote.provider.primaryType === 'RESTO_VENUE' ||
+      (quote.provider.providerTypes && quote.provider.providerTypes.includes('RESTO_VENUE' as any));
+
+    const venueUpdate: Record<string, any> = { status: 'BOOKED' };
+    if (isVenueProvider && !quote.eventRequest.venueProviderId) {
+      // Pull city/state from provider's user profile; use serviceAreas as fallback
+      const city = (quote.provider as any).user?.city
+        || (quote.provider.serviceAreas && quote.provider.serviceAreas[0]?.split(',')[0].trim())
+        || undefined;
+      const state = (quote.provider as any).user?.state
+        || (quote.provider.serviceAreas && quote.provider.serviceAreas[0]?.split(',')[1]?.trim())
+        || undefined;
+
+      venueUpdate.venueName        = quote.eventRequest.venueName || quote.provider.businessName;
+      if (city)  venueUpdate.venueCity  = city;
+      if (state) venueUpdate.venueState = state;
+      venueUpdate.venueProviderId  = quote.providerId;
+    }
+
     await tx.eventRequest.update({
       where: { id: quote.eventRequestId },
-      data: { status: 'BOOKED' },
+      data: venueUpdate,
     });
     
     // Reject other quotes

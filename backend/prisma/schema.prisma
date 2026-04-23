@@ -452,11 +452,12 @@ model EventRequest {
   
   // Location
   venueName           String?
-  venueAddress        String
-  venueCity           String
-  venueState          String
-  venueZipCode        String
+  venueAddress        String?             // Optional — filled in by planner or auto-set from venue booking
+  venueCity           String?
+  venueState          String?
+  venueZipCode        String?
   venueNotes          String?             @db.Text
+  venueProviderId     String?             // Set when a RESTO_VENUE booking is confirmed for this event
   
   // Optional preferences
   cuisineTypes        CuisineType[]
