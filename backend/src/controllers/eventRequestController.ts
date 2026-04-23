@@ -444,13 +444,19 @@ export const getAvailableEventRequests = asyncHandler(async (req: AuthenticatedR
     prisma.eventRequest.count({ where }),
   ]);
   
-  // Add flag for whether provider has already quoted
-  const requestsWithQuoteStatus = requests.map(req => ({
-    ...req,
-    hasQuoted: req.quotes.length > 0,
-    myQuoteStatus: req.quotes[0]?.status || null,
-    quotes: undefined, // Remove quotes from response
-  }));
+  // Add flag for whether provider has already quoted, filter out declined
+  const requestsWithQuoteStatus = requests
+    .filter(req => {
+      // Hide requests this provider has declined (WITHDRAWN quote)
+      const myQuote = req.quotes[0];
+      return !(myQuote && myQuote.status === 'WITHDRAWN');
+    })
+    .map(req => ({
+      ...req,
+      hasQuoted: req.quotes.length > 0 && req.quotes[0]?.status !== 'WITHDRAWN',
+      myQuoteStatus: req.quotes[0]?.status || null,
+      quotes: undefined,
+    }));
   
   res.json({
     success: true,
@@ -462,6 +468,41 @@ export const getAvailableEventRequests = asyncHandler(async (req: AuthenticatedR
       totalPages: Math.ceil(total / Number(limit)),
     },
   });
+});
+
+// Vendor declines an event request (recorded per-provider, request stays visible to others)
+export const declineEventRequest = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user!.id;
+
+  const eventRequest = await prisma.eventRequest.findUnique({ where: { id } });
+  if (!eventRequest) throw new NotFoundError('Event request');
+
+  // Store the decline as a withdrawn/rejected quote placeholder so this request
+  // won't show up again for this provider in the available feed
+  const profile = await prisma.providerProfile.findFirst({ where: { userId } });
+  if (!profile) throw new NotFoundError('Provider profile');
+
+  // Create a WITHDRAWN quote to mark that this provider has seen + declined
+  await prisma.quote.upsert({
+    where: {
+      eventRequestId_providerId: {
+        eventRequestId: id,
+        providerId: profile.id,
+      },
+    },
+    update: { status: 'WITHDRAWN' },
+    create: {
+      providerId: profile.id,
+      eventRequestId: id,
+      totalAmount: 0,
+      status: 'WITHDRAWN',
+      message: req.body.message || 'Declined by provider',
+      items: { create: [] },
+    },
+  });
+
+  res.json({ success: true, message: 'Request declined' });
 });
 
 // Delete event request (only drafts)

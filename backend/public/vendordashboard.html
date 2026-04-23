@@ -1159,7 +1159,7 @@
             + '<div style="flex-shrink:0;">'
             + (alreadyQuoted
               ? '<span style="font-size:0.65rem;font-weight:700;color:var(--green);letter-spacing:0.08em;text-transform:uppercase;">✓ Quoted</span>'
-              : '<button onclick="openQuoteModal(\'' + r.id + '\', ' + JSON.stringify(r).replace(/'/g, "\\'") + ')" style="padding:0.55rem 1rem;background:var(--dark);color:var(--gold-light);border:none;border-radius:8px;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Send Quote</button>')
+              : '<a href="vendorapproval.html?requestId=' + r.id + '" style="padding:0.55rem 1rem;background:var(--dark);color:var(--gold-light);border:none;border-radius:8px;font-size:0.68rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;">Review →</a>')
             + '</div>'
             + '</div>'
             + '</div>';
