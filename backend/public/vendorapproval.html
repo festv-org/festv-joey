@@ -407,9 +407,10 @@
       .then(function(data) {
         if (!data.success) throw new Error(data.error || data.message || 'Failed');
         document.getElementById('actionArea').style.display = 'none';
+        document.getElementById('messageCard').style.display = 'none';
         document.getElementById('successIcon').className = 'success-icon decline';
         document.getElementById('successTitle').textContent = 'Request Declined';
-        document.getElementById('successSub').textContent = 'This request has been declined and will no longer appear in your inbox.';
+        document.getElementById('successSub').textContent = 'The planner has been notified. This request will no longer appear in your inbox.';
         document.getElementById('successBanner').classList.add('show');
       })
       .catch(function(err) {

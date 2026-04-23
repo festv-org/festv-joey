@@ -474,13 +474,17 @@ export const getAvailableEventRequests = asyncHandler(async (req: AuthenticatedR
 export const declineEventRequest = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const { id } = req.params;
   const userId = req.user!.id;
+  const note = req.body.message || '';
 
   const eventRequest = await prisma.eventRequest.findUnique({ where: { id } });
   if (!eventRequest) throw new NotFoundError('Event request');
 
   // Store the decline as a withdrawn/rejected quote placeholder so this request
   // won't show up again for this provider in the available feed
-  const profile = await prisma.providerProfile.findFirst({ where: { userId } });
+  const profile = await prisma.providerProfile.findFirst({
+    where: { userId },
+    include: { user: { select: { firstName: true, lastName: true } } },
+  });
   if (!profile) throw new NotFoundError('Provider profile');
 
   // Create a WITHDRAWN quote to mark that this provider has seen + declined
@@ -491,14 +495,30 @@ export const declineEventRequest = asyncHandler(async (req: AuthenticatedRequest
         providerId: profile.id,
       },
     },
-    update: { status: 'WITHDRAWN' },
+    update: { status: 'WITHDRAWN', message: note || 'Declined by provider' },
     create: {
       providerId: profile.id,
       eventRequestId: id,
       totalAmount: 0,
       status: 'WITHDRAWN',
-      message: req.body.message || 'Declined by provider',
+      message: note || 'Declined by provider',
       items: { create: [] },
+    },
+  });
+
+  // Notify the planner
+  const vendorName = profile.businessName || [profile.user.firstName, profile.user.lastName].filter(Boolean).join(' ') || 'A vendor';
+  const notifMessage = note
+    ? `${vendorName} declined your request for "${eventRequest.title}": "${note}"`
+    : `${vendorName} is unable to accommodate your request for "${eventRequest.title}".`;
+
+  await prisma.notification.create({
+    data: {
+      userId: eventRequest.clientId,
+      type: 'QUOTE_REJECTED',
+      title: `${vendorName} Declined Your Request`,
+      message: notifMessage,
+      data: { eventRequestId: id, vendorName },
     },
   });
 

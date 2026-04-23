@@ -788,6 +788,20 @@
       <button class="icon-btn" title="Language">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       </button>
+      <!-- Notification Bell -->
+      <div style="position:relative;" id="notifBellWrap">
+        <button class="icon-btn" title="Notifications" id="notifBellBtn" onclick="toggleNotifDropdown()" style="position:relative;">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span id="notifBadge" style="display:none;position:absolute;top:-3px;right:-3px;background:#B84040;color:#fff;font-size:0.58rem;font-weight:700;min-width:16px;height:16px;border-radius:999px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 3px;">0</span>
+        </button>
+        <div id="notifDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 10px);width:320px;background:#fff;border:1px solid rgba(0,0,0,0.09);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.13);z-index:200;overflow:hidden;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:0.9rem 1.1rem 0.7rem;border-bottom:1px solid rgba(0,0,0,0.07);">
+            <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#7A7068;">Notifications</span>
+            <button onclick="markAllNotifsRead()" style="font-size:0.65rem;font-weight:600;color:#C4A06A;background:none;border:none;cursor:pointer;letter-spacing:0.06em;">Mark all read</button>
+          </div>
+          <div id="notifList" style="max-height:340px;overflow-y:auto;"></div>
+        </div>
+      </div>
       <button class="icon-btn" title="Profile">
         <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </button>
@@ -1108,6 +1122,94 @@
   </div>
 
   <script>
+  // ── NOTIFICATION BELL ──
+  (function() {
+    var API = '/api/v1';
+    var _notifOpen = false;
+
+    function authFetchN(url, opts) {
+      var token = localStorage.getItem('accessToken');
+      opts = opts || {};
+      opts.headers = Object.assign({ 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }, opts.headers || {});
+      return fetch(API + url, opts).then(function(r) { return r.json(); });
+    }
+
+    function escN(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function timeSinceN(date) {
+      var secs = Math.floor((new Date() - date) / 1000);
+      if (secs < 60) return 'Just now';
+      if (secs < 3600) return Math.floor(secs/60) + 'm ago';
+      if (secs < 86400) return Math.floor(secs/3600) + 'h ago';
+      return Math.floor(secs/86400) + 'd ago';
+    }
+
+    function loadNotifications() {
+      authFetchN('/notifications?limit=10')
+        .then(function(res) {
+          var data = res.data || {};
+          var notifs = data.notifications || [];
+          var unread = data.unreadCount || 0;
+          var badge = document.getElementById('notifBadge');
+          if (badge) {
+            if (unread > 0) { badge.textContent = unread > 9 ? '9+' : String(unread); badge.style.display = 'flex'; }
+            else { badge.style.display = 'none'; }
+          }
+          var list = document.getElementById('notifList');
+          if (!list) return;
+          if (!notifs.length) {
+            list.innerHTML = '<div style="padding:1.5rem 1.1rem;font-size:0.78rem;color:#7A7068;text-align:center;">No notifications yet</div>';
+            return;
+          }
+          list.innerHTML = notifs.map(function(n) {
+            var ago = timeSinceN(new Date(n.createdAt));
+            var typeIcon = n.type === 'NEW_QUOTE' ? '💬' : n.type === 'QUOTE_REJECTED' ? '✕' : n.type === 'QUOTE_ACCEPTED' ? '✓' : n.type === 'BOOKING_CONFIRMED' ? '📅' : '🔔';
+            return '<div onclick="markNotifRead(\'' + n.id + '\', this)" style="padding:0.85rem 1.1rem;border-bottom:1px solid rgba(0,0,0,0.05);cursor:pointer;background:' + (n.isRead ? '#fff' : 'rgba(196,160,106,0.06)') + '" onmouseover="this.style.background=\'rgba(196,160,106,0.1)\'" onmouseout="this.style.background=\'' + (n.isRead ? '#fff' : 'rgba(196,160,106,0.06)') + '\'">'
+              + '<div style="display:flex;align-items:flex-start;gap:0.6rem;">'
+              + '<span style="font-size:0.9rem;margin-top:1px;">' + typeIcon + '</span>'
+              + '<div style="flex:1;min-width:0;">'
+              + '<div style="font-size:0.76rem;font-weight:' + (n.isRead ? '500' : '700') + ';color:#1A1714;line-height:1.4;margin-bottom:0.2rem;">' + escN(n.title) + '</div>'
+              + '<div style="font-size:0.7rem;color:#7A7068;line-height:1.5;">' + escN(n.message) + '</div>'
+              + '<div style="font-size:0.62rem;color:#C4A06A;margin-top:0.25rem;font-weight:600;">' + ago + '</div>'
+              + '</div>'
+              + (!n.isRead ? '<span style="width:7px;height:7px;border-radius:50%;background:#C4A06A;flex-shrink:0;margin-top:4px;"></span>' : '')
+              + '</div></div>';
+          }).join('');
+        })
+        .catch(function() {});
+    }
+
+    window.toggleNotifDropdown = function() {
+      var dd = document.getElementById('notifDropdown');
+      if (!dd) return;
+      _notifOpen = !_notifOpen;
+      dd.style.display = _notifOpen ? 'block' : 'none';
+      if (_notifOpen) loadNotifications();
+    };
+
+    window.markNotifRead = function(id) {
+      authFetchN('/notifications/' + id, { method: 'GET' }).then(function() { loadNotifications(); }).catch(function(){});
+    };
+
+    window.markAllNotifsRead = function() {
+      authFetchN('/notifications/mark-all-read', { method: 'PUT', body: JSON.stringify({}) }).then(function() { loadNotifications(); }).catch(function(){});
+    };
+
+    document.addEventListener('click', function(e) {
+      var wrap = document.getElementById('notifBellWrap');
+      if (wrap && !wrap.contains(e.target) && _notifOpen) {
+        _notifOpen = false;
+        var dd = document.getElementById('notifDropdown');
+        if (dd) dd.style.display = 'none';
+      }
+    });
+
+    if (localStorage.getItem('accessToken')) {
+      loadNotifications();
+      setInterval(loadNotifications, 30000);
+    }
+  })();
+
   (function() {
     var token = localStorage.getItem('accessToken');
     var _activeRequestId = null;
