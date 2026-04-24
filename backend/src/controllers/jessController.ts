@@ -1,6 +1,5 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../types/index.js';
-import { asyncHandler } from '../middleware/errorHandler.js';
 import Anthropic from '@anthropic-ai/sdk';
 import prisma from '../config/database.js';
 
@@ -228,7 +227,7 @@ interface ChatMessage {
   content: string;
 }
 
-export const chat = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+export const chat = async (req: AuthenticatedRequest, res: Response) => {
   const { messages, pageContext } = req.body as { messages: ChatMessage[]; pageContext?: string };
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -252,12 +251,23 @@ export const chat = asyncHandler(async (req: AuthenticatedRequest, res: Response
   const pageInfo = pageContext ? `\nCURRENT PAGE: ${pageContext}` : '';
   const systemPrompt = `${JESS_SYSTEM_PROMPT}\n\n${userContext}${pageInfo}`;
 
-  const response = await anthropic.messages.create({
-    model: 'claude-3-5-haiku-20241022',
-    max_tokens: 400,
-    system: systemPrompt,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-  });
+  let response;
+  try {
+    response = await anthropic.messages.create({
+      model: 'claude-3-5-haiku-20241022',
+      max_tokens: 400,
+      system: systemPrompt,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    });
+  } catch (err: any) {
+    console.error('[Jess] Anthropic API error:', err);
+    // Expose real error for debugging — remove before final launch
+    res.status(500).json({
+      success: false,
+      error: err?.message || err?.toString() || 'Anthropic call failed',
+    });
+    return;
+  }
 
   const raw = response.content[0].type === 'text' ? response.content[0].text : '';
   // Strip any accidental markdown code fences
@@ -278,4 +288,4 @@ export const chat = asyncHandler(async (req: AuthenticatedRequest, res: Response
       links: Array.isArray(parsed.links) ? parsed.links : [],
     },
   });
-});
+};
