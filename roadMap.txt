@@ -23,10 +23,13 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[x] Browse vendors wired to real API — no more static mock data
 	-[x] Vendor profile shows real data (services, menu items) from DB
 	-[x] Full planner-to-vendor flow: browse → profile → create event → request → success → visible to vendor
+	-[x] Vendor dashboard receives and displays incoming requests (6 showing in test)
 	-[x] Save vendor (favorites) wired to API for cross-device persistence
 	-[x] Saved vendors section on planner dashboard loads from API
 	-[x] Fix getMenuItems — direct providerId lookup, no businessName cross-reference
 	-[x] Role detection fixed (roles array vs role string) across auth middleware
+	-[x] Fix route ordering: /available/for-providers shadowed by /:id wildcard
+	-[x] Fix providerProfile.findUnique({ userId }) → findFirst across all controllers
 	-[x] AlessB added as Admin on GitHub org repo
 
 
