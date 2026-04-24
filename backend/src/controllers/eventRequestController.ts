@@ -361,10 +361,12 @@ export const getAvailableEventRequests = asyncHandler(async (req: AuthenticatedR
     throw new NotFoundError('Provider profile');
   }
   
-  // Build filters
+  // Build filters — use start of today so same-day events still show
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
   const where: any = {
     status: { in: ['SUBMITTED', 'MATCHING'] },
-    eventDate: { gt: new Date() },
+    eventDate: { gte: startOfToday },
   };
 
   // Only apply guest count filter if profile has meaningful limits set
