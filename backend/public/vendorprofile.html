@@ -1299,12 +1299,15 @@
       FLORIST_DECOR:'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=1400&q=80',
     };
 
+    console.log('[FESTV] Loading vendor profile ID:', id, '| URL:', window.location.href);
     fetch('/api/v1/providers/' + id)
       .then(function (r) { return r.json(); })
       .then(function (res) {
+        console.log('[FESTV] Provider API response:', res);
         var p = (res.data) ? res.data : res;
         if (!p || !p.id) {
           // Invalid or not-found ID — show error
+          console.warn('[FESTV] No provider data for ID:', id);
           var sl = document.querySelector('.services-list');
           if (sl) sl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.82rem;">Vendor not found. <a href="browsevendors.html" style="color:var(--gold-dark);">Browse vendors →</a></div>';
           mockEls.forEach(function(elId) { var el = document.getElementById(elId); if (el) el.style.opacity = '1'; });
@@ -1467,7 +1470,8 @@
           }
         }
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.error('[FESTV] Provider fetch error for ID:', id, err);
         var sl = document.querySelector('.services-list');
         if (sl) sl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--muted);font-size:0.82rem;">Couldn\'t load vendor. <a href="browsevendors.html" style="color:var(--gold-dark);">Browse vendors →</a></div>';
         mockEls.forEach(function(elId) { var el = document.getElementById(elId); if (el) el.style.opacity = '1'; });
