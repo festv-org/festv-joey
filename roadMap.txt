@@ -3,13 +3,12 @@
 ## North Star
 Build Vendors, get to the point where we can book an event completely via etransfer or stripe.
 
-## Current 
+## Current
  small:
-	-[/] add menu on top right for navigation and maybe profile image
-	-[/] fix festv logo sign out bug
+	-[x] add menu on top right for navigation and maybe profile image
+	-[x] fix festv logo sign out bug
 	-[ ] re-add admin pages with admin email unlock (APB task)
 	-[ ] add phone sms verification with twilio (APB task. old .env api keys)
- 	
 
  bigger:
 	-[ ] 0auth google/fb sign-in options
@@ -18,11 +17,25 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[ ] step by step analyzing backend (Flow diagrams and TablePlus)
 
 
-## Later 
-
+## Completed
+	-[x] Jess AI widget — live with full personality (Montreal, Ristorante Beatrice, 12 yrs, dogs Ralph/Vera/Lola)
+	-[x] Jess model upgraded to claude-haiku-4-5
+	-[x] Browse vendors wired to real API — no more static mock data
+	-[x] Vendor profile shows real data (services, menu items) from DB
+	-[x] Full planner-to-vendor flow: browse → profile → create event → request → success
+	-[x] Save vendor (favorites) wired to API for cross-device persistence
+	-[x] Saved vendors section on planner dashboard loads from API
+	-[x] Fix getMenuItems — direct providerId lookup, no businessName cross-reference
+	-[x] Role detection fixed (roles array vs role string) across auth middleware
+	-[x] AlessB added as Admin on GitHub org repo
 
 
 ## Decisions log
+	- Model: using claude-haiku-4-5 (new Anthropic accounts only have Claude 4 access in 2026). Upgrade to sonnet when tier allows.
+	- Favorites: saves to both localStorage (event planning flow) and API (cross-device). Both in sync.
+	- Browse vendors: API-only, no static fallback. If DB is empty, shows empty state.
 
 
 ## Known risks / open questions
+	- Vendor search currently returns ALL providers (not VERIFIED only) — flip before launch
+	- No Cloudinary yet — vendor profile images use avatarUrl from DB or Unsplash fallbacks
