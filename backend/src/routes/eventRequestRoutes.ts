@@ -5,17 +5,20 @@ import * as eventRequestController from '../controllers/eventRequestController';
 
 const router = Router();
 
+// Static/named routes MUST come before wildcard /:id routes
+// Provider routes (named paths first)
+router.get('/available/for-providers', authenticate, requireProvider, asyncHandler(eventRequestController.getAvailableEventRequests));
+
 // Client routes
 router.post('/', authenticate, requireClient, asyncHandler(eventRequestController.createEventRequest));
 router.get('/my-requests', authenticate, requireClient, asyncHandler(eventRequestController.getMyEventRequests));
+
+// Wildcard /:id routes (must be after all named routes)
 router.get('/:id', authenticate, asyncHandler(eventRequestController.getEventRequest));
 router.put('/:id', authenticate, requireClient, asyncHandler(eventRequestController.updateEventRequest));
 router.post('/:id/submit', authenticate, requireClient, asyncHandler(eventRequestController.submitEventRequest));
 router.post('/:id/cancel', authenticate, requireClient, asyncHandler(eventRequestController.cancelEventRequest));
 router.delete('/:id', authenticate, requireClient, asyncHandler(eventRequestController.deleteEventRequest));
-
-// Provider routes
-router.get('/available/for-providers', authenticate, requireProvider, asyncHandler(eventRequestController.getAvailableEventRequests));
 router.post('/:id/decline', authenticate, requireProvider, asyncHandler(eventRequestController.declineEventRequest));
 router.post('/:id/vendor-confirm', authenticate, requireProvider, asyncHandler(eventRequestController.vendorConfirmRequest));
 
