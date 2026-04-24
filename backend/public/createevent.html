@@ -1605,7 +1605,24 @@
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.success || data.id || data.data) {
+        if (data.success && data.data && data.data.id) {
+          // Submit the draft so it becomes visible to vendors
+          return fetch('/api/v1/event-requests/' + data.data.id + '/submit', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            }
+          })
+          .then(function(r) { return r.json(); })
+          .then(function(submitData) {
+            showSuccess();
+          })
+          .catch(function() {
+            // Submit failed but request was created — still show success
+            showSuccess();
+          });
+        } else if (data.id || data.data) {
           showSuccess();
         } else {
           btn.disabled = false;
