@@ -501,10 +501,8 @@
         if (data && data.success && data.data) {
           message = data.data.message || '';
           links = data.data.links || [];
-        } else if (data && data.error) {
-          message = "Error: " + data.error;
         } else {
-          message = "Unexpected response: " + JSON.stringify(data).substring(0, 120);
+          message = (data && data.error) || "I'm having a little trouble right now. Please try again in a moment.";
         }
 
         conversation.push({ role: 'assistant', content: message });

@@ -261,11 +261,7 @@ export const chat = async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (err: any) {
     console.error('[Jess] Anthropic API error:', err);
-    // Expose real error for debugging — remove before final launch
-    res.status(500).json({
-      success: false,
-      error: err?.message || err?.toString() || 'Anthropic call failed',
-    });
+    res.status(500).json({ success: false, error: 'Jess is unavailable right now. Please try again in a moment.' });
     return;
   }
 
