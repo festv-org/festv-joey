@@ -653,37 +653,15 @@ export const getMenuItems = asyncHandler(async (req: AuthenticatedRequest, res: 
 
   const profile = await prisma.providerProfile.findUnique({
     where: { id: providerId },
-    select: { id: true, userId: true, businessName: true },
+    select: { id: true, userId: true },
   });
 
   if (!profile) {
     throw new NotFoundError('Provider');
   }
 
-  // Get all profile IDs for this user
-  const profilesByUser = await prisma.providerProfile.findMany({
-    where: { userId: profile.userId },
-    select: { id: true },
-  });
-
-  // Also include profiles with the same business name — handles cases where a vendor
-  // re-registered and ended up with two separate user accounts for the same business
-  const profilesByName = profile.businessName
-    ? await prisma.providerProfile.findMany({
-        where: { businessName: profile.businessName },
-        select: { id: true },
-      })
-    : [];
-
-  const allProfileIds = [
-    ...new Set([
-      ...profilesByUser.map((p: { id: string }) => p.id),
-      ...profilesByName.map((p: { id: string }) => p.id),
-    ]),
-  ];
-
   const menuItems = await prisma.menuItem.findMany({
-    where: { providerId: { in: allProfileIds } },
+    where: { providerId: providerId },
     include: {
       pricingTiers: {
         orderBy: { minQuantity: 'asc' },
