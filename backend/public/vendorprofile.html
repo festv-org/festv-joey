@@ -1407,7 +1407,7 @@
         if (p.services && p.services.length) {
           var sl = document.querySelector('.services-list');
           if (sl) {
-            sl.innerHTML = p.services.map(function (s) {
+            sl.innerHTML = p.services.map(function (s, i) {
               var priceLabel = s.priceType === 'PER_PERSON' ? '$' + s.basePrice + '/pp'
                              : s.priceType === 'PER_HOUR'   ? '$' + s.basePrice + '/hr'
                              : s.priceType === 'CUSTOM'     ? 'Custom Quote'
