@@ -1327,6 +1327,15 @@
         <div id="draftsList" style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;"></div>
       </div>
 
+      <!-- Saved Vendors -->
+      <div class="events-card" id="savedVendorsCard" style="display:none;">
+        <div class="card-header">
+          <div class="card-title">Saved Vendors</div>
+          <a href="browsevendors.html" class="card-link">Browse More</a>
+        </div>
+        <div id="savedVendorsList" style="display:flex;flex-direction:column;gap:0.6rem;margin-top:0.75rem;"></div>
+      </div>
+
       <!-- Budget Tracker -->
       <div class="events-card" id="budgetCard">
         <div class="card-header">
@@ -1896,6 +1905,48 @@
 
       // Init activity
       renderActivity(getActivity());
+
+      // ──────────────────────────────────────────────────────────────
+      // SAVED VENDORS
+      // ──────────────────────────────────────────────────────────────
+      function renderSavedVendors() {
+        var saved = [];
+        try { saved = JSON.parse(localStorage.getItem('savedVendors')) || []; } catch(e) {}
+        var card = document.getElementById('savedVendorsCard');
+        var list = document.getElementById('savedVendorsList');
+        if (!saved.length) { card.style.display = 'none'; return; }
+        card.style.display = '';
+        list.innerHTML = '';
+        saved.forEach(function(v) {
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;align-items:center;gap:0.85rem;padding:0.65rem 0;border-bottom:1px solid var(--border);';
+          row.innerHTML =
+            '<img src="' + (v.img || '') + '" style="width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.display=\'none\'">' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="font-size:0.82rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (v.name || 'Vendor') + '</div>' +
+              '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;">' + (v.category || '') + (v.priceLabel ? ' · ' + v.priceLabel : '') + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
+              '<a href="vendorprofile.html?id=' + v.id + '" style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dark);text-decoration:none;padding:0.35rem 0.75rem;border:1px solid var(--gold);border-radius:6px;">View</a>' +
+              '<button onclick="unsaveVendor(\'' + v.id + '\', this)" style="font-size:0.68rem;font-weight:700;background:none;border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--muted);">✕</button>' +
+            '</div>';
+          list.appendChild(row);
+        });
+        // remove border from last row
+        var rows = list.children;
+        if (rows.length) rows[rows.length - 1].style.borderBottom = 'none';
+      }
+
+      window.unsaveVendor = function(id, btn) {
+        var saved = [];
+        try { saved = JSON.parse(localStorage.getItem('savedVendors')) || []; } catch(e) {}
+        saved = saved.filter(function(v) { return String(v.id) !== String(id); });
+        localStorage.setItem('savedVendors', JSON.stringify(saved));
+        renderSavedVendors();
+        showToast('Vendor removed from saved list');
+      };
+
+      renderSavedVendors();
 
       // ──────────────────────────────────────────────────────────────
       // FRIENDS COUNT
