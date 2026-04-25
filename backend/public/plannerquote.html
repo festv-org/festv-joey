@@ -192,7 +192,8 @@
 
       <button class="btn-accept-full" id="btnAccept" onclick="acceptQuote()">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Accept & Book
+        <span>Book Vendor &amp; Pay Deposit</span>
+        <span id="btnDepositAmt" style="font-size:0.75rem;opacity:0.85;margin-left:0.4rem;"></span>
       </button>
 
       <div class="action-row2">
@@ -217,7 +218,7 @@
         </div>
       </div>
 
-      <div class="action-note">Accepting creates a confirmed booking with <strong id="vendorNameInline">this vendor</strong>.</div>
+      <div class="action-note">Your deposit secures the booking with <strong id="vendorNameInline">this vendor</strong>. Balance due before the event.</div>
       <div class="error-msg" id="errorMsg"></div>
     </div>
 
@@ -359,6 +360,10 @@
         + '<div style="font-size:0.65rem;color:var(--muted);">10% of total · due at booking</div></div>'
         + '<span style="font-size:1rem;font-weight:700;color:var(--gold-dark);font-family:\'Cormorant Garamond\',serif;">' + fmt(deposit) + '</span>';
       document.getElementById('depositNote').style.display = '';
+
+      // Show deposit amount on book button
+      var depositAmtEl = document.getElementById('btnDepositAmt');
+      if (depositAmtEl) depositAmtEl.textContent = '(' + fmt(deposit) + ')';
 
       // Vendor message
       if (q.message) {
