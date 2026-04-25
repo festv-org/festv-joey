@@ -1420,7 +1420,7 @@
         // Wire "Preview My Profile" link to this vendor's actual profile ID
         if (p.id) {
           var previewLink = document.getElementById('previewProfileLink');
-          if (previewLink) previewLink.href = '/vendorprofile.html?id=' + encodeURIComponent(p.id);
+          if (previewLink) previewLink.href = '/vendorprofile.html?id=' + encodeURIComponent(p.id) + '&v=5';
         }
 
         // Hero

@@ -1093,6 +1093,7 @@
       // Thread draftId through so vendor profile can update the existing draft
       var draftId = new URLSearchParams(window.location.search).get('draftId');
       if (draftId) url += '&draftId=' + encodeURIComponent(draftId);
+      url += '&v=5';
       window.location.href = url;
     };
 

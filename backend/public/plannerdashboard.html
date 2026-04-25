@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script>(function(){var u=new URL(location.href);if(u.searchParams.get('cb')!=='6'){u.searchParams.set('cb','6');location.replace(u.toString());}})();</script>
   <title>FESTV — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -1159,6 +1163,12 @@
       }
     }
   </style>
+  <!-- Safari bfcache fix: force reload when page is restored from back-forward cache -->
+  <script>
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) { window.location.reload(); }
+    });
+  </script>
 </head>
 <body>
 
@@ -1521,7 +1531,7 @@
               '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;text-transform:capitalize;">' + types.toLowerCase().replace(/_/g,' ') + '</div>' +
             '</div>' +
             '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
-              '<a href="vendorprofile.html?id=' + id + '" style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dark);text-decoration:none;padding:0.35rem 0.75rem;border:1px solid var(--gold);border-radius:6px;">View</a>' +
+              '<a href="vendorprofile.html?id=' + id + '&v=5" style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dark);text-decoration:none;padding:0.35rem 0.75rem;border:1px solid var(--gold);border-radius:6px;">View</a>' +
               '<button onclick="unfavoriteVendor(\'' + id + '\', \'' + (v.providerId ? 'api' : 'local') + '\')" style="font-size:0.9rem;background:none;border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;cursor:pointer;color:#C4A06A;" title="Remove from favorites">♥</button>' +
             '</div>';
           list.appendChild(row);
@@ -1643,9 +1653,9 @@
             var guests  = e.guestCount ? e.guestCount + ' guests' : '';
             var meta    = [dateStr, guests].filter(Boolean).join(' · ');
             var href = e.targetedProviderProfileId
-              ? 'vendorprofile.html?id=' + e.targetedProviderProfileId + '&draftId=' + e.id
+              ? 'vendorprofile.html?id=' + e.targetedProviderProfileId + '&draftId=' + e.id + '&v=5'
               : 'createevent.html?draftId=' + e.id;
-            return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);">'
+            return '<div id="draft-' + e.id + '" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);">'
               + '<div style="min-width:0;flex:1;">'
               + '<div style="font-size:0.82rem;font-weight:600;color:var(--dark);margin-bottom:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + safeEsc(e.title) + '</div>'
               + '<div style="font-size:0.68rem;color:var(--muted);">' + safeEsc(meta) + '</div>'
@@ -1672,8 +1682,7 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          // Remove the card from the DOM
-          var card = btn.closest('[style]');
+          var card = document.getElementById('draft-' + id);
           if (card) card.remove();
         })
         .catch(function() { btn.disabled = false; });
@@ -1847,27 +1856,82 @@
             return; // empty state already showing from HTML
           }
 
-          content.innerHTML = events.map(function(e) {
+          content.innerHTML = '';
+          events.forEach(function(e) {
             var rawDate = e.eventDate ? e.eventDate.split('T')[0] : null;
             var dateStr = rawDate ? new Date(rawDate + 'T00:00:00').toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }) : '';
-            var color = '#C4A06A';
-            var label = e.status === 'DRAFT' ? 'In Progress' : 'Pending Response';
-            return '<div style="padding:0.75rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;">'
-              + '<div>'
-                + '<div style="font-size:0.85rem;font-weight:600;color:var(--dark);">' + (e.title || e.name || 'Untitled Event') + '</div>'
-                + '<div style="font-size:0.72rem;color:var(--muted);margin-top:0.15rem;">' + dateStr + (e.guestCount ? ' · ' + e.guestCount + ' guests' : '') + '</div>'
-              + '</div>'
-              + '<div style="display:flex;align-items:center;gap:0.65rem;">'
-                + '<span style="font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:' + color + ';">' + label + '</span>'
-                + (e.status === 'DRAFT' ? '<a href="browsevendors.html" style="font-size:0.68rem;font-weight:700;color:var(--gold-dark);text-decoration:none;letter-spacing:0.06em;">Continue →</a>' : '')
-              + '</div>'
-            + '</div>';
-          }).join('');
+
+            // Row
+            var row = document.createElement('div');
+            row.id = 'ongoing-' + e.id;
+            row.style.cssText = 'padding:0.75rem 0;border-bottom:1px solid rgba(0,0,0,0.09);display:flex;align-items:center;justify-content:space-between;gap:1rem;';
+
+            // Left: title + date
+            var left = document.createElement('div');
+            left.style.cssText = 'flex:1;min-width:0;';
+            var title = document.createElement('div');
+            title.style.cssText = 'font-size:0.85rem;font-weight:600;color:#2A2420;';
+            title.textContent = e.title || e.name || 'Untitled Event';
+            var meta = document.createElement('div');
+            meta.style.cssText = 'font-size:0.72rem;color:#7A7068;margin-top:0.15rem;';
+            meta.textContent = dateStr + (e.guestCount ? ' · ' + e.guestCount + ' guests' : '');
+            left.appendChild(title);
+            left.appendChild(meta);
+
+            // Right: label + optional continue + delete btn
+            var right = document.createElement('div');
+            right.style.cssText = 'display:flex;align-items:center;gap:0.65rem;flex-shrink:0;';
+
+            var lbl = document.createElement('span');
+            lbl.style.cssText = 'font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#C4A06A;';
+            lbl.textContent = e.status === 'DRAFT' ? 'In Progress' : 'Pending Response';
+            right.appendChild(lbl);
+
+            if (e.status === 'DRAFT') {
+              var cont = document.createElement('a');
+              cont.href = 'browsevendors.html';
+              cont.style.cssText = 'font-size:0.68rem;font-weight:700;color:#B8913A;text-decoration:none;letter-spacing:0.06em;';
+              cont.textContent = 'Continue \u2192';
+              right.appendChild(cont);
+            }
+
+            var btn = document.createElement('button');
+            btn.title = e.status === 'DRAFT' ? 'Delete draft' : 'Cancel request';
+            btn.style.cssText = 'padding:0.25rem 0.55rem;background:none;border:1px solid rgba(0,0,0,0.15);border-radius:5px;cursor:pointer;color:#9A8880;font-size:0.75rem;line-height:1;flex-shrink:0;';
+            btn.textContent = '\u00D7';
+            (function(id, status, b) {
+              b.addEventListener('click', function() { window.deleteOngoing(id, status, b); });
+            })(e.id, e.status, btn);
+            right.appendChild(btn);
+
+            row.appendChild(left);
+            row.appendChild(right);
+            content.appendChild(row);
+          });
         })
         .catch(function() {});
       }
 
       loadOngoingEvents();
+
+      window.deleteOngoing = function(id, status, btn) {
+        if (!confirm('Delete this event request?')) return;
+        btn.disabled = true;
+        var url = (status === 'DRAFT')
+          ? '/api/v1/event-requests/' + id
+          : '/api/v1/event-requests/' + id + '/cancel';
+        var method = (status === 'DRAFT') ? 'DELETE' : 'POST';
+        fetch(url, {
+          method: method,
+          headers: { 'Authorization': 'Bearer ' + (token || '') }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function() {
+          var row = document.getElementById('ongoing-' + id);
+          if (row) row.remove();
+        })
+        .catch(function() { btn.disabled = false; });
+      };
 
     });
   </script>

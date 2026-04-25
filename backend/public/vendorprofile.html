@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <script>(function(){var u=new URL(location.href);if(u.searchParams.get('cb')!=='3'){u.searchParams.set('cb','3');location.replace(u.toString());}})();</script>
   <title>FESTV — Vendor Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -875,6 +877,12 @@
       }
     }
   </style>
+  <!-- Safari bfcache fix: force reload when page is restored from back-forward cache -->
+  <script>
+    window.addEventListener('pageshow', function(e) {
+      if (e.persisted) { window.location.reload(); }
+    });
+  </script>
 </head>
 <body>
 
@@ -1408,6 +1416,8 @@
         }
 
         // Services
+        // Build price map so draft restore can look up prices by name
+        window._vendorPriceMap = {};
         if (p.services && p.services.length) {
           var sl = document.querySelector('.services-list');
           if (sl) {
@@ -1416,6 +1426,7 @@
                              : s.priceType === 'PER_HOUR'   ? '$' + s.basePrice + '/hr'
                              : s.priceType === 'CUSTOM'     ? 'Custom Quote'
                              : '$' + (s.basePrice || 0).toLocaleString();
+              window._vendorPriceMap[s.name] = priceLabel;
               var features = (s.features || []).map(function (f) {
                 return '<div class="service-feature"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' + esc(f) + '</div>';
               }).join('');
@@ -1425,6 +1436,10 @@
                 + '</div><div class="service-pricing"><div class="service-price">' + priceLabel + '</div></div></div>';
             }).join('');
           }
+          window._vendorDataReady = true;
+        } else {
+          // No API services — mark ready so draft restore doesn't wait forever
+          window._vendorDataReady = true;
         }
 
         // Menu items — fetch directly by profile ID to avoid profile mismatch issues
@@ -1597,7 +1612,20 @@
           if (d.description) {
             var _mMulti = d.description.match(/^Services:\s*([^.]+)\./i);
             if (_mMulti) {
-              _mMulti[1].split(',').forEach(function(part) {
+              // Depth-aware split — commas inside () (prices like $50,000) are NOT separators
+              var _svcStr = _mMulti[1];
+              var _parts = [];
+              var _depth = 0, _cur = '';
+              for (var _ci = 0; _ci < _svcStr.length; _ci++) {
+                var _ch = _svcStr[_ci];
+                if (_ch === '(') _depth++;
+                else if (_ch === ')') _depth--;
+                if (_ch === ',' && _depth === 0) { _parts.push(_cur.trim()); _cur = ''; }
+                else _cur += _ch;
+              }
+              if (_cur.trim()) _parts.push(_cur.trim());
+
+              _parts.forEach(function(part) {
                 part = part.trim();
                 var pm = part.match(/^(.+?)\(([^)]+)\)\s*$/);
                 if (pm) {
@@ -1612,15 +1640,22 @@
             }
           }
           if (savedSvcs.length) {
-            setTimeout(function() {
-              savedSvcs.forEach(function(svc) {
-                if (window.selectService) window.selectService(svc.name, svc.price);
-              });
-              setTimeout(function() {
-                var reviewBtn = document.getElementById('btnReviewRequest');
-                if (reviewBtn) reviewBtn.click();
-              }, 80);
-            }, 300);
+            // Wait for vendor data (price map), then restore services with prices
+            (function waitAndRestore(attempt) {
+              if (window._vendorDataReady || attempt >= 15) {
+                savedSvcs.forEach(function(svc) {
+                  // Use stored price first; fall back to vendor price map for old drafts without prices
+                  var price = svc.price || (window._vendorPriceMap && window._vendorPriceMap[svc.name]) || '';
+                  if (window.selectService) window.selectService(svc.name, price);
+                });
+                setTimeout(function() {
+                  var reviewBtn = document.getElementById('btnReviewRequest');
+                  if (reviewBtn) reviewBtn.click();
+                }, 80);
+              } else {
+                setTimeout(function() { waitAndRestore(attempt + 1); }, 200);
+              }
+            })(0);
           }
         })
         .catch(function() {});
@@ -1774,33 +1809,50 @@
         // Pricing breakdown
         var subtotal = 0;
         var hasPerPerson = false;
+        var hasPerHour = false;
+        var hasCustom = false;
         _selectedServices.forEach(function(s) {
-          if (s.price && s.price.toLowerCase().indexOf('/pp') !== -1) { hasPerPerson = true; return; }
-          var m = s.price && s.price.match(/\$([\d,]+)/);
+          var p = s.price || '';
+          if (!p || p.toLowerCase() === 'contact for pricing' || p.toLowerCase() === 'custom quote') { hasCustom = true; return; }
+          if (p.toLowerCase().indexOf('/pp') !== -1) { hasPerPerson = true; return; }
+          if (p.toLowerCase().indexOf('/hr') !== -1) { hasPerHour = true; return; }
+          var m = p.match(/\$([\d,]+)/);
           if (m) subtotal += parseInt(m[1].replace(/,/g, ''), 10);
         });
 
         var estimateEl = document.getElementById('rvEstimate');
-        if (subtotal > 0 || hasPerPerson) {
+        var fmt = function(n) { return '$' + n.toLocaleString(); };
+
+        if (subtotal > 0) {
           var tax     = Math.round(subtotal * 0.15);
           var deposit = Math.round((subtotal + tax) * 0.10);
-          var fmt = function(n) { return '$' + n.toLocaleString(); };
-          var ppNote = hasPerPerson ? '<div style="font-size:0.7rem;color:var(--muted);margin-bottom:0.5rem;">* Per-person items not included — final total may vary</div>' : '';
-          estimateEl.innerHTML = ppNote
-            + '<div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.78rem;">'
+          var notes = [];
+          if (hasPerPerson) notes.push('Per-person services priced at final guest count');
+          if (hasPerHour)   notes.push('Hourly services confirmed at booking');
+          if (hasCustom)    notes.push('Some services require vendor quote');
+          var notesHtml = notes.length ? '<div style="font-size:0.68rem;color:var(--muted);margin-bottom:0.6rem;line-height:1.5;">' + notes.join(' · ') + '</div>' : '';
+          estimateEl.innerHTML = '<div style="border-top:1px solid var(--border);margin-top:0.5rem;padding-top:0.75rem;">'
+            + notesHtml
+            + '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;font-size:0.76rem;">'
             +   '<span style="color:var(--charcoal);">Subtotal (est.)</span><span style="color:var(--dark);font-weight:600;">' + fmt(subtotal) + '</span>'
             + '</div>'
-            + '<div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.78rem;">'
-            +   '<span style="color:var(--charcoal);">Taxes (15%)</span><span style="color:var(--dark);font-weight:600;">' + fmt(tax) + '</span>'
+            + '<div style="display:flex;justify-content:space-between;padding:0.3rem 0;font-size:0.76rem;">'
+            +   '<span style="color:var(--charcoal);">Taxes &amp; Fees (15%)</span><span style="color:var(--dark);font-weight:600;">' + fmt(tax) + '</span>'
             + '</div>'
-            + '<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:2px solid var(--border);font-size:0.82rem;">'
+            + '<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-top:2px solid var(--border);margin-top:0.25rem;font-size:0.82rem;">'
             +   '<span style="color:var(--dark);font-weight:700;">Est. Total</span><span style="color:var(--dark);font-weight:700;">' + fmt(subtotal + tax) + '</span>'
             + '</div>'
-            + '<div style="display:flex;justify-content:space-between;padding:0.5rem 0;font-size:0.82rem;">'
-            +   '<span style="color:var(--gold-dark);font-weight:700;">Deposit Due (10%)</span><span style="color:var(--gold-dark);font-weight:700;">' + fmt(deposit) + '</span>'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.75rem;background:rgba(196,160,106,0.08);border-radius:8px;margin-top:0.4rem;">'
+            +   '<div><div style="font-size:0.72rem;font-weight:700;color:var(--gold-dark);">Deposit to Confirm</div><div style="font-size:0.65rem;color:var(--muted);">10% of total · due at booking</div></div>'
+            +   '<span style="font-size:1rem;font-weight:700;color:var(--gold-dark);font-family:\'Cormorant Garamond\',serif;">' + fmt(deposit) + '</span>'
+            + '</div>'
             + '</div>';
         } else {
-          estimateEl.innerHTML = '<div style="font-size:0.78rem;color:var(--muted);font-style:italic;">Pricing provided by vendor upon quote</div>';
+          // All services are per-person, hourly, or custom — show appropriate note
+          var quoteNote = hasPerPerson ? 'Final price based on guest count'
+            : hasPerHour ? 'Final price based on hours booked'
+            : 'Pricing confirmed by vendor after request';
+          estimateEl.innerHTML = '<div style="border-top:1px solid var(--border);margin-top:0.5rem;padding-top:0.6rem;font-size:0.76rem;color:var(--muted);font-style:italic;">' + quoteNote + '</div>';
         }
 
         // Swap steps

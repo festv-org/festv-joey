@@ -1205,6 +1205,7 @@
       if (returnVendorId) {
         var dest = 'vendorprofile.html?id=' + encodeURIComponent(returnVendorId) + '&fromEvent=1';
         if (activeDraftId) dest += '&draftId=' + encodeURIComponent(activeDraftId);
+        dest += '&v=5';
         window.location.href = dest;
       } else {
         window.location.href = 'browsevendors.html' + (activeDraftId ? '?draftId=' + encodeURIComponent(activeDraftId) : '');

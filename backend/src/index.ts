@@ -69,8 +69,16 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// Serve FESTV frontend
-app.use(express.static(path.join(process.cwd(), 'public')));
+// Serve FESTV frontend (no-cache on HTML so changes appear immediately)
+app.use(express.static(path.join(process.cwd(), 'public'), {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
 app.get('/', (req: Request, res: Response) => {
   res.sendFile(path.join(process.cwd(), 'public', 'festv-index.html'));
 });
