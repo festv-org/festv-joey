@@ -2013,14 +2013,13 @@
       .then(function(res) {
         var draft = res.data || res;
         if (!draft || !draft.id) return;
-        // Pre-fill notes
+        // Pre-fill notes — strip both "Services: A, B." and "Service: X." prefixes
         var notesEl = document.getElementById('srNotes') || document.getElementById('additionalNotes');
         if (notesEl && draft.description) {
-          // Strip the "Service: X. " prefix if present, keep the rest as notes
-          var desc = draft.description.replace(/^Service:\s*[^.]+\.\s*/i, '').trim();
+          var desc = draft.description.replace(/^Services?:\s*[^.]+\.\s*/i, '').trim();
           notesEl.value = desc;
         }
-        // Pre-select service if we can match it
+        // Pre-select service if we can match it (legacy radio-button flow)
         if (draft.description) {
           var m = draft.description.match(/^Service:\s*([^.]+)/i);
           if (m) {
