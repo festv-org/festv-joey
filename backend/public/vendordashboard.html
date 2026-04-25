@@ -1737,14 +1737,19 @@
           return;
         }
         var BLIMIT = 3;
+        var statusLabels = { PENDING_DEPOSIT:'Awaiting Deposit', DEPOSIT_PAID:'Deposit Paid', CONFIRMED:'Confirmed', IN_PROGRESS:'In Progress', COMPLETED:'Completed', CANCELLED:'Cancelled' };
+        var statusColors = { PENDING_DEPOSIT:'var(--gold-dark)', DEPOSIT_PAID:'var(--green)', CONFIRMED:'var(--green)', IN_PROGRESS:'var(--green)', COMPLETED:'var(--muted)', CANCELLED:'#B84040' };
         function renderBookingRow(b) {
           var req    = b.eventRequest || {};
           var title  = req.title || 'Event';
           var rawDate = (req.eventDate || b.eventDate || '');
           var dateStr = rawDate ? new Date(rawDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'Date TBD';
-          var planner = (req.client && (req.client.firstName + ' ' + req.client.lastName).trim()) || 'Planner';
-          var deposit = b.depositAmount ? '<span style="color:var(--green);font-size:0.7rem;font-weight:700;">Deposit paid · $' + parseFloat(b.depositAmount).toLocaleString() + '</span>' : '';
-          var statusColors = { CONFIRMED:'var(--gold-dark)', IN_PROGRESS:'var(--green)', PENDING:'var(--muted)' };
+          var planner = (b.client && [b.client.firstName, b.client.lastName].filter(Boolean).join(' ')) || 'Planner';
+          var depositPaid = b.status !== 'PENDING_DEPOSIT';
+          var deposit = b.depositAmount
+            ? '<span style="color:' + (depositPaid ? 'var(--green)' : 'var(--gold-dark)') + ';font-size:0.7rem;font-weight:700;">'
+              + (depositPaid ? 'Deposit paid' : 'Deposit due') + ' · $' + parseFloat(b.depositAmount).toLocaleString() + '</span>'
+            : '';
           var statusColor = statusColors[b.status] || 'var(--muted)';
           return '<div style="display:flex;align-items:flex-start;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border);">'
             + '<div style="flex:1;min-width:0;">'
@@ -1752,7 +1757,7 @@
             + '<div style="font-size:0.72rem;color:var(--muted);">' + esc(planner) + ' · ' + dateStr + '</div>'
             + (deposit ? '<div style="margin-top:0.2rem;">' + deposit + '</div>' : '')
             + '</div>'
-            + '<span style="font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:' + statusColor + ';flex-shrink:0;margin-left:0.75rem;margin-top:0.15rem;">' + esc(b.status || '') + '</span>'
+            + '<span style="font-size:0.62rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:' + statusColor + ';flex-shrink:0;margin-left:0.75rem;margin-top:0.15rem;">' + esc(statusLabels[b.status] || b.status || '') + '</span>'
             + '</div>';
         }
         var visibleB = bookings.slice(0, BLIMIT);

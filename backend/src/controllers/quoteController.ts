@@ -49,7 +49,8 @@ export const createQuote = asyncHandler(async (req: AuthenticatedRequest, res: R
   const subtotal = data.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
   const taxAmount = subtotal * ((data.taxRate || 0) / 100);
   const totalAmount = subtotal + taxAmount + (data.serviceFee || 0) + (data.gratuity || 0) - (data.discount || 0);
-  const depositRequired = totalAmount * (profile.depositPercentage / 100);
+  // 10% of (total + 15% estimated tax) — matches the planner-facing pricing breakdown
+  const depositRequired = Math.round(totalAmount * 1.15 * 0.10 * 100) / 100;
   
   // Calculate valid until date
   const validDays = data.validDays || 14;
@@ -575,7 +576,7 @@ export const updateQuote = asyncHandler(async (req: AuthenticatedRequest, res: R
     const subtotal = data.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
     const taxAmount = subtotal * ((data.taxRate || quote.taxRate) / 100);
     const totalAmount = subtotal + taxAmount + (data.serviceFee || quote.serviceFee) + (data.gratuity || quote.gratuity) - (data.discount || quote.discount);
-    const depositRequired = totalAmount * (quote.provider.depositPercentage / 100);
+    const depositRequired = Math.round(totalAmount * 1.15 * 0.10 * 100) / 100;
     
     const updatedQuote = await prisma.quote.update({
       where: { id },
