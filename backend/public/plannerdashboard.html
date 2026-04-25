@@ -1639,7 +1639,7 @@
           }
           if (empty) empty.style.display = 'none';
           list.innerHTML = drafts.map(function(e) {
-            var dateStr = e.eventDate ? new Date(e.eventDate + 'T00:00:00').toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }) : 'Date TBD';
+            var dateStr = e.eventDate ? new Date(e.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }) : 'Date TBD';
             var guests  = e.guestCount ? e.guestCount + ' guests' : '';
             var meta    = [dateStr, guests].filter(Boolean).join(' · ');
             var href = e.targetedProviderProfileId
@@ -1695,7 +1695,7 @@
           if (!el) return;
           var icons = ['🎉', '🎶', '🥂', '🎂', '🎊'];
           el.innerHTML = completed.slice(0, 4).map(function(e, i) {
-            var d = e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
+            var d = e.eventDate ? new Date(e.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '';
             return '<div class="guest-row">' +
               '<div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">' + (icons[i % icons.length]) + '</div>' +
               '<div class="guest-info"><div class="guest-name">' + e.title + '</div><div class="guest-meta">' + d + (e.guestCount ? ' · ' + e.guestCount + ' guests' : '') + '</div></div>' +
