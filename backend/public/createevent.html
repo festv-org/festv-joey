@@ -1209,6 +1209,51 @@
     });
 
 
+    /* ── PREFILL FROM DRAFT ── */
+    (function() {
+      var draftId = new URLSearchParams(window.location.search).get('draftId');
+      if (!draftId) return;
+      var token = localStorage.getItem('accessToken');
+      if (!token) return;
+      fetch('/api/v1/event-requests/' + draftId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        var e = res.data || res;
+        if (!e || !e.id) return;
+
+        function set(id, val) {
+          var el = document.getElementById(id);
+          if (el && val != null && val !== '') el.value = val;
+        }
+
+        set('eventName',  e.title);
+        set('eventDate',  e.eventDate ? e.eventDate.split('T')[0] : '');
+        set('guestCount', e.guestCount);
+        set('startTime',  e.eventStartTime);
+        set('endTime',    e.eventEndTime);
+        set('budgetMin',  e.budgetMin);
+        set('budgetMax',  e.budgetMax);
+        set('venueCity',  e.venueCity);
+        set('venueState', e.venueState);
+        set('venueAddress', e.venueAddress);
+        set('venueZip',   e.venueZipCode);
+        if (e.eventType) set('eventType', e.eventType);
+
+        // Also store draftId so Save as Draft can update instead of create
+        window._editingDraftId = e.id;
+
+        // Show a subtle banner so they know they're editing a draft
+        var banner = document.createElement('div');
+        banner.style.cssText = 'background:rgba(196,160,106,0.12);border:1px solid rgba(196,160,106,0.3);border-radius:8px;padding:0.65rem 1rem;margin-bottom:1.25rem;font-size:0.75rem;color:#7A7068;font-weight:600;';
+        banner.innerHTML = '✏️ Editing saved draft — <span style="color:#9C7A45;">update and browse vendors when ready</span>';
+        var form = document.getElementById('eventForm');
+        if (form) form.insertBefore(banner, form.firstChild);
+      })
+      .catch(function() {});
+    })();
+
     /* ── SAVE AS DRAFT ── */
     document.getElementById('btnSaveEventDraft').addEventListener('click', function() {
       var token = localStorage.getItem('accessToken');
