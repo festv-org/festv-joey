@@ -9,6 +9,12 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[x] fix festv logo sign out bug
 	-[ ] re-add admin pages with admin email unlock (APB task)
 	-[ ] add phone sms verification with twilio (APB task. old .env api keys)
+	-[ ] extend test-account seeder to also create ProviderProfile rows — provider test accounts log in fine but vendor dashboard 404s on /providers/profile/me, /bookings/provider, /event-requests/available/for-providers because no matching profiles exist
+		-[x] seedTestAccounts.ts rewritten: profile + services + portfolio + menu items + pricing levels + cuisine/theme links per provider type. Idempotent at profile level (skips if (userId, primaryType) row already exists — no duplicates, preserves manual edits)
+		-[x] photographer (PHOTO_VIDEO solo, hourly), caterer (CATERER company, per-person + 3 pricing tiers + 5 menu items + cuisines/themes), bartender (CATERER solo, hybrid + 4 cocktails), DJ (ENTERTAINMENT solo, hourly) all defined
+		-[x] picsum.photos with stable seeds for banners, logos, portfolio (deterministic — same image every run)
+		-[ ] deploy + verify vendor dashboard loads cleanly for all 4 provider test accounts (no 404s on profile/me, bookings/provider, event-requests/available/for-providers)
+		-[ ] note: RESTO_VENUE and FLORIST_DECOR enums not yet covered — add 6th + 7th test account if useful
 
  bigger:
 	-[ ] 0auth google/fb sign-in options
@@ -57,6 +63,13 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[x] accounttype.html, browsevendors.html, createevent.html — all updated to correct enums
 	-[x] vendorsetup.html — Save Package now closes form + scrolls list into view after saving
 	-[x] vendorsetup.html — Publish uses Promise.all so a failed service POST doesn't block menu items
+	-[x] Test-account picker on signin.html — 5 dev accounts (🎉 planner, 📷 photographer, 🍽️ caterer, 🍸 bartender, 🎧 DJ), shared password Test1234!, autofills email + password on click
+	-[x] Backend seeder seedTestAccounts.ts — idempotent, refreshes password + ACTIVE status on every run
+	-[x] POST /api/v1/auth/seed-test-accounts endpoint — gated by ENABLE_TEST_ACCOUNTS=true; returns 404 in prod
+	-[x] prisma/seed.ts entry point with NODE_ENV=production safeguard (npm run prisma:seed)
+	-[x] signin.html demo-hint block + JS that calls seed endpoint on load; hides cleanly when backend flag is off
+	-[x] ENABLE_TEST_ACCOUNTS=true set on Render dev backend; picker live at https://festv-joey.onrender.com/signin.html
+	-[x] React TestAccountsPicker.tsx + Login.tsx wiring kept in sync for future React frontend deploy (currently dormant)
 
 
 ## Decisions log
