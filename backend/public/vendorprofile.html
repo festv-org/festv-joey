@@ -1583,6 +1583,31 @@
           // Write to localStorage as a cache, but API was the primary source
           localStorage.setItem('pendingEvent', JSON.stringify(ev));
           showSendSection(ev);
+
+          // Pre-fill notes textarea
+          var notesEl = document.getElementById('srNotes') || document.getElementById('additionalNotes');
+          var savedNotes = '';
+          if (d.description) {
+            savedNotes = d.description.replace(/^Service:\s*[^.]+\.\s*/i, '').trim();
+            if (notesEl) notesEl.value = savedNotes;
+          }
+
+          // If a service was previously saved, restore it and jump to step 2
+          var savedSvcName = '';
+          if (d.description) {
+            var _m = d.description.match(/^Service:\s*([^.]+)/i);
+            if (_m) savedSvcName = _m[1].trim();
+          }
+          if (savedSvcName) {
+            // Give _buildSrServices a moment to render services, then select + advance
+            setTimeout(function() {
+              if (window.selectService) window.selectService(savedSvcName, '');
+              setTimeout(function() {
+                var reviewBtn = document.getElementById('btnReviewRequest');
+                if (reviewBtn) reviewBtn.click();
+              }, 80);
+            }, 600);
+          }
         })
         .catch(function() {});
         // falls through — service setup code below doesn't need ev at definition time
