@@ -351,7 +351,7 @@
       _requestData = r;
 
       var eventType = eventTypeLabels[r.eventType] || r.eventType || 'Event';
-      var dateStr   = r.eventDate ? new Date(r.eventDate).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—';
+      var dateStr   = r.eventDate ? new Date(r.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—';
       var timeStr   = (r.eventStartTime && r.eventEndTime) ? r.eventStartTime + ' – ' + r.eventEndTime : (r.eventStartTime || '');
       var budget    = (r.budgetMin || r.budgetMax) ? '$' + (r.budgetMin||0).toLocaleString() + (r.budgetMax ? ' – $' + r.budgetMax.toLocaleString() : '+') : 'TBD';
       var venue     = [r.venueName, r.venueCity, r.venueState].filter(Boolean).join(', ');

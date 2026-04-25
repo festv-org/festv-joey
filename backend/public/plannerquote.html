@@ -311,13 +311,13 @@
       }
 
       // Vendor stats row (event snapshot)
-      var dateShort = eventReq.eventDate ? new Date(eventReq.eventDate).toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '—';
+      var dateShort = eventReq.eventDate ? new Date(eventReq.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric' }) : '—';
       document.getElementById('vStatDate').textContent   = dateShort;
       document.getElementById('vStatGuests').textContent = eventReq.guestCount || '—';
       document.getElementById('vStatType').textContent   = eventType;
 
       // Event details grid
-      var dateStr = eventReq.eventDate ? new Date(eventReq.eventDate).toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—';
+      var dateStr = eventReq.eventDate ? new Date(eventReq.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }) : '—';
       var timeStr = (eventReq.eventStartTime && eventReq.eventEndTime) ? eventReq.eventStartTime + ' – ' + eventReq.eventEndTime : (eventReq.eventStartTime || '');
       var venue   = [eventReq.venueName, eventReq.venueCity, eventReq.venueState].filter(Boolean).join(', ');
       var gridHtml = '';

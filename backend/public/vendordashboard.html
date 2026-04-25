@@ -1249,7 +1249,7 @@
         badge.style.display = 'inline';
 
         list.innerHTML = requests.map(function(r) {
-          var dateStr = r.eventDate ? new Date(r.eventDate).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
+          var dateStr = r.eventDate ? new Date(r.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '';
           var budget = r.budgetMin || r.budgetMax
             ? '$' + (r.budgetMin || 0).toLocaleString() + (r.budgetMax ? ' – $' + r.budgetMax.toLocaleString() : '')
             : 'Budget TBD';
@@ -1292,7 +1292,7 @@
       _activeRequestId = requestId;
       var modal = document.getElementById('quoteModal');
       var summary = document.getElementById('quoteEventSummary');
-      var dateStr = requestData.eventDate ? new Date(requestData.eventDate).toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }) : '';
+      var dateStr = requestData.eventDate ? new Date(requestData.eventDate.split('T')[0] + 'T00:00:00').toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }) : '';
       summary.innerHTML = '<strong>' + esc(requestData.title || 'Event') + '</strong>'
         + (dateStr ? ' &nbsp;·&nbsp; ' + dateStr : '')
         + ' &nbsp;·&nbsp; ' + (requestData.guestCount || '?') + ' guests'

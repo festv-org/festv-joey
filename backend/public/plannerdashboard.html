@@ -1614,7 +1614,7 @@
           var el = document.getElementById('upcomingEventsList');
           if (!el) return;
           el.innerHTML = list.slice(0, 4).map(function(b) {
-            var d = b.eventDate ? new Date(b.eventDate) : null;
+            var d = b.eventDate ? new Date(b.eventDate.split('T')[0] + 'T00:00:00') : null;
             var month = d ? d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : '—';
             var day   = d ? d.getDate() : '—';
             var title = (b.eventRequest && b.eventRequest.title) || 'Event';
