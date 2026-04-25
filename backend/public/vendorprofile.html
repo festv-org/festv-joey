@@ -1584,11 +1584,11 @@
           localStorage.setItem('pendingEvent', JSON.stringify(ev));
           showSendSection(ev);
 
-          // Pre-fill notes textarea
+          // Pre-fill notes textarea — strip both "Services: A, B." and "Service: X." prefixes
           var notesEl = document.getElementById('srNotes') || document.getElementById('additionalNotes');
           var savedNotes = '';
           if (d.description) {
-            savedNotes = d.description.replace(/^Service:\s*[^.]+\.\s*/i, '').trim();
+            savedNotes = d.description.replace(/^Services?:\s*[^.]+\.\s*/i, '').trim();
             if (notesEl) notesEl.value = savedNotes;
           }
 
@@ -1829,8 +1829,13 @@
           targetedProviderProfileId: vendorProfileId || undefined
         };
 
-        fetch('/api/v1/event-requests', {
-          method: 'POST',
+        // If editing an existing draft, update it then submit — don't create a duplicate
+        var existingDraftId = new URLSearchParams(window.location.search).get('draftId');
+        var saveUrl    = existingDraftId ? '/api/v1/event-requests/' + existingDraftId : '/api/v1/event-requests';
+        var saveMethod = existingDraftId ? 'PUT' : 'POST';
+
+        fetch(saveUrl, {
+          method: saveMethod,
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify(payload)
         })
@@ -1841,8 +1846,8 @@
             if (data.details && data.details.length) msg += ' (' + data.details.map(function(d){return d.field+': '+d.message;}).join('; ') + ')';
             throw new Error(msg);
           }
-          var requestId = data.data && data.data.id;
-          if (!requestId) throw new Error('Request created but ID missing. Please try again.');
+          var requestId = (data.data && data.data.id) || existingDraftId;
+          if (!requestId) throw new Error('Request ID missing. Please try again.');
 
           // SUBMIT the request so vendors can see it (DRAFT → SUBMITTED)
           return fetch('/api/v1/event-requests/' + requestId + '/submit', {
@@ -1851,7 +1856,10 @@
           })
           .then(function(r) { return r.json(); })
           .then(function(submitRes) {
-            if (!submitRes.success && !submitRes.data) throw new Error('Request created but could not be submitted. Please try again.');
+            if (!submitRes.success && !submitRes.data) {
+              var msg = submitRes.error || submitRes.message || 'Could not submit request. Please try again.';
+              throw new Error(msg);
+            }
             return requestId;
           });
         })
