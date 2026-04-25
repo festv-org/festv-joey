@@ -21,8 +21,11 @@ async function main() {
   console.log('🌱 Seeding test accounts...');
   const results = await seedTestAccounts(prisma);
   for (const r of results) {
-    const tag = r.created ? '✨ created' : '♻️  updated';
-    console.log(`  ${tag}  ${r.email}`);
+    const userTag = r.userCreated ? '✨ created' : '♻️  refreshed';
+    let profileTag = '';
+    if (r.profileCreated) profileTag = '  + profile created';
+    else if (r.profileSkipped) profileTag = '  (profile already exists, skipped)';
+    console.log(`  ${userTag}  ${r.email}${profileTag}`);
   }
   console.log(`✅ Done — ${results.length} accounts.`);
 }
