@@ -1201,10 +1201,13 @@
       localStorage.setItem('pendingEvent', JSON.stringify(pendingEvent));
       // If came from a vendor profile, go straight back to it with fromEvent=1
       var returnVendorId = new URLSearchParams(window.location.search).get('returnTo');
+      var activeDraftId = window._editingDraftId || new URLSearchParams(window.location.search).get('draftId');
       if (returnVendorId) {
-        window.location.href = 'vendorprofile.html?id=' + encodeURIComponent(returnVendorId) + '&fromEvent=1';
+        var dest = 'vendorprofile.html?id=' + encodeURIComponent(returnVendorId) + '&fromEvent=1';
+        if (activeDraftId) dest += '&draftId=' + encodeURIComponent(activeDraftId);
+        window.location.href = dest;
       } else {
-        window.location.href = 'browsevendors.html';
+        window.location.href = 'browsevendors.html' + (activeDraftId ? '?draftId=' + encodeURIComponent(activeDraftId) : '');
       }
     });
 

@@ -1844,8 +1844,13 @@
       btn.disabled = true;
       btn.textContent = 'Saving…';
 
-      fetch('/api/v1/event-requests', {
-        method: 'POST',
+      // If an existing draft was passed in, update it (PATCH) instead of creating a new one
+      var existingDraftId = new URLSearchParams(window.location.search).get('draftId');
+      var fetchUrl    = existingDraftId ? '/api/v1/event-requests/' + existingDraftId : '/api/v1/event-requests';
+      var fetchMethod = existingDraftId ? 'PATCH' : 'POST';
+
+      fetch(fetchUrl, {
+        method: fetchMethod,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(payload)
       })

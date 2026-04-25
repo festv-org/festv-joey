@@ -1112,6 +1112,9 @@
       try { ev = JSON.parse(localStorage.getItem('pendingEvent')); } catch(e) {}
       var url = 'vendorprofile.html?id=' + encodeURIComponent(id);
       if (ev && ev.name) url += '&fromEvent=1&vendorName=' + encodeURIComponent(name);
+      // Thread draftId through so vendor profile can update the existing draft
+      var draftId = new URLSearchParams(window.location.search).get('draftId');
+      if (draftId) url += '&draftId=' + encodeURIComponent(draftId);
       window.location.href = url;
     };
 
