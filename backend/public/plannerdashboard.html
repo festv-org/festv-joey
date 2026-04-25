@@ -1078,223 +1078,53 @@
     <!-- LEFT COLUMN -->
     <div class="left-col">
 
-      <!-- Profile Card -->
-      <div class="profile-card" id="profileCard">
-
-        <!-- Edit Profile button (read mode only) -->
-        <button class="btn-edit-profile" id="btnEditProfile">
-          <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          Edit Profile
-        </button>
-
-        <div class="profile-top">
-
-          <!-- Avatar with edit overlay -->
-          <div class="avatar-wrap" id="avatarWrap">
-            <img class="avatar" id="avatarImg"
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&q=80"
-              alt="Profile photo">
-            <div class="avatar-overlay">
-              <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            </div>
-            <input type="file" class="avatar-input" id="avatarInput" accept="image/*">
-          </div>
-
-          <div class="profile-info" style="flex:1;">
-
-            <!-- Name: read -->
-            <div class="profile-field-view profile-name" id="viewName">Isabelle Monroe</div>
-            <!-- Name: edit -->
-            <div class="profile-field-edit">
-              <input class="edit-input name-input" id="editName" type="text" value="Isabelle Monroe">
-            </div>
-
-            <!-- SVG defs for half star -->
-            <svg width="0" height="0" style="position:absolute">
-              <defs>
-                <linearGradient id="halfGold" x1="0" x2="1" y1="0" y2="0">
-                  <stop offset="50%" stop-color="#C4A06A"/>
-                  <stop offset="50%" stop-color="transparent"/>
-                </linearGradient>
-              </defs>
-            </svg>
-
-            <div class="stars profile-field-view">
-              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg viewBox="0 0 24 24" class="star-filled"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg viewBox="0 0 24 24" class="star-half"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <span class="rating-value">4.5 / 5</span>
-            </div>
-
-            <div class="badges profile-field-view">
-              <span class="badge badge-gold">Super Host</span>
-              <span class="badge badge-dark">Top Planner</span>
-            </div>
-
-            <!-- Contact (edit mode) -->
-            <div class="profile-field-edit">
-              <div style="margin-top:0.6rem;">
-                <label class="edit-label">City</label>
-                <input class="edit-input" id="editCity" type="text" value="Chicago, IL">
-              </div>
-            </div>
-
-          </div>
+      <!-- Favorites -->
+      <div class="events-card">
+        <div class="card-header">
+          <div class="card-title">Favorites</div>
+          <a href="browsevendors.html" class="card-link">Browse More</a>
         </div>
-
-        <!-- Bio read -->
-        <div class="profile-bio profile-field-view" id="viewBio">
-          Passionate event planner with 6+ years creating unforgettable experiences — from intimate dinners to large-scale galas. Based in Chicago.
+        <div id="favoritesList" style="display:flex;flex-direction:column;gap:0.6rem;margin-top:0.75rem;"></div>
+        <div id="favoritesEmpty" class="empty-state" style="display:none;">
+          <span>♡</span>
+          No favorites yet.<br>Browse vendors and heart the ones you love.
         </div>
-        <!-- Contact read -->
-        <div class="profile-contact-row profile-field-view" id="viewContact">
-          <span class="profile-contact-item">
-            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Chicago, IL
-          </span>
-        </div>
-
-        <!-- Bio edit -->
-        <div class="profile-field-edit" style="margin-top:0.75rem;">
-          <label class="edit-label">Bio</label>
-          <textarea class="edit-textarea" id="editBio">Passionate event planner with 6+ years creating unforgettable experiences — from intimate dinners to large-scale galas. Based in Chicago.</textarea>
-        </div>
-
-        <div class="profile-stats">
-          <div class="stat">
-            <span class="stat-value">24</span>
-            <span class="stat-label">Events Planned</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value">312</span>
-            <span class="stat-label">Guests Hosted</span>
-          </div>
-          <div class="stat">
-            <span class="stat-value" id="statFriends">8</span>
-            <span class="stat-label">Friends</span>
-          </div>
-        </div>
-
-        <!-- Save / Cancel -->
-        <div class="edit-actions" id="editActions">
-          <button class="btn-cancel" id="btnCancel">Cancel</button>
-          <button class="btn-save" id="btnSave">Save Changes</button>
-        </div>
-
       </div>
 
-      <!-- Guest List -->
-      <div class="guest-list-card">
+      <!-- Saved Requests (Drafts) -->
+      <div class="events-card">
         <div class="card-header">
-          <div class="card-title">Guest List</div>
-          <div class="card-header-actions">
-            <button class="btn-gl btn-gl-ghost" id="btnAddFriend">
-              <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-              Add Friend
-            </button>
-            <button class="btn-gl btn-gl-solid" id="btnCreateGuestlist">
-              <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              Create Guestlist
-            </button>
-            <a href="#" class="card-link" style="margin-left:0.25rem;">View All</a>
-          </div>
+          <div class="card-title">Saved Requests</div>
+          <span style="font-size:0.62rem;color:var(--muted);font-weight:500;">Drafts</span>
         </div>
-        <div class="guest-list">
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder">JR</div>
-            <div class="guest-info">
-              <div class="guest-name">Jordan Reed</div>
-              <div class="guest-meta">3 events together</div>
-            </div>
-            <span class="guest-status status-going">Going</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder">ML</div>
-            <div class="guest-info">
-              <div class="guest-name">Maya Lin</div>
-              <div class="guest-meta">7 events together</div>
-            </div>
-            <span class="guest-status status-going">Going</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder">CS</div>
-            <div class="guest-info">
-              <div class="guest-name">Carlos Soto</div>
-              <div class="guest-meta">1 event together</div>
-            </div>
-            <span class="guest-status status-invited">Invited</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder">PW</div>
-            <div class="guest-info">
-              <div class="guest-name">Priya Watts</div>
-              <div class="guest-meta">5 events together</div>
-            </div>
-            <span class="guest-status status-going">Going</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder">TN</div>
-            <div class="guest-info">
-              <div class="guest-name">Tyler Nash</div>
-              <div class="guest-meta">2 events together</div>
-            </div>
-            <span class="guest-status status-invited">Invited</span>
-          </div>
-
+        <div id="savedRequestsList" style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;"></div>
+        <div id="savedRequestsEmpty" class="empty-state">
+          <span>📋</span>
+          No saved requests.<br>Fill out a request and save it to come back later.
         </div>
       </div>
 
       <!-- Completed Events -->
-      <div class="guest-list-card" style="margin-top:1.25rem;">
+      <div class="events-card">
         <div class="card-header">
           <div class="card-title">Completed Events</div>
-          <a href="#" class="card-link">View All</a>
         </div>
-        <div class="guest-list" id="completedEventsList">
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎉</div>
-            <div class="guest-info">
-              <div class="guest-name">Garden Anniversary Dinner</div>
-              <div class="guest-meta">March 22, 2026 · 48 guests</div>
-            </div>
-            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
+        <div id="completedEventsList">
+          <div class="empty-state">
+            <span>🎉</span>
+            Your completed events will appear here.
           </div>
+        </div>
+      </div>
 
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎶</div>
-            <div class="guest-info">
-              <div class="guest-name">Rooftop New Year's Eve</div>
-              <div class="guest-meta">Dec 31, 2025 · 120 guests</div>
-            </div>
-            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🥂</div>
-            <div class="guest-info">
-              <div class="guest-name">Bridal Shower Brunch</div>
-              <div class="guest-meta">Nov 9, 2025 · 30 guests</div>
-            </div>
-            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
-          </div>
-
-          <div class="guest-row">
-            <div class="guest-avatar-placeholder" style="border-radius:6px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);">🎂</div>
-            <div class="guest-info">
-              <div class="guest-name">50th Birthday Gala</div>
-              <div class="guest-meta">Oct 4, 2025 · 85 guests</div>
-            </div>
-            <span class="guest-status" style="background:rgba(58,138,85,0.08);color:#3A8A55;border:1px solid rgba(58,138,85,0.2);font-size:0.62rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.22rem 0.65rem;border-radius:999px;">Done</span>
-          </div>
-
+      <!-- Messages -->
+      <div class="events-card">
+        <div class="card-header">
+          <div class="card-title">Messages</div>
+        </div>
+        <div class="empty-state">
+          <span>💬</span>
+          Messaging coming soon.
         </div>
       </div>
 
@@ -1303,7 +1133,7 @@
     <!-- RIGHT COLUMN -->
     <div class="right-col">
 
-      <!-- Action Buttons -->
+      <!-- Quick Actions -->
       <div class="actions-card">
         <div class="actions-title">Quick Actions</div>
         <div class="action-buttons">
@@ -1318,371 +1148,48 @@
         </div>
       </div>
 
-      <!-- Saved Drafts -->
-      <div class="events-card" id="draftsCard" style="display:none;">
+      <!-- Pending & Ongoing Events -->
+      <div class="events-card" id="ongoingEventsCard">
         <div class="card-header">
-          <div class="card-title">Saved Requests</div>
-          <span style="font-size:0.62rem;color:var(--muted);font-weight:500;">Continue planning</span>
-        </div>
-        <div id="draftsList" style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.75rem;"></div>
-      </div>
-
-      <!-- Saved Vendors -->
-      <div class="events-card" id="savedVendorsCard" style="display:none;">
-        <div class="card-header">
-          <div class="card-title">Saved Vendors</div>
-          <a href="browsevendors.html" class="card-link">Browse More</a>
-        </div>
-        <div id="savedVendorsList" style="display:flex;flex-direction:column;gap:0.6rem;margin-top:0.75rem;"></div>
-      </div>
-
-      <!-- Budget Tracker -->
-      <div class="events-card" id="budgetCard">
-        <div class="card-header">
-          <div class="card-title">Budget Tracker</div>
-          <button class="btn-gl btn-gl-ghost" id="btnAddBudget" style="font-size:0.63rem;">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-            +$500
-          </button>
-        </div>
-        <div style="margin-bottom:0.5rem;">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.55rem;">
-            <span style="font-size:0.75rem;font-weight:600;color:var(--dark);">
-              <span id="budgetUsedLabel">$8,400</span> <span style="color:var(--muted);font-weight:400;">spent</span>
-            </span>
-            <span style="font-size:0.72rem;color:var(--muted);">of $15,000 budget</span>
+          <div class="card-title" style="display:flex;align-items:center;gap:0.5rem;">
+            <span style="display:inline-block;width:8px;height:8px;background:var(--gold);border-radius:50%;flex-shrink:0;"></span>
+            Pending &amp; Ongoing
           </div>
-          <div style="height:8px;background:rgba(0,0,0,0.07);border-radius:999px;overflow:hidden;">
-            <div id="budgetBar" style="height:100%;background:var(--gold);border-radius:999px;transition:width 0.4s ease;width:56%;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:0.4rem;">
-            <span style="font-size:0.65rem;color:var(--muted);" id="budgetPctLabel">56% used</span>
-            <span style="font-size:0.65rem;color:#3A8A55;font-weight:600;" id="budgetLeftLabel">$6,600 remaining</span>
+          <a href="browsevendors.html" class="card-link">Browse Vendors</a>
+        </div>
+        <div id="ongoingEventContent">
+          <div class="empty-state">
+            <span>📅</span>
+            No active requests.<br>Plan an event to get started.
           </div>
         </div>
       </div>
 
-      <!-- Pending Quotes -->
+      <!-- Quotes Received -->
       <div class="events-card" id="quotesCard" style="display:none;">
         <div class="card-header">
           <div class="card-title" style="display:flex;align-items:center;gap:0.5rem;">
             Quotes Received
-            <span id="quotesBadge" style="display:none;background:var(--gold);color:var(--dark);font-size:0.6rem;font-weight:700;min-width:18px;height:18px;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 0.35rem;"></span>
+            <span id="quotesBadge" style="display:none;background:var(--gold);color:var(--dark);font-size:0.6rem;font-weight:700;min-width:18px;height:18px;border-radius:999px;align-items:center;justify-content:center;padding:0 0.35rem;"></span>
           </div>
           <a href="#" class="card-link" onclick="loadPendingQuotes(); return false;">Refresh</a>
         </div>
         <div id="quotesList" style="display:flex;flex-direction:column;"></div>
       </div>
 
-      <!-- Recent Activity -->
-      <div class="events-card" id="activityCard">
-        <div class="card-header">
-          <div class="card-title">Recent Activity</div>
-          <a href="#" class="card-link">View All</a>
-        </div>
-        <div id="activityList" style="display:flex;flex-direction:column;gap:0.6rem;"></div>
-      </div>
-
-      <!-- Ongoing Events (from pendingEvent in localStorage) -->
-      <div class="events-card" id="ongoingEventsCard" style="display:none; margin-bottom:1.5rem;">
-        <div class="card-header">
-          <div class="card-title" style="display:flex;align-items:center;gap:0.5rem;">
-            <span style="display:inline-block;width:8px;height:8px;background:var(--gold);border-radius:50%;"></span>
-            Ongoing Events
-          </div>
-          <a href="browsevendors.html" class="card-link">Browse Vendors</a>
-        </div>
-        <div id="ongoingEventContent"></div>
-      </div>
-
       <!-- Upcoming Events -->
       <div class="events-card">
         <div class="card-header">
           <div class="card-title">Upcoming Events</div>
-          <a href="#" class="card-link">View All</a>
         </div>
-
         <div class="event-list" id="upcomingEventsList">
-
-          <a href="#" class="event-item">
-            <div class="event-date">
-              <span class="event-month">May</span>
-              <span class="event-day">17</span>
-            </div>
-            <div class="event-details">
-              <div class="event-name">Rooftop Summer Soiree</div>
-              <div class="event-meta">
-                <span>&#128205; The Skyline Loft, Chicago</span>
-                <span>&#128336; 7:00 PM</span>
-              </div>
-            </div>
-            <div class="event-guests">
-              <div class="guest-pip">JR</div>
-              <div class="guest-pip">ML</div>
-              <div class="guest-pip">CS</div>
-              <div class="guest-pip pip-more">+12</div>
-            </div>
-            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </a>
-
-          <a href="#" class="event-item">
-            <div class="event-date">
-              <span class="event-month">Jun</span>
-              <span class="event-day">4</span>
-            </div>
-            <div class="event-details">
-              <div class="event-name">Anniversary Dinner</div>
-              <div class="event-meta">
-                <span>&#128205; Maison Noir, NYC</span>
-                <span>&#128336; 8:30 PM</span>
-              </div>
-            </div>
-            <div class="event-guests">
-              <div class="guest-pip">PW</div>
-              <div class="guest-pip">TN</div>
-              <div class="guest-pip pip-more">+4</div>
-            </div>
-            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </a>
-
-          <a href="#" class="event-item">
-            <div class="event-date">
-              <span class="event-month">Jul</span>
-              <span class="event-day">22</span>
-            </div>
-            <div class="event-details">
-              <div class="event-name">Garden Wedding Reception</div>
-              <div class="event-meta">
-                <span>&#128205; Rosewood Estate, Austin</span>
-                <span>&#128336; 4:00 PM</span>
-              </div>
-            </div>
-            <div class="event-guests">
-              <div class="guest-pip">JR</div>
-              <div class="guest-pip">ML</div>
-              <div class="guest-pip">PW</div>
-              <div class="guest-pip pip-more">+38</div>
-            </div>
-            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </a>
-
-          <a href="#" class="event-item">
-            <div class="event-date">
-              <span class="event-month">Aug</span>
-              <span class="event-day">9</span>
-            </div>
-            <div class="event-details">
-              <div class="event-name">Corporate Launch Party</div>
-              <div class="event-meta">
-                <span>&#128205; The Grand Hall, LA</span>
-                <span>&#128336; 6:00 PM</span>
-              </div>
-            </div>
-            <div class="event-guests">
-              <div class="guest-pip">CS</div>
-              <div class="guest-pip">TN</div>
-              <div class="guest-pip pip-more">+21</div>
-            </div>
-            <svg class="chevron" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </a>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- RECENT CONVERSATIONS -->
-  <div class="convos-section">
-    <div class="convos-card">
-      <div class="card-header">
-        <div class="card-title">Recent Conversations</div>
-        <a href="#" class="card-link">View All</a>
-      </div>
-      <div class="convo-list">
-
-        <div class="convo-item">
-          <div class="convo-avatar unread">JR</div>
-          <div class="convo-body">
-            <div class="convo-name">Jordan Reed</div>
-            <div class="convo-preview bold">Are we still on for the rooftop setup at 5?</div>
-          </div>
-          <div class="convo-right">
-            <span class="convo-time">2m ago</span>
-            <span class="unread-badge">2</span>
-          </div>
-        </div>
-
-        <div class="convo-item">
-          <div class="convo-avatar unread">ML</div>
-          <div class="convo-body">
-            <div class="convo-name">Maya Lin</div>
-            <div class="convo-preview bold">I sent over the catering confirmation!</div>
-          </div>
-          <div class="convo-right">
-            <span class="convo-time">18m ago</span>
-            <span class="unread-badge">1</span>
-          </div>
-        </div>
-
-        <div class="convo-item">
-          <div class="convo-avatar">CS</div>
-          <div class="convo-body">
-            <div class="convo-name">Carlos Soto</div>
-            <div class="convo-preview">Sounds good, I'll be there by 7!</div>
-          </div>
-          <div class="convo-right">
-            <span class="convo-time">1h ago</span>
-          </div>
-        </div>
-
-        <div class="convo-item">
-          <div class="convo-avatar">PW</div>
-          <div class="convo-body">
-            <div class="convo-name">Priya Watts</div>
-            <div class="convo-preview">Thanks for the invite, so excited!</div>
-          </div>
-          <div class="convo-right">
-            <span class="convo-time">3h ago</span>
-          </div>
-        </div>
-
-        <div class="convo-item">
-          <div class="convo-avatar">TN</div>
-          <div class="convo-body">
-            <div class="convo-name">Tyler Nash</div>
-            <div class="convo-preview">Can you send me the venue address again?</div>
-          </div>
-          <div class="convo-right">
-            <span class="convo-time">Yesterday</span>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- ── ADD FRIEND MODAL ── -->
-  <div class="modal-backdrop" id="addFriendModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div class="modal-title">Invite a Friend</div>
-        <button class="modal-close" data-close="addFriendModal">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-sub">Send them a FESTV invite link. They'll be added to your friends list once they join.</p>
-        <div class="modal-field">
-          <label class="modal-label">Email Address</label>
-          <input class="modal-input" id="inviteEmail" type="email" placeholder="friend@email.com">
-        </div>
-        <div style="display:flex;align-items:center;gap:0.75rem;margin:0.85rem 0;">
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-          <span style="font-size:0.65rem;color:var(--muted);font-weight:600;letter-spacing:0.1em;text-transform:uppercase;">or</span>
-          <div style="flex:1;height:1px;background:var(--border);"></div>
-        </div>
-        <div class="modal-field">
-          <label class="modal-label">Phone Number</label>
-          <input class="modal-input" id="invitePhone" type="tel" placeholder="+1 (555) 000-0000">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-modal-secondary" data-close="addFriendModal">Cancel</button>
-        <button class="btn-modal-primary" id="btnSendInvite">Send Invite</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── CREATE GUESTLIST MODAL ── -->
-  <div class="modal-backdrop" id="createGuestlistModal">
-    <div class="modal" style="max-width:500px;">
-      <div class="modal-header">
-        <div class="modal-title" id="glModalTitle">New Guest List</div>
-        <button class="modal-close" data-close="createGuestlistModal">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="modal-steps">
-          <div class="modal-step-dot active" id="glDot1"></div>
-          <div class="modal-step-dot" id="glDot2"></div>
-        </div>
-
-        <!-- Step 1 -->
-        <div id="glStep1">
-          <div class="modal-field">
-            <label class="modal-label">Guest List Name</label>
-            <input class="modal-input" id="glName" type="text" placeholder="e.g. VIP Table, Wedding Party…">
-          </div>
-          <div class="modal-field">
-            <label class="modal-label">Event</label>
-            <select class="modal-select" id="glEvent">
-              <option value="" disabled selected>Select an event</option>
-              <option>Rooftop Summer Soiree — May 17</option>
-              <option>Anniversary Dinner — Jun 4</option>
-              <option>Garden Wedding Reception — Jul 22</option>
-              <option>Corporate Launch Party — Aug 9</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div id="glStep2" style="display:none;">
-          <p class="modal-sub" style="margin-bottom:0.9rem;">Select friends to add to this guest list.</p>
-          <div class="friend-list">
-            <label class="friend-check-row">
-              <input type="checkbox" value="Jordan Reed">
-              <div class="friend-check-box"></div>
-              <div class="friend-check-avatar">JR</div>
-              <div class="friend-check-info">
-                <div class="friend-check-name">Jordan Reed</div>
-                <div class="friend-check-meta">3 events together</div>
-              </div>
-            </label>
-            <label class="friend-check-row">
-              <input type="checkbox" value="Maya Lin">
-              <div class="friend-check-box"></div>
-              <div class="friend-check-avatar">ML</div>
-              <div class="friend-check-info">
-                <div class="friend-check-name">Maya Lin</div>
-                <div class="friend-check-meta">7 events together</div>
-              </div>
-            </label>
-            <label class="friend-check-row">
-              <input type="checkbox" value="Carlos Soto">
-              <div class="friend-check-box"></div>
-              <div class="friend-check-avatar">CS</div>
-              <div class="friend-check-info">
-                <div class="friend-check-name">Carlos Soto</div>
-                <div class="friend-check-meta">1 event together</div>
-              </div>
-            </label>
-            <label class="friend-check-row">
-              <input type="checkbox" value="Priya Watts">
-              <div class="friend-check-box"></div>
-              <div class="friend-check-avatar">PW</div>
-              <div class="friend-check-info">
-                <div class="friend-check-name">Priya Watts</div>
-                <div class="friend-check-meta">5 events together</div>
-              </div>
-            </label>
-            <label class="friend-check-row">
-              <input type="checkbox" value="Tyler Nash">
-              <div class="friend-check-box"></div>
-              <div class="friend-check-avatar">TN</div>
-              <div class="friend-check-info">
-                <div class="friend-check-name">Tyler Nash</div>
-                <div class="friend-check-meta">2 events together</div>
-              </div>
-            </label>
+          <div class="empty-state">
+            <span>🗓</span>
+            Confirmed bookings will appear here.
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-modal-secondary" id="glBackBtn" style="display:none;" >Back</button>
-        <button class="btn-modal-primary" id="glNextBtn">Next</button>
-      </div>
+
     </div>
   </div>
 
@@ -1800,138 +1307,40 @@
       var token = localStorage.getItem('accessToken');
       if (!token) { window.location.href = 'signin.html'; return; }
 
-      // ── POPULATE USER NAME ──
-      (function() {
-        try {
-          var user = JSON.parse(localStorage.getItem('user') || '{}');
-          var fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
-          if (fullName) {
-            document.getElementById('viewName').textContent = fullName;
-            document.getElementById('editName').value = fullName;
-          }
-        } catch(e) {}
-      })();
-
-      // ── localStorage keys ──
-      var LS_BUDGET   = 'festv_budget_used';
-      var LS_ACTIVITY = 'festv_activity';
-      var LS_FRIENDS  = 'festv_friends_count';
-
-      var BUDGET_TOTAL = 15000;
-
-      // ── Default activity items (used when nothing is in localStorage) ──
-      var DEFAULT_ACTIVITY = [
-        { icon: '📅', text: 'Rooftop Summer Soiree created', time: '2 days ago' },
-        { icon: '✉️', text: 'Invite sent to Tyler Nash', time: '3 days ago' },
-        { icon: '📋', text: 'VIP Table guest list created', time: '5 days ago' },
-        { icon: '🎉', text: 'Garden Anniversary Dinner marked done', time: '1 week ago' },
-        { icon: '👥', text: 'Maya Lin added as friend', time: '2 weeks ago' },
-      ];
+      function safeEsc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
       // ──────────────────────────────────────────────────────────────
-      // BUDGET
+      // FAVORITES
       // ──────────────────────────────────────────────────────────────
-      function getBudgetUsed() {
-        var stored = localStorage.getItem(LS_BUDGET);
-        return stored !== null ? parseInt(stored, 10) : 8400;
-      }
-
-      function saveBudgetUsed(val) {
-        localStorage.setItem(LS_BUDGET, String(val));
-      }
-
-      function renderBudget(used) {
-        var pct = Math.min(100, Math.round((used / BUDGET_TOTAL) * 100));
-        var remaining = BUDGET_TOTAL - used;
-        document.getElementById('budgetUsedLabel').textContent = '$' + used.toLocaleString();
-        document.getElementById('budgetBar').style.width = pct + '%';
-        document.getElementById('budgetPctLabel').textContent = pct + '% used';
-        document.getElementById('budgetLeftLabel').textContent = '$' + Math.max(0, remaining).toLocaleString() + ' remaining';
-      }
-
-      // Init budget
-      var budgetUsed = getBudgetUsed();
-      renderBudget(budgetUsed);
-
-      document.getElementById('btnAddBudget').addEventListener('click', function () {
-        budgetUsed += 500;
-        saveBudgetUsed(budgetUsed);
-        renderBudget(budgetUsed);
-        prependActivity({ icon: '💰', text: '+$500 added to budget tracker', time: 'Just now' });
-        showToast('Budget updated: $' + budgetUsed.toLocaleString() + ' spent ✓');
-      });
-
-      // ──────────────────────────────────────────────────────────────
-      // ACTIVITY
-      // ──────────────────────────────────────────────────────────────
-      function getActivity() {
-        var stored = localStorage.getItem(LS_ACTIVITY);
-        if (stored) {
-          try { return JSON.parse(stored); } catch (e) { /* fall through */ }
+      function renderFavorites(vendors) {
+        var list = document.getElementById('favoritesList');
+        var empty = document.getElementById('favoritesEmpty');
+        if (!list) return;
+        if (!vendors.length) {
+          list.innerHTML = '';
+          if (empty) empty.style.display = '';
+          return;
         }
-        return DEFAULT_ACTIVITY.slice();
-      }
-
-      function saveActivity(items) {
-        localStorage.setItem(LS_ACTIVITY, JSON.stringify(items.slice(0, 5)));
-      }
-
-      function prependActivity(item) {
-        var items = getActivity();
-        items.unshift(item);
-        items = items.slice(0, 5);
-        saveActivity(items);
-        renderActivity(items);
-      }
-
-      function renderActivity(items) {
-        var list = document.getElementById('activityList');
-        list.innerHTML = '';
-        items.forEach(function (item) {
-          var row = document.createElement('div');
-          row.style.cssText = 'display:flex;align-items:center;gap:0.75rem;padding:0.55rem 0;border-bottom:1px solid var(--border);';
-          row.innerHTML =
-            '<span style="font-size:1rem;flex-shrink:0;">' + item.icon + '</span>' +
-            '<div style="flex:1;min-width:0;">' +
-              '<div style="font-size:0.8rem;font-weight:600;color:var(--dark);">' + item.text + '</div>' +
-              '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;">' + item.time + '</div>' +
-            '</div>';
-          list.appendChild(row);
-        });
-        // remove border from last item
-        var rows = list.querySelectorAll('div');
-        if (rows.length) rows[rows.length - 1].style.borderBottom = 'none';
-      }
-
-      // Init activity
-      renderActivity(getActivity());
-
-      // ──────────────────────────────────────────────────────────────
-      // SAVED VENDORS
-      // ──────────────────────────────────────────────────────────────
-      function renderSavedVendors(vendors) {
-        var card = document.getElementById('savedVendorsCard');
-        var list = document.getElementById('savedVendorsList');
-        if (!vendors.length) { card.style.display = 'none'; return; }
-        card.style.display = '';
+        if (empty) empty.style.display = 'none';
         list.innerHTML = '';
         vendors.forEach(function(v) {
           var id = v.providerId || v.id;
           var name = (v.provider && v.provider.businessName) ? v.provider.businessName : (v.name || 'Vendor');
           var types = (v.provider && v.provider.providerTypes) ? v.provider.providerTypes.join(', ') : (v.category || '');
           var img = (v.provider && v.provider.portfolioItems && v.provider.portfolioItems[0]) ? v.provider.portfolioItems[0].mediaUrl : (v.img || '');
-          var price = v.priceLabel || '';
           var row = document.createElement('div');
           row.style.cssText = 'display:flex;align-items:center;gap:0.85rem;padding:0.65rem 0;border-bottom:1px solid var(--border);';
           row.innerHTML =
-            '<img src="' + img + '" style="width:46px;height:46px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.background=\'#f0ede8\';this.style.display=\'block\'">' +
+            '<div style="width:46px;height:46px;border-radius:8px;background:linear-gradient(135deg,#E8E0D4,#D5C9BA);flex-shrink:0;overflow:hidden;">' +
+              (img ? '<img src="' + img + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.parentNode.innerHTML=\'\';">' : '') +
+            '</div>' +
             '<div style="flex:1;min-width:0;">' +
               '<div style="font-size:0.82rem;font-weight:700;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + name + '</div>' +
-              '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;">' + types + (price ? ' · ' + price : '') + '</div>' +
+              '<div style="font-size:0.68rem;color:var(--muted);margin-top:0.1rem;text-transform:capitalize;">' + types.toLowerCase().replace(/_/g,' ') + '</div>' +
             '</div>' +
             '<div style="display:flex;gap:0.5rem;flex-shrink:0;">' +
               '<a href="vendorprofile.html?id=' + id + '" style="font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-dark);text-decoration:none;padding:0.35rem 0.75rem;border:1px solid var(--gold);border-radius:6px;">View</a>' +
-              '<button onclick="unsaveVendor(\'' + id + '\', \'' + (v.providerId ? 'api' : 'local') + '\')" style="font-size:0.68rem;font-weight:700;background:none;border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--muted);">✕</button>' +
+              '<button onclick="unfavoriteVendor(\'' + id + '\', \'' + (v.providerId ? 'api' : 'local') + '\')" style="font-size:0.9rem;background:none;border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;cursor:pointer;color:var(--muted);" title="Remove from favorites">♡</button>' +
             '</div>';
           list.appendChild(row);
         });
@@ -1939,26 +1348,26 @@
         if (rows.length) rows[rows.length - 1].style.borderBottom = 'none';
       }
 
-      window.unsaveVendor = function(id, source) {
+      window.unfavoriteVendor = function(id, source) {
         var token = localStorage.getItem('accessToken');
         if (source === 'api' && token) {
           fetch('/api/v1/favorites/' + id, {
             method: 'DELETE',
             headers: { 'Authorization': 'Bearer ' + token }
           })
-            .then(function() { loadSavedVendors(); })
+            .then(function() { loadFavorites(); })
             .catch(function() {});
         } else {
           var saved = [];
           try { saved = JSON.parse(localStorage.getItem('savedVendors')) || []; } catch(e) {}
           saved = saved.filter(function(v) { return String(v.id) !== String(id); });
           localStorage.setItem('savedVendors', JSON.stringify(saved));
-          loadSavedVendors();
+          loadFavorites();
         }
-        showToast('Vendor removed from saved list');
+        showToast('Removed from favorites');
       };
 
-      function loadSavedVendors() {
+      function loadFavorites() {
         var token = localStorage.getItem('accessToken');
         if (token) {
           // Load from API (cross-device)
@@ -1974,146 +1383,24 @@
                 try { local = JSON.parse(localStorage.getItem('savedVendors')) || []; } catch(e) {}
                 var apiIds = apiFavs.map(function(f) { return String(f.providerId); });
                 var localOnly = local.filter(function(v) { return apiIds.indexOf(String(v.id)) === -1; });
-                renderSavedVendors(apiFavs.concat(localOnly));
+                renderFavorites(apiFavs.concat(localOnly));
               } else {
-                loadLocalSavedVendors();
+                loadLocalFavorites();
               }
             })
-            .catch(function() { loadLocalSavedVendors(); });
+            .catch(function() { loadLocalFavorites(); });
         } else {
-          loadLocalSavedVendors();
+          loadLocalFavorites();
         }
       }
 
-      function loadLocalSavedVendors() {
+      function loadLocalFavorites() {
         var saved = [];
         try { saved = JSON.parse(localStorage.getItem('savedVendors')) || []; } catch(e) {}
-        renderSavedVendors(saved);
+        renderFavorites(saved);
       }
 
-      loadSavedVendors();
-
-      // ──────────────────────────────────────────────────────────────
-      // FRIENDS COUNT
-      // ──────────────────────────────────────────────────────────────
-      function getFriendsCount() {
-        var stored = localStorage.getItem(LS_FRIENDS);
-        return stored !== null ? parseInt(stored, 10) : 8;
-      }
-
-      function saveFriendsCount(val) {
-        localStorage.setItem(LS_FRIENDS, String(val));
-      }
-
-      function renderFriendsCount(n) {
-        document.getElementById('statFriends').textContent = n;
-      }
-
-      // Init friends count
-      renderFriendsCount(getFriendsCount());
-
-      // ──────────────────────────────────────────────────────────────
-      // PROFILE EDIT
-      // ──────────────────────────────────────────────────────────────
-      var saved = {
-        name:   document.getElementById('editName').value,
-        bio:    document.getElementById('editBio').value,
-        city:   document.getElementById('editCity').value,
-        avatar: document.getElementById('avatarImg').src
-      };
-
-      function enterEditMode() {
-        document.getElementById('editName').value = document.getElementById('viewName').textContent.trim();
-        document.getElementById('editBio').value  = document.getElementById('viewBio').textContent.trim();
-        document.getElementById('editCity').value = saved.city;
-        document.body.classList.add('edit-mode');
-        document.getElementById('avatarWrap').classList.add('editable');
-        document.getElementById('editName').focus();
-        detectLocation();
-      }
-
-      function detectLocation() {
-        if (!navigator.geolocation) return;
-        var cityInput = document.getElementById('editCity');
-        cityInput.placeholder = 'Detecting location…';
-        navigator.geolocation.getCurrentPosition(
-          function (pos) {
-            var lat = pos.coords.latitude;
-            var lon = pos.coords.longitude;
-            fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lon)
-              .then(function (r) { return r.json(); })
-              .then(function (data) {
-                var a = data.address || {};
-                var city  = a.city || a.town || a.village || a.county || '';
-                var state = a.state || '';
-                if (city) {
-                  cityInput.value = state ? city + ', ' + state : city;
-                  saved.city = cityInput.value;
-                }
-                cityInput.placeholder = 'City, Province';
-              })
-              .catch(function () { cityInput.placeholder = 'City, Province'; });
-          },
-          function () { cityInput.placeholder = 'City, Province'; },
-          { timeout: 6000 }
-        );
-      }
-
-      function commitSave() {
-        var name = document.getElementById('editName').value.trim() || saved.name;
-        var bio  = document.getElementById('editBio').value.trim()  || saved.bio;
-        var city = document.getElementById('editCity').value.trim() || saved.city;
-
-        // Update read views
-        document.getElementById('viewName').textContent = name;
-        document.getElementById('viewBio').textContent  = bio;
-
-        // Update contact read view
-        var items = document.querySelectorAll('.profile-contact-item');
-        if (items[0]) items[0].childNodes[items[0].childNodes.length - 1].textContent = city;
-
-        // Persist
-        saved = { name: name, bio: bio, city: city, avatar: document.getElementById('avatarImg').src };
-
-        exitEditMode();
-      }
-
-      function cancelEdit() {
-        document.getElementById('avatarImg').src = saved.avatar;
-        exitEditMode();
-      }
-
-      function exitEditMode() {
-        document.body.classList.remove('edit-mode');
-        document.getElementById('avatarWrap').classList.remove('editable');
-      }
-
-      // ── Avatar file pick ──
-      document.getElementById('avatarWrap').addEventListener('click', function () {
-        if (!document.body.classList.contains('edit-mode')) return;
-        document.getElementById('avatarInput').click();
-      });
-
-      document.getElementById('avatarInput').addEventListener('change', function () {
-        var file = this.files[0];
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          document.getElementById('avatarImg').src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-
-      // ── Button listeners ──
-      document.getElementById('btnEditProfile').addEventListener('click', enterEditMode);
-      document.getElementById('btnSave').addEventListener('click', commitSave);
-      document.getElementById('btnCancel').addEventListener('click', cancelEdit);
-
-      // ──────────────────────────────────────────────────────────────
-      // MODAL HELPERS
-      // ──────────────────────────────────────────────────────────────
-      function openModal(id)  { document.getElementById(id).classList.add('open'); }
-      function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+      loadFavorites();
 
       function showToast(msg) {
         var t = document.getElementById('toast');
@@ -2121,95 +1408,6 @@
         t.classList.add('show');
         setTimeout(function () { t.classList.remove('show'); }, 3000);
       }
-
-      // Close on backdrop click or [data-close] buttons
-      document.querySelectorAll('.modal-backdrop').forEach(function (backdrop) {
-        backdrop.addEventListener('click', function (e) {
-          if (e.target === backdrop) closeModal(backdrop.id);
-        });
-      });
-      document.querySelectorAll('[data-close]').forEach(function (btn) {
-        btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-close')); });
-      });
-
-      // ──────────────────────────────────────────────────────────────
-      // ADD FRIEND MODAL
-      // ──────────────────────────────────────────────────────────────
-      document.getElementById('btnAddFriend').addEventListener('click', function () {
-        document.getElementById('inviteEmail').value = '';
-        document.getElementById('invitePhone').value = '';
-        openModal('addFriendModal');
-        setTimeout(function () { document.getElementById('inviteEmail').focus(); }, 100);
-      });
-
-      document.getElementById('btnSendInvite').addEventListener('click', function () {
-        var email = document.getElementById('inviteEmail').value.trim();
-        var phone = document.getElementById('invitePhone').value.trim();
-        if (!email && !phone) {
-          document.getElementById('inviteEmail').focus();
-          return;
-        }
-        closeModal('addFriendModal');
-
-        // Increment friends count in localStorage
-        var count = getFriendsCount() + 1;
-        saveFriendsCount(count);
-        renderFriendsCount(count);
-
-        // Prepend activity
-        var contact = email || phone;
-        prependActivity({ icon: '✉️', text: 'Invite sent to ' + contact, time: 'Just now' });
-
-        showToast('Invite sent to ' + contact + ' ✓');
-      });
-
-      // ──────────────────────────────────────────────────────────────
-      // CREATE GUESTLIST MODAL
-      // ──────────────────────────────────────────────────────────────
-      var glStep = 1;
-
-      function setGlStep(step) {
-        glStep = step;
-        document.getElementById('glStep1').style.display = step === 1 ? 'block' : 'none';
-        document.getElementById('glStep2').style.display = step === 2 ? 'block' : 'none';
-        document.getElementById('glDot1').className = 'modal-step-dot ' + (step === 1 ? 'active' : 'done');
-        document.getElementById('glDot2').className = 'modal-step-dot ' + (step === 2 ? 'active' : '');
-        document.getElementById('glBackBtn').style.display = step === 2 ? 'inline-flex' : 'none';
-        document.getElementById('glNextBtn').textContent = step === 2 ? 'Create Guest List' : 'Next';
-        document.getElementById('glModalTitle').textContent = step === 2 ? 'Add Guests' : 'New Guest List';
-      }
-
-      document.getElementById('btnCreateGuestlist').addEventListener('click', function () {
-        document.getElementById('glName').value = '';
-        document.getElementById('glEvent').value = '';
-        document.querySelectorAll('#createGuestlistModal input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
-        setGlStep(1);
-        openModal('createGuestlistModal');
-        setTimeout(function () { document.getElementById('glName').focus(); }, 100);
-      });
-
-      document.getElementById('glBackBtn').addEventListener('click', function () { setGlStep(1); });
-
-      document.getElementById('glNextBtn').addEventListener('click', function () {
-        if (glStep === 1) {
-          if (!document.getElementById('glName').value.trim()) {
-            document.getElementById('glName').focus(); return;
-          }
-          if (!document.getElementById('glEvent').value) {
-            document.getElementById('glEvent').focus(); return;
-          }
-          setGlStep(2);
-        } else {
-          var checked = Array.from(document.querySelectorAll('#createGuestlistModal input[type="checkbox"]:checked'));
-          var name = document.getElementById('glName').value.trim();
-          closeModal('createGuestlistModal');
-
-          // Prepend activity
-          prependActivity({ icon: '📋', text: '"' + name + '" guest list created', time: 'Just now' });
-
-          showToast('"' + name + '" created with ' + checked.length + ' guest' + (checked.length !== 1 ? 's' : '') + ' ✓');
-        }
-      });
 
       // ── LOAD UPCOMING BOOKINGS ──
       function loadUpcomingBookings() {
@@ -2241,7 +1439,6 @@
         .catch(function() {}); // silently keep static
       }
 
-      // ── LOAD EVENT REQUESTS (completed / past) ──
       // ── LOAD DRAFT REQUESTS ──
       function loadDraftRequests() {
         fetch('/api/v1/event-requests/my-requests?status=DRAFT', {
@@ -2249,24 +1446,29 @@
         })
         .then(function(r) { return r.json(); })
         .then(function(res) {
-          if (!res.success || !res.data || !res.data.length) return;
-          var drafts = res.data.filter(function(e) { return e.status === 'DRAFT'; });
-          if (!drafts.length) return;
-          var card = document.getElementById('draftsCard');
-          var list = document.getElementById('draftsList');
-          if (!card || !list) return;
-          card.style.display = '';
+          var list = document.getElementById('savedRequestsList');
+          var empty = document.getElementById('savedRequestsEmpty');
+          if (!list) return;
+          var drafts = (res.data || []).filter(function(e) { return e.status === 'DRAFT'; });
+          if (!drafts.length) {
+            list.innerHTML = '';
+            if (empty) empty.style.display = '';
+            return;
+          }
+          if (empty) empty.style.display = 'none';
           list.innerHTML = drafts.map(function(e) {
-            var dateStr = e.eventDate ? new Date(e.eventDate).toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }) : 'Date TBD';
+            var dateStr = e.eventDate ? new Date(e.eventDate + 'T00:00:00').toLocaleDateString('en-CA', { month:'short', day:'numeric', year:'numeric' }) : 'Date TBD';
             var guests  = e.guestCount ? e.guestCount + ' guests' : '';
-            var city    = e.venueCity && e.venueCity !== 'TBD' ? e.venueCity : '';
-            var meta    = [dateStr, guests, city].filter(Boolean).join(' · ');
+            var meta    = [dateStr, guests].filter(Boolean).join(' · ');
+            var href = e.targetedProviderProfileId
+              ? 'vendorprofile.html?id=' + e.targetedProviderProfileId + '&draftId=' + e.id
+              : 'browsevendors.html';
             return '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);">'
               + '<div style="min-width:0;">'
-              + '<div style="font-size:0.82rem;font-weight:600;color:var(--dark);margin-bottom:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(e.title) + '</div>'
-              + '<div style="font-size:0.68rem;color:var(--muted);">' + esc(meta) + '</div>'
+              + '<div style="font-size:0.82rem;font-weight:600;color:var(--dark);margin-bottom:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + safeEsc(e.title) + '</div>'
+              + '<div style="font-size:0.68rem;color:var(--muted);">' + safeEsc(meta) + '</div>'
               + '</div>'
-              + '<a href="browsevendors.html" onclick="resumeDraft(' + JSON.stringify(e).replace(/'/g, '&#39;') + ');return false;" style="flex-shrink:0;padding:0.45rem 0.85rem;background:var(--dark);color:var(--gold-light);border-radius:6px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;white-space:nowrap;">Continue →</a>'
+              + '<a href="' + href + '" style="flex-shrink:0;padding:0.45rem 0.85rem;background:var(--dark);color:var(--gold-light);border-radius:6px;font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;white-space:nowrap;">Continue →</a>'
               + '</div>';
           }).join('');
         })
@@ -2396,7 +1598,6 @@
           if (!res.success) throw new Error(res.message || 'Failed to accept quote');
           var row = document.getElementById(rowId);
           if (row) { row.style.opacity = '0'; row.style.transition = 'opacity 0.3s'; setTimeout(function() { if (row.parentNode) row.parentNode.removeChild(row); }, 350); }
-          prependActivity({ icon: '✅', text: 'Quote accepted — booking created!', time: 'Just now' });
           showToast('Quote accepted! Your booking is confirmed. ✓');
           loadUpcomingBookings();
         })
@@ -2439,14 +1640,12 @@
           var content = document.getElementById('ongoingEventContent');
 
           if (!events.length) {
-            card.style.display = 'none';
-            return;
+            return; // empty state already showing from HTML
           }
 
-          card.style.display = 'block';
-
           content.innerHTML = events.map(function(e) {
-            var dateStr = e.eventDate ? new Date(e.eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }) : '';
+            var rawDate = e.eventDate ? e.eventDate.split('T')[0] : null;
+            var dateStr = rawDate ? new Date(rawDate + 'T00:00:00').toLocaleDateString('en-US', { weekday:'short', month:'long', day:'numeric', year:'numeric' }) : '';
             var color = '#C4A06A';
             var label = e.status === 'DRAFT' ? 'In Progress' : 'Pending Response';
             return '<div style="padding:0.75rem 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;">'
@@ -2461,9 +1660,7 @@
             + '</div>';
           }).join('');
         })
-        .catch(function() {
-          document.getElementById('ongoingEventsCard').style.display = 'none';
-        });
+        .catch(function() {});
       }
 
       loadOngoingEvents();

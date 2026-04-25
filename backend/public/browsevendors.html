@@ -900,8 +900,8 @@
             <div class="card-actions">
               <button class="btn-profile" onclick="viewProfile('${v.id}', '${v.name}', '${v.category}')">View Profile</button>
               ${isVendorSaved(v.id)
-                ? `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')" style="background:#3A8A55;color:#fff;border:none;">✓ Saved</button>`
-                : `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')">♡ Save</button>`
+                ? `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')" style="background:#3A8A55;color:#fff;border:none;">♥ Favorited</button>`
+                : `<button id="savebtn-${v.id}" class="btn-request btn-save-vendor" onclick="saveVendor('${v.id}', '${v.name}', '${v.category}', '${v.img}', '${v.priceLabel}')">♡ Favorite</button>`
               }
             </div>
           </div>
@@ -1157,7 +1157,7 @@
 
       showToast(alreadySaved ? name + ' already saved!' : '♥ ' + name + ' saved' + (ev && ev.name ? ' to ' + ev.name : ''));
       var btn = document.getElementById('savebtn-' + id);
-      if (btn) { btn.style.background = '#3A8A55'; btn.style.color = '#fff'; btn.style.border = 'none'; btn.textContent = '✓ Saved'; }
+      if (btn) { btn.style.background = '#3A8A55'; btn.style.color = '#fff'; btn.style.border = 'none'; btn.textContent = '♥ Favorited'; }
     };
 
     /* ── TOAST ── */

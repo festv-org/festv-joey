@@ -922,7 +922,7 @@
         <button class="btn-request-hero">Request Service</button>
         <button class="btn-save-hero" id="btnSaveVendor" onclick="toggleSaveVendor()" style="display:none;">
           <svg viewBox="0 0 24 24" width="15" height="15" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span id="btnSaveLabel">Save</span>
+          <span id="btnSaveLabel">Favorite</span>
         </button>
         <button class="btn-message-hero">Send Message</button>
       </div>
@@ -999,7 +999,10 @@
       </div>
 
       <div id="srError" style="color:#B84040; font-size:0.75rem; margin-bottom:0.75rem; display:none;"></div>
-      <button id="btnSendRequest" style="width:100%; padding:1rem; background:var(--dark); color:var(--gold-light); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Send to Vendor →</button>
+      <div style="display:flex;gap:0.6rem;margin-top:0.25rem;">
+        <button id="btnSendRequest" style="flex:1; padding:1rem; background:var(--dark); color:var(--gold-light); border:none; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.78rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;">Send to Vendor →</button>
+        <button id="btnSaveDraftLater" style="padding:1rem 1.25rem; background:transparent; color:var(--charcoal); border:1.5px solid rgba(0,0,0,0.15); border-radius:10px; font-family:'Montserrat',sans-serif; font-size:0.72rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; white-space:nowrap;" title="Save draft to continue later">Save for Later</button>
+      </div>
     </div>
 
     <!-- STEP 3: Success -->
@@ -1797,6 +1800,75 @@
           errEl.style.display = 'block';
         });
       });
+
+    // ── SAVE FOR LATER ──
+    document.getElementById('btnSaveDraftLater') && document.getElementById('btnSaveDraftLater').addEventListener('click', function() {
+      var token = localStorage.getItem('accessToken');
+      if (!token) { window.location.href = 'signin.html'; return; }
+
+      try { ev = JSON.parse(localStorage.getItem('pendingEvent')); } catch(e) {}
+      if (!ev) {
+        alert('Please fill in your event details first.');
+        window.location.href = 'createevent.html';
+        return;
+      }
+
+      var service = document.querySelector('input[name="serviceOption"]:checked') || document.querySelector('.service-option.selected') || { value: '' };
+      var notesEl = document.getElementById('srNotes') || document.getElementById('additionalNotes');
+      var notes = notesEl ? notesEl.value.trim() : '';
+
+      var validTypes = ['RESTO_VENUE','CATERER','ENTERTAINMENT','PHOTO_VIDEO','FLORIST_DECOR'];
+      var rawType = window._currentVendorType || 'RESTO_VENUE';
+      var vendorType = validTypes.indexOf(rawType) !== -1 ? rawType : 'RESTO_VENUE';
+      var vendorProfileId = new URLSearchParams(window.location.search).get('id');
+
+      var payload = {
+        title:          ev.name || 'My Event',
+        eventType:      ev.type || 'OTHER',
+        guestCount:     parseInt(ev.guests) || 1,
+        budgetMin:      parseFloat(ev.budgetMin) || 0,
+        budgetMax:      parseFloat(ev.budgetMax || ev.budgetMin) || 100,
+        eventDate:      ev.date,
+        eventStartTime: ev.startTime || '18:00',
+        eventEndTime:   ev.endTime || '23:00',
+        venueAddress:   ev.venueAddress || undefined,
+        venueCity:      ev.venueCity || undefined,
+        venueState:     ev.venueState || undefined,
+        venueZipCode:   ev.venueZip || undefined,
+        servicesWanted: [vendorType],
+        description:    (service.value ? 'Service: ' + service.value + '. ' : '') + notes,
+        targetedProviderProfileId: vendorProfileId || undefined
+      };
+
+      var btn = document.getElementById('btnSaveDraftLater');
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+
+      fetch('/api/v1/event-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.success && !data.data) throw new Error(data.message || 'Could not save request.');
+        btn.disabled = false;
+        btn.textContent = 'Saved ✓';
+        btn.style.color = '#3A8A55';
+        btn.style.borderColor = 'rgba(58,138,85,0.4)';
+        setTimeout(function() {
+          btn.textContent = 'Save for Later';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+          btn.disabled = false;
+        }, 3000);
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = 'Save for Later';
+        alert(err.message || 'Could not save. Please try again.');
+      });
+    });
     })();
 
     function starHTML(r) {
@@ -1827,6 +1899,39 @@
     var providerId = new URLSearchParams(window.location.search).get('id');
     if (!providerId) return;
 
+    var draftId = new URLSearchParams(window.location.search).get('draftId');
+    if (draftId && token) {
+      fetch('/api/v1/event-requests/' + draftId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        var draft = res.data || res;
+        if (!draft || !draft.id) return;
+        // Pre-fill notes
+        var notesEl = document.getElementById('srNotes') || document.getElementById('additionalNotes');
+        if (notesEl && draft.description) {
+          // Strip the "Service: X. " prefix if present, keep the rest as notes
+          var desc = draft.description.replace(/^Service:\s*[^.]+\.\s*/i, '').trim();
+          notesEl.value = desc;
+        }
+        // Pre-select service if we can match it
+        if (draft.description) {
+          var m = draft.description.match(/^Service:\s*([^.]+)/i);
+          if (m) {
+            var svcName = m[1].split(',')[0].trim();
+            document.querySelectorAll('input[name="serviceOption"]').forEach(function(radio) {
+              if (radio.value && radio.value.toLowerCase() === svcName.toLowerCase()) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+              }
+            });
+          }
+        }
+      })
+      .catch(function() {});
+    }
+
     var btn = document.getElementById('btnSaveVendor');
     var lbl = document.getElementById('btnSaveLabel');
     if (!btn) return;
@@ -1836,10 +1941,10 @@
     function setSaved(saved) {
       if (saved) {
         btn.classList.add('saved');
-        lbl.textContent = 'Saved';
+        lbl.textContent = 'Favorited';
       } else {
         btn.classList.remove('saved');
-        lbl.textContent = 'Save';
+        lbl.textContent = 'Favorite';
       }
     }
 
