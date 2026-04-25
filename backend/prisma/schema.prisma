@@ -135,9 +135,14 @@ model ProviderProfile {
   // Business info
   businessName        String
   businessDescription String?             @db.Text
+  tagline             String?             // Short line shown under business name on public profile
+  websiteUrl          String?
+  instagramHandle     String?
+  yearsInBusiness     Int?
+  languages           String[]            @default([])
   providerTypes       ProviderType[]      // What services this profile offers
   primaryType         ProviderType?       // Main service type for this profile
-  
+
   // Images
   bannerImageUrl      String?             // Large hero banner image
   logoUrl             String?             // Profile logo/avatar
@@ -152,7 +157,8 @@ model ProviderProfile {
   insuranceInfo       String?
   
   // Service area
-  serviceRadius       Int                 @default(50) // miles
+  serviceRadius       Int                 @default(50) // km
+  travelOutsideRegion Boolean             @default(false)
   serviceAreas        String[]            // cities/regions served
   
   // Per-person pricing (for companies: caterers, florists, decorators, equipment, bartender companies)

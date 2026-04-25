@@ -29,14 +29,20 @@ export const refreshTokenSchema = z.object({
 export const createProviderProfileSchema = z.object({
   businessName: z.string().min(2, 'Business name is required').max(100),
   businessDescription: z.string().max(5000).optional(),
+  tagline: z.string().max(80).optional(),
+  websiteUrl: z.string().url().optional().or(z.literal('')),
+  instagramHandle: z.string().max(50).optional(),
+  yearsInBusiness: z.number().int().min(0).max(100).optional(),
+  languages: z.array(z.string()).optional(),
   providerTypes: z.array(z.nativeEnum(ProviderType)).min(1, 'At least one provider type required'),
   primaryType: z.nativeEnum(ProviderType).optional(), // Main service type for this profile
-  
+
   // Solo worker vs Company (for caterers/bartenders)
   isSoloWorker: z.boolean().optional(),
-  
+
   // Service area
   serviceRadius: z.number().int().min(1).max(500).optional(),
+  travelOutsideRegion: z.boolean().optional(),
   serviceAreas: z.array(z.string()).optional(),
   
   // Per-person pricing (for companies: caterers, florists, decorators, equipment, bartender companies)
@@ -207,6 +213,7 @@ export const updateUserSchema = z.object({
   city: z.string().max(100).optional(),
   state: z.string().max(50).optional(),
   zipCode: z.string().max(10).optional(),
+  country: z.string().max(100).optional(),
 });
 
 export const changePasswordSchema = z.object({

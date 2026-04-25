@@ -179,7 +179,150 @@
       font-size: 0.67rem; color: var(--muted); line-height: 1.5; margin-top: 0.2rem;
     }
 
-    /* ── VENDOR TYPE PILLS ── */
+    /* ── SECTION HEADING ── */
+    .form-section-heading {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold-dark);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.55rem;
+      margin: 1.75rem 0 1.1rem;
+    }
+    .form-section-heading:first-child { margin-top: 0; }
+
+    /* ── VENDOR TYPE CARDS ── */
+    .type-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.65rem; margin-bottom: 0.5rem;
+    }
+    .type-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+    .type-card:hover { border-color: var(--gold-light); background: rgba(196,160,106,0.03); }
+    .type-card.selected {
+      border-color: var(--gold);
+      background: rgba(196,160,106,0.07);
+    }
+    .type-card.selected::after {
+      content: '✓';
+      position: absolute; top: 0.55rem; right: 0.75rem;
+      font-size: 0.65rem; color: var(--gold);
+      font-weight: 700;
+    }
+    .type-card-name {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.2rem;
+    }
+    .type-card.selected .type-card-name { color: var(--gold-dark); }
+    .type-card-desc {
+      font-size: 0.67rem; color: var(--muted); line-height: 1.45;
+    }
+
+    /* ── CHIP TOGGLES (secondary types, languages) ── */
+    .chip-group {
+      display: flex; flex-wrap: wrap; gap: 0.45rem;
+    }
+    .chip {
+      padding: 0.35rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .chip:hover { border-color: var(--gold-light); color: var(--charcoal); }
+    .chip.selected { border-color: var(--gold); background: rgba(196,160,106,0.08); color: var(--gold-dark); }
+
+    /* ── TOGGLE ROW ── */
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .toggle-label {
+      font-size: 0.78rem; color: var(--charcoal); line-height: 1.4;
+    }
+    .toggle-switch {
+      position: relative; width: 40px; height: 22px;
+      flex-shrink: 0; margin-left: 1rem;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-switch .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.12); border-radius: 22px;
+      transition: 0.25s;
+    }
+    .toggle-switch .slider:before {
+      position: absolute; content: '';
+      height: 16px; width: 16px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%;
+      transition: 0.25s;
+    }
+    .toggle-switch input:checked + .slider { background: var(--gold); }
+    .toggle-switch input:checked + .slider:before { transform: translateX(18px); }
+
+    /* ── MEDIA PLACEHOLDERS ── */
+    .media-grid {
+      display: grid; grid-template-columns: 1fr 2fr;
+      gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .media-placeholder {
+      border: 1.5px dashed rgba(0,0,0,0.13);
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.4rem; padding: 1.5rem 1rem;
+      background: rgba(0,0,0,0.015);
+      cursor: default;
+    }
+    .media-placeholder-icon { font-size: 1.4rem; opacity: 0.3; }
+    .media-placeholder-label {
+      font-size: 0.63rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); opacity: 0.6; text-align: center;
+    }
+    .media-portfolio-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 0.5rem;
+    }
+    .media-portfolio-grid .media-placeholder { padding: 1.25rem 0.5rem; }
+    .media-coming-soon {
+      font-size: 0.7rem; color: var(--muted);
+      background: rgba(196,160,106,0.06);
+      border: 1px solid rgba(196,160,106,0.18);
+      border-radius: 8px; padding: 0.55rem 0.85rem;
+      margin-top: 0.5rem; line-height: 1.5;
+    }
+
+    /* ── CHAR COUNTER ── */
+    .char-counter {
+      font-size: 0.63rem; color: var(--muted);
+      text-align: right; margin-top: 0.2rem;
+    }
+    .char-counter.warn { color: var(--red); }
+
+    /* ── INPUT PREFIX ── */
+    .input-prefix-wrap {
+      position: relative;
+    }
+    .input-prefix-wrap .prefix {
+      position: absolute; left: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.83rem; color: var(--muted);
+      pointer-events: none;
+    }
+    .input-prefix-wrap .form-input { padding-left: 1.6rem; }
+
+    /* ── VENDOR TYPE PILLS (kept for step 2) ── */
     .type-pills {
       display: flex; flex-wrap: wrap; gap: 0.55rem;
     }
@@ -528,46 +671,197 @@
         <div class="card">
           <div class="error-msg" id="err-1"></div>
 
+          <!-- 1. BUSINESS IDENTITY -->
+          <div class="form-section-heading" style="margin-top:0;">Business Identity</div>
+
+          <div class="form-group">
+            <label class="form-label">Business Name <span class="req">*</span></label>
+            <input class="form-input" id="s1-businessName" type="text" placeholder="e.g. Milo Sound &amp; Lights">
+          </div>
+
           <div class="form-row">
-            <div class="form-group" style="flex:2;">
-              <label class="form-label">Business Name <span class="req">*</span></label>
-              <input class="form-input" id="s1-businessName" type="text" placeholder="Milo Sound &amp; Lights">
+            <div class="form-group">
+              <label class="form-label">Business Phone <span class="req">*</span></label>
+              <input class="form-input" id="s1-phone" type="tel" placeholder="(416) 555-0100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Business Email <span class="req">*</span></label>
+              <input class="form-input" id="s1-email" type="email" placeholder="hello@yourbusiness.com">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">City</label>
+              <label class="form-label">Website URL</label>
+              <input class="form-input" id="s1-website" type="url" placeholder="https://yourbusiness.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Instagram Handle</label>
+              <input class="form-input" id="s1-instagram" type="text" placeholder="@yourbusiness">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Years in Business</label>
+              <input class="form-input" id="s1-years" type="number" min="0" max="100" placeholder="5">
+            </div>
+            <div class="form-group"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tagline</label>
+            <input class="form-input" id="s1-tagline" type="text" maxlength="80" placeholder="A short line that captures what makes you special">
+            <div class="char-counter" id="taglineCounter">0 / 80</div>
+          </div>
+
+          <!-- 2. LOCATION -->
+          <div class="form-section-heading">Location</div>
+
+          <div class="form-group">
+            <label class="form-label">Street Address</label>
+            <input class="form-input" id="s1-address" type="text" placeholder="123 Event Ave">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">City <span class="req">*</span></label>
               <input class="form-input" id="s1-city" type="text" placeholder="Toronto">
             </div>
             <div class="form-group">
-              <label class="form-label">Province</label>
+              <label class="form-label">Province / State <span class="req">*</span></label>
               <input class="form-input" id="s1-province" type="text" placeholder="Ontario">
             </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Country <span class="req">*</span></label>
+            <input class="form-input" id="s1-country" type="text" placeholder="Canada">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Service Radius (km)</label>
+            <input class="form-input" id="s1-radius" type="number" min="0" max="500" placeholder="How far will you travel for an event?">
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">I'm available to travel outside my region</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="s1-travel">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- 3. VENDOR TYPE -->
+          <div class="form-section-heading">Vendor Type</div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Type <span class="req">*</span></label>
+            <div class="type-cards" id="typeCards">
+              <div class="type-card" data-type="RESTO_VENUE">
+                <div class="type-card-name">Restaurant / Venue</div>
+                <div class="type-card-desc">Dining spaces, private rooms, and full venue experiences</div>
+              </div>
+              <div class="type-card" data-type="CATERER">
+                <div class="type-card-name">Caterer</div>
+                <div class="type-card-desc">Off-site catering, staffing, and full-service food packages</div>
+              </div>
+              <div class="type-card" data-type="ENTERTAINMENT">
+                <div class="type-card-name">Entertainment</div>
+                <div class="type-card-desc">DJs, live music, performers, and production</div>
+              </div>
+              <div class="type-card" data-type="PHOTO_VIDEO">
+                <div class="type-card-name">Photo &amp; Video</div>
+                <div class="type-card-desc">Photography, videography, and creative media</div>
+              </div>
+              <div class="type-card" data-type="FLORIST_DECOR">
+                <div class="type-card-name">Florist &amp; Decor</div>
+                <div class="type-card-desc">Floral design, styling, and event décor</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="secondaryTypesGroup" style="display:none;">
+            <label class="form-label">Do you also offer any of the following?</label>
+            <div class="chip-group" id="secondaryChips"></div>
+          </div>
+
+          <!-- 4. ABOUT -->
+          <div class="form-section-heading">About Your Business</div>
+
+          <div class="form-group">
+            <label class="form-label">About <span class="req">*</span></label>
+            <textarea class="form-textarea" id="s1-description" rows="5" placeholder="Tell planners what makes your business unique, your experience, and what they can expect when working with you."></textarea>
+            <div class="field-hint">Minimum 50 characters. This appears on your public profile.</div>
+          </div>
+
+          <!-- 5. LANGUAGES -->
+          <div class="form-section-heading">Languages Spoken</div>
+
+          <div class="form-group">
+            <label class="form-label">Languages <span class="req">*</span></label>
+            <div class="chip-group" id="languageChips">
+              <div class="chip" data-lang="French">French</div>
+              <div class="chip" data-lang="English">English</div>
+              <div class="chip" data-lang="Spanish">Spanish</div>
+              <div class="chip" data-lang="Portuguese">Portuguese</div>
+              <div class="chip" data-lang="Arabic">Arabic</div>
+              <div class="chip" data-lang="Mandarin">Mandarin</div>
+              <div class="chip" data-lang="Italian">Italian</div>
+              <div class="chip" data-lang="Other">Other</div>
+            </div>
+            <div id="otherLangGroup" style="display:none; margin-top:0.65rem;">
+              <input class="form-input" id="s1-otherLang" type="text" placeholder="Please specify">
+            </div>
+          </div>
+
+          <!-- 6. BUDGET -->
+          <div class="form-section-heading">Typical Event Budget Range</div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">This helps planners know if you're the right fit before reaching out.</p>
+
+          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Country</label>
-              <input class="form-input" id="s1-country" type="text" placeholder="Canada">
+              <label class="form-label">Minimum Budget</label>
+              <div class="input-prefix-wrap">
+                <span class="prefix">$</span>
+                <input class="form-input" id="s1-minBudget" type="number" min="0" placeholder="500">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum Budget</label>
+              <div class="input-prefix-wrap">
+                <span class="prefix">$</span>
+                <input class="form-input" id="s1-maxBudget" type="number" min="0" placeholder="10000">
+              </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Vendor Type <span class="req">*</span></label>
-            <div class="type-pills" id="typePills">
-              <div class="type-pill" data-type="RESTO_VENUE">🏛 Restaurant / Venue</div>
-              <div class="type-pill" data-type="CATERER">🍽️ Caterer</div>
-              <div class="type-pill" data-type="ENTERTAINMENT">🎧 Entertainment</div>
-              <div class="type-pill" data-type="PHOTO_VIDEO">📸 Photo &amp; Video</div>
-              <div class="type-pill" data-type="FLORIST_DECOR">🌸 Florist &amp; Decor</div>
+          <!-- 7. MEDIA PLACEHOLDERS -->
+          <div class="form-section-heading">Photos &amp; Media</div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">Photo uploads are coming soon. You'll be able to add your logo, cover photo, and portfolio images once this feature is live.</p>
+
+          <div class="media-grid">
+            <div class="media-placeholder" style="aspect-ratio:1/1; min-height:100px;">
+              <div class="media-placeholder-icon">📷</div>
+              <div class="media-placeholder-label">Logo / Profile</div>
+            </div>
+            <div class="media-placeholder" style="min-height:100px;">
+              <div class="media-placeholder-icon">🖼️</div>
+              <div class="media-placeholder-label">Cover / Hero Image</div>
             </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">About Your Business <span class="req">*</span></label>
-            <textarea class="form-textarea" id="s1-description" placeholder="Describe your services, style, experience, and what makes you stand out..."></textarea>
+          <div class="media-portfolio-grid" style="margin-bottom:0.65rem;">
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
           </div>
+          <div class="media-coming-soon">📸 Photo uploads coming soon — complete your profile now and add photos once the feature is live.</div>
 
-
-          <button class="btn-primary" id="btn1">
+          <!-- CONTINUE -->
+          <button class="btn-primary" id="btn1" disabled>
             <div class="spinner"></div>
             <span class="btn-text">Continue</span>
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -747,13 +1041,28 @@
       document.getElementById('headerGreeting').textContent = 'Hi, ' + user.firstName;
     }
 
-    var currentStep   = 1;
-    var selectedTypes = [];
-    var pendingFeatures = [];
-    var pendingServices = [];
+    var currentStep      = 1;
+    var primaryType      = null;
+    var secondaryTypes   = [];
+    var selectedLanguages = [];
+    var pendingFeatures  = [];
+    var pendingServices  = [];
     var pendingMenuItems = [];
     var createdProfileId = null;
     var existingProfile  = null; // set if vendor already has a profile
+
+    var ALL_TYPES = [
+      { value: 'RESTO_VENUE',   label: 'Restaurant / Venue' },
+      { value: 'CATERER',       label: 'Caterer' },
+      { value: 'ENTERTAINMENT', label: 'Entertainment' },
+      { value: 'PHOTO_VIDEO',   label: 'Photo & Video' },
+      { value: 'FLORIST_DECOR', label: 'Florist & Decor' },
+    ];
+
+    function setVal(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.value = val;
+    }
 
     // ── Auth helper ──
     function authFetch(url, opts) {
@@ -798,100 +1107,276 @@
         existingProfile  = p;
         createdProfileId = p.id;
 
-        // Business name & description
-        if (p.businessName)        document.getElementById('s1-businessName').value = p.businessName;
-        if (p.businessDescription) document.getElementById('s1-description').value  = p.businessDescription;
-        // Location from user object
-        if (p.user && p.user.city)    document.getElementById('s1-city').value     = p.user.city;
-        if (p.user && p.user.state)   document.getElementById('s1-province').value = p.user.state;
-        if (p.user && p.user.country) document.getElementById('s1-country').value  = p.user.country;
+        // Business Identity
+        if (p.businessName)        setVal('s1-businessName', p.businessName);
+        if (p.tagline)             setVal('s1-tagline', p.tagline);
+        if (p.websiteUrl)          setVal('s1-website', p.websiteUrl);
+        if (p.instagramHandle)     setVal('s1-instagram', '@' + p.instagramHandle);
+        if (p.yearsInBusiness != null) setVal('s1-years', p.yearsInBusiness);
+        if (p.businessDescription) setVal('s1-description', p.businessDescription);
+        updateTaglineCounter();
 
-        // Vendor type pills
-        var types = p.providerTypes || (p.primaryType ? [p.primaryType] : []);
-        types.forEach(function (t) {
-          selectedTypes.push(t);
-          var pill = document.querySelector('.type-pill[data-type="' + t + '"]');
-          if (pill) pill.classList.add('selected');
+        // Location — from embedded user object
+        var u = p.user || {};
+        if (u.phoneNumber) setVal('s1-phone', u.phoneNumber);
+        if (u.email)       setVal('s1-email', u.email);
+        if (u.address)     setVal('s1-address', u.address);
+        if (u.city)        setVal('s1-city', u.city);
+        if (u.state)       setVal('s1-province', u.state);
+        if (u.country)     setVal('s1-country', u.country);
+
+        // Service area
+        if (p.serviceRadius != null) setVal('s1-radius', p.serviceRadius);
+        if (p.travelOutsideRegion)   document.getElementById('s1-travel').checked = true;
+
+        // Primary vendor type card
+        if (p.primaryType) {
+          primaryType = p.primaryType;
+          var card = document.querySelector('.type-card[data-type="' + p.primaryType + '"]');
+          if (card) card.classList.add('selected');
+          renderSecondaryChips();
+        }
+
+        // Secondary types
+        if (p.providerTypes) {
+          p.providerTypes.forEach(function(t) {
+            if (t !== primaryType) secondaryTypes.push(t);
+          });
+          // Mark the newly-rendered secondary chips
+          document.querySelectorAll('#secondaryChips .chip').forEach(function(chip) {
+            if (secondaryTypes.indexOf(chip.getAttribute('data-type')) !== -1) {
+              chip.classList.add('selected');
+            }
+          });
+        }
+
+        // Languages
+        var langs = p.languages || [];
+        langs.forEach(function(lang) {
+          var knownChip = document.querySelector('#languageChips .chip[data-lang="' + lang + '"]');
+          if (knownChip) {
+            knownChip.classList.add('selected');
+            selectedLanguages.push(lang);
+          } else {
+            // Treat as custom "Other" language
+            var otherChip = document.querySelector('#languageChips .chip[data-lang="Other"]');
+            if (otherChip && selectedLanguages.indexOf('Other') === -1) {
+              otherChip.classList.add('selected');
+              selectedLanguages.push('Other');
+            }
+            document.getElementById('s1-otherLang').value = lang;
+            document.getElementById('otherLangGroup').style.display = '';
+          }
         });
 
-        // Update menu section label based on type
-        var isFoodOrFloral = selectedTypes.some(function (t) { return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1; });
-        document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
+        // Budget
+        if (p.minimumBudget != null) setVal('s1-minBudget', p.minimumBudget);
+        if (p.maximumBudget != null) setVal('s1-maxBudget', p.maximumBudget);
 
-        // Update button text to reflect editing
-        document.getElementById('btn1').textContent = 'Update Profile →';
+        // Update step 2 section labels
+        updateMenuSectionLabels();
+        validateStep1();
       })
-      .catch(function () {}); // no profile yet, that's fine
+      .catch(function () {}); // no profile yet — that's fine
 
-    // ── Vendor type pills ──
-    document.querySelectorAll('.type-pill').forEach(function (pill) {
-      pill.addEventListener('click', function () {
-        var type = pill.getAttribute('data-type');
-        var idx  = selectedTypes.indexOf(type);
-        if (idx === -1) {
-          selectedTypes.push(type);
-          pill.classList.add('selected');
-        } else {
-          selectedTypes.splice(idx, 1);
-          pill.classList.remove('selected');
-        }
-        // Update menu section label
-        var isFoodOrFloral = selectedTypes.some(function (t) { return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1; });
-        document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
-        document.getElementById('addMenuTitle').textContent = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
+    // ── Vendor type cards (primary — pick exactly one) ──
+    document.querySelectorAll('.type-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var type = card.getAttribute('data-type');
+        // Deselect all cards
+        document.querySelectorAll('.type-card').forEach(function(c) { c.classList.remove('selected'); });
+        // If this type was in secondaryTypes, remove it
+        var idx = secondaryTypes.indexOf(type);
+        if (idx !== -1) secondaryTypes.splice(idx, 1);
+        // Select new primary
+        primaryType = type;
+        card.classList.add('selected');
+        renderSecondaryChips();
+        updateMenuSectionLabels();
+        validateStep1();
       });
     });
 
-    // ── STEP 1: Create Profile ──
+    function renderSecondaryChips() {
+      var grp = document.getElementById('secondaryTypesGroup');
+      var container = document.getElementById('secondaryChips');
+      if (!primaryType) { grp.style.display = 'none'; return; }
+      grp.style.display = '';
+      container.innerHTML = ALL_TYPES
+        .filter(function(t) { return t.value !== primaryType; })
+        .map(function(t) {
+          var sel = secondaryTypes.indexOf(t.value) !== -1 ? ' selected' : '';
+          return '<div class="chip' + sel + '" data-type="' + t.value + '">' + t.label + '</div>';
+        }).join('');
+      container.querySelectorAll('.chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var t = chip.getAttribute('data-type');
+          var i = secondaryTypes.indexOf(t);
+          if (i === -1) { secondaryTypes.push(t); chip.classList.add('selected'); }
+          else { secondaryTypes.splice(i, 1); chip.classList.remove('selected'); }
+          updateMenuSectionLabels();
+        });
+      });
+    }
+
+    function updateMenuSectionLabels() {
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var isFoodOrFloral = allTypes.some(function(t) {
+        return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1;
+      });
+      document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
+      document.getElementById('addMenuTitle').textContent = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
+    }
+
+    // ── Language chips ──
+    document.querySelectorAll('#languageChips .chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var lang = chip.getAttribute('data-lang');
+        var idx  = selectedLanguages.indexOf(lang);
+        if (idx === -1) {
+          selectedLanguages.push(lang);
+          chip.classList.add('selected');
+        } else {
+          selectedLanguages.splice(idx, 1);
+          chip.classList.remove('selected');
+        }
+        document.getElementById('otherLangGroup').style.display =
+          selectedLanguages.indexOf('Other') !== -1 ? '' : 'none';
+        validateStep1();
+      });
+    });
+
+    // ── Tagline char counter ──
+    function updateTaglineCounter() {
+      var val = (document.getElementById('s1-tagline').value || '').length;
+      var counter = document.getElementById('taglineCounter');
+      counter.textContent = val + ' / 80';
+      counter.classList.toggle('warn', val > 70);
+    }
+    document.getElementById('s1-tagline').addEventListener('input', updateTaglineCounter);
+
+    // ── Live validation — keep Continue disabled until required fields pass ──
+    function validateStep1() {
+      var bName    = document.getElementById('s1-businessName').value.trim();
+      var bPhone   = document.getElementById('s1-phone').value.trim();
+      var bEmail   = document.getElementById('s1-email').value.trim();
+      var bCity    = document.getElementById('s1-city').value.trim();
+      var bProv    = document.getElementById('s1-province').value.trim();
+      var bCountry = document.getElementById('s1-country').value.trim();
+      var bDesc    = document.getElementById('s1-description').value.trim();
+      var emailOk  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bEmail);
+      var valid = bName && bPhone && bEmail && emailOk &&
+                  bCity && bProv && bCountry &&
+                  primaryType &&
+                  bDesc.length >= 50 &&
+                  selectedLanguages.length > 0;
+      document.getElementById('btn1').disabled = !valid;
+    }
+
+    ['s1-businessName','s1-phone','s1-email','s1-city','s1-province','s1-country','s1-description'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', validateStep1);
+    });
+
+    // ── STEP 1: Save Profile ──
     document.getElementById('btn1').addEventListener('click', function () {
       clearError('err-1');
-      var btn   = this;
-      var bName = document.getElementById('s1-businessName').value.trim();
-      var bDesc = document.getElementById('s1-description').value.trim();
+      var btn = this;
 
-      if (!bName)             { showError('err-1', 'Business name is required.'); return; }
-      if (!bDesc)             { showError('err-1', 'Please describe your business.'); return; }
-      if (selectedTypes.length === 0) { showError('err-1', 'Please select at least one vendor type.'); return; }
+      var bName    = document.getElementById('s1-businessName').value.trim();
+      var bPhone   = document.getElementById('s1-phone').value.trim();
+      var bEmail   = document.getElementById('s1-email').value.trim();
+      var bCity    = document.getElementById('s1-city').value.trim();
+      var bProv    = document.getElementById('s1-province').value.trim();
+      var bCountry = document.getElementById('s1-country').value.trim();
+      var bDesc    = document.getElementById('s1-description').value.trim();
 
-      var payload = {
-        businessName:        bName,
-        businessDescription: bDesc,
-        providerTypes:       selectedTypes,
-        primaryType:         selectedTypes[0],
-      };
-
-      var city     = document.getElementById('s1-city').value.trim();
-      var province = document.getElementById('s1-province').value.trim();
-      var country  = document.getElementById('s1-country').value.trim();
+      // Guard (button should already be disabled, but be safe)
+      if (!bName)    { showError('err-1', 'Business name is required.'); return; }
+      if (!bPhone)   { showError('err-1', 'Business phone is required.'); return; }
+      if (!bEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bEmail)) {
+        showError('err-1', 'A valid business email is required.'); return;
+      }
+      if (!bCity || !bProv || !bCountry) {
+        showError('err-1', 'City, province/state, and country are all required.'); return;
+      }
+      if (!primaryType) { showError('err-1', 'Please select a primary vendor type.'); return; }
+      if (bDesc.length < 50) { showError('err-1', 'About your business must be at least 50 characters.'); return; }
+      if (selectedLanguages.length === 0) { showError('err-1', 'Please select at least one language.'); return; }
 
       btn.classList.add('loading');
+
+      // ── User-level fields ──
+      var userPayload = {
+        phoneNumber: bPhone,
+        city:        bCity,
+        state:       bProv,
+        country:     bCountry,
+      };
+      var bAddress = document.getElementById('s1-address').value.trim();
+      if (bAddress) userPayload.address = bAddress;
+
+      // ── Resolve languages — swap 'Other' with the custom text ──
+      var langs = selectedLanguages.map(function(l) {
+        if (l === 'Other') {
+          var custom = document.getElementById('s1-otherLang').value.trim();
+          return custom || 'Other';
+        }
+        return l;
+      });
+
+      // ── Provider profile payload ──
+      var tagline = document.getElementById('s1-tagline').value.trim();
+      var website = document.getElementById('s1-website').value.trim();
+      var insta   = document.getElementById('s1-instagram').value.trim().replace(/^@/, '');
+      var years   = parseInt(document.getElementById('s1-years').value, 10);
+      var radius  = parseInt(document.getElementById('s1-radius').value, 10);
+      var minBudg = parseFloat(document.getElementById('s1-minBudget').value);
+      var maxBudg = parseFloat(document.getElementById('s1-maxBudget').value);
+
+      var profilePayload = {
+        businessName:        bName,
+        businessDescription: bDesc,
+        providerTypes:       [primaryType].concat(secondaryTypes),
+        primaryType:         primaryType,
+        languages:           langs,
+        travelOutsideRegion: document.getElementById('s1-travel').checked,
+      };
+      if (tagline)        profilePayload.tagline         = tagline;
+      if (website)        profilePayload.websiteUrl      = website;
+      if (insta)          profilePayload.instagramHandle = insta;
+      if (!isNaN(years))  profilePayload.yearsInBusiness = years;
+      if (!isNaN(radius)) profilePayload.serviceRadius   = radius;
+      if (!isNaN(minBudg)) profilePayload.minimumBudget  = minBudg;
+      if (!isNaN(maxBudg)) profilePayload.maximumBudget  = maxBudg;
+
       var profileMethod = existingProfile ? 'PUT' : 'POST';
 
-      // Save location to user profile in parallel
-      if (city || province || country) {
-        var userPayload = {};
-        if (city)     userPayload.city    = city;
-        if (province) userPayload.state   = province;
-        if (country)  userPayload.country = country;
-        authFetch('/users/profile', { method: 'PUT', body: JSON.stringify(userPayload) }).catch(function(){});
-      }
-
-      authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(payload) })
-        .then(function (data) {
-          btn.classList.remove('loading');
-          if (data.success || data.data) {
-            createdProfileId = (data.data && data.data.id) || createdProfileId;
-            goToStep(2);
-          } else {
-            var msg = data.error || data.message || 'Failed to save profile.';
-            if (data.details && data.details.length) msg += ' (' + data.details.map(function(d){ return d.field + ': ' + d.message; }).join(', ') + ')';
-            showError('err-1', msg);
+      // Fire both calls in parallel — user fields + provider profile
+      Promise.all([
+        authFetch('/users/profile', { method: 'PUT', body: JSON.stringify(userPayload) }).catch(function(){}),
+        authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(profilePayload) }),
+      ])
+      .then(function(results) {
+        btn.classList.remove('loading');
+        var profileResult = results[1];
+        if (profileResult && (profileResult.success || (profileResult.data && profileResult.data.id))) {
+          createdProfileId = (profileResult.data && profileResult.data.id) || createdProfileId;
+          existingProfile  = profileResult.data || existingProfile;
+          updateMenuSectionLabels();
+          goToStep(2);
+        } else {
+          var msg = (profileResult && (profileResult.error || profileResult.message)) || 'Failed to save profile.';
+          if (profileResult && profileResult.details && profileResult.details.length) {
+            msg += ' (' + profileResult.details.map(function(d){ return d.field + ': ' + d.message; }).join(', ') + ')';
           }
-        })
-        .catch(function (err) {
-          btn.classList.remove('loading');
-          showError('err-1', err && err.message ? err.message : 'Connection error. Please try again.');
-        });
+          showError('err-1', msg);
+        }
+      })
+      .catch(function(err) {
+        btn.classList.remove('loading');
+        showError('err-1', err && err.message ? err.message : 'Connection error. Please try again.');
+      });
     });
 
     // ── Features (for service form) ──
@@ -935,7 +1420,7 @@
         priceType:   pType,
         basePrice:   price || 0,
         features:    pendingFeatures.slice(),
-        providerType: selectedTypes[0] || 'RESTO_VENUE',
+        providerType: primaryType || 'RESTO_VENUE',
       });
 
       // Reset form fields
@@ -1111,7 +1596,7 @@
     }
 
     function uploadPdf(file) {
-      if (!selectedTypes.length) {
+      if (!primaryType) {
         pdfError.textContent = 'Please go back to Step 1 and select your vendor type first.';
         pdfError.classList.add('show');
         return;
@@ -1125,7 +1610,7 @@
 
       var formData = new FormData();
       formData.append('file', file);
-      formData.append('vendorType', selectedTypes[0]);
+      formData.append('vendorType', primaryType);
 
       fetch(API + '/pdf-import', {
         method: 'POST',
@@ -1166,7 +1651,7 @@
           priceType:   pkg.pricePerPerson ? 'PER_PERSON' : 'FLAT_RATE',
           basePrice:   pkg.flatPrice || pkg.pricePerPerson || 0,
           features:    pkg.includes || [],
-          providerType: selectedTypes[0] || 'RESTO_VENUE',
+          providerType: primaryType || 'RESTO_VENUE',
         });
         svcCount++;
       });
@@ -1196,7 +1681,7 @@
             priceType:   bp.pricePerPerson ? 'PER_PERSON' : 'FLAT_RATE',
             basePrice:   bp.flatPrice || bp.pricePerPerson || 0,
             features:    bp.includes || [],
-            providerType: selectedTypes[0] || 'RESTO_VENUE',
+            providerType: primaryType || 'RESTO_VENUE',
           });
           svcCount++;
         });
