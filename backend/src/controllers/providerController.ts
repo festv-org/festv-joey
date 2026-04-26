@@ -120,9 +120,6 @@ export const getMyProfiles = asyncHandler(async (req: AuthenticatedRequest, res:
           { displayOrder: 'asc' },
         ],
       },
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         orderBy: { displayOrder: 'asc' },
         take: 10,
@@ -164,16 +161,13 @@ export const getMyProfile = asyncHandler(async (req: AuthenticatedRequest, res: 
         },
       },
       services: true,
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         orderBy: { displayOrder: 'asc' },
         take: 10,
       },
     },
   });
-  
+
   if (!profile) {
     throw new NotFoundError('Provider profile');
   }
@@ -256,9 +250,6 @@ export const getProviderById = asyncHandler(async (req: AuthenticatedRequest, re
           { displayOrder: 'asc' },
         ],
       },
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         where: { isPublic: true },
         orderBy: [

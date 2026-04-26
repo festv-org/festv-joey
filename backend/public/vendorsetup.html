@@ -1171,10 +1171,10 @@
 
           <!-- Menu Section — shown only if RESTO_VENUE or CATERER -->
           <div id="menuSectionWrap" style="display:none;">
-            <div class="form-section-heading">Menu Items</div>
+            <div id="menuSectionLabel" class="form-section-heading">Menu Items</div>
             <div class="field-hint" style="margin-bottom:0.85rem;">Optional — add your menu items for planners to browse.</div>
             <div id="menuCardsArea"></div>
-            <button class="btn-add-outline" id="btnAddMenuCard" type="button">+ Add a menu item</button>
+            <button class="btn-add-outline" id="btnAddMenuCard" type="button"><span id="addMenuTitle">+ Add a menu item</span></button>
           </div>
 
           <div id="err-2" class="error-msg"></div>
@@ -1556,8 +1556,10 @@
       var isFoodOrFloral = allTypes.some(function(t) {
         return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1;
       });
-      document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
-      document.getElementById('addMenuTitle').textContent = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
+      var labelEl = document.getElementById('menuSectionLabel');
+      var addEl   = document.getElementById('addMenuTitle');
+      if (labelEl) labelEl.textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
+      if (addEl)   addEl.textContent   = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
     }
 
     // ── Language chips ──
