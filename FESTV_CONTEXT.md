@@ -101,9 +101,9 @@ All pages are in `/backend/public/`. They use vanilla JS with `fetch()` calls to
 |------|-------------|
 | `festv-index.html` | Landing page — hero, how it works, sign in / get started CTAs |
 | `signin.html` | Login form. Stores `accessToken`, `refreshToken`, `user` in localStorage |
-| `accounttype.html` | Registration — choose Planner or Vendor, fill details, create account |
-| `vendorsetup.html` | Vendor onboarding — Step 1: business profile. Step 2: services + menu (PDF import or manual). Publishes to API on submit |
-| `vendordashboard.html` | Vendor's main dashboard — Booked Events, Incoming Requests, Analytics, Messages, Services & Pricing, Portfolio |
+| `accounttype.html` | Registration — choose Planner or Vendor, select vendor type, fill basic details (name, email, phone, city, password). No document uploads here — those are collected in vendorsetup Step 3. Submit button is gold, redirects to vendorsetup.html on success. |
+| `vendorsetup.html` | Vendor onboarding — **3 steps total:** Step 1: business profile + primary/secondary vendor type. Step 2: services, pricing, and menu (PDF import or manual). Step 3: review & confirm + verification doc uploads + submit for approval. |
+| `vendordashboard.html` | Vendor's main dashboard — Booked Events, Incoming Requests, Analytics, Messages, Services & Pricing, Portfolio. Shows a pending approval banner if `verificationStatus` is not `VERIFIED`. |
 | `vendorprofile.html` | Public vendor profile — hero, About+Contact strip, services, menu, reviews. Also doubles as the request-sending page when `fromEvent=1` is in the URL |
 | `plannerdashboard.html` | Planner's main dashboard — Quotes Received, Saved Requests, Messages, Favorites, Quick Actions, Pending/Upcoming/Completed events |
 | `plannerquote.html` | Quote detail page for planners — shows itemized pricing, 15% tax, estimated total, 10% deposit card, Book Vendor & Pay Deposit button |
@@ -148,7 +148,7 @@ All pages are in `/backend/public/`. They use vanilla JS with `fetch()` calls to
 Key models to know:
 
 - **User** — `role` (primary) + `roles[]` (all). Status: ACTIVE, PENDING_VERIFICATION, SUSPENDED
-- **ProviderProfile** — linked to User via `userId`. Has `primaryType`, `providerTypes[]`, `verificationStatus`, pricing fields
+- **ProviderProfile** — linked to User via `userId`. Has `primaryType`, `providerTypes[]`, `verificationStatus`, pricing fields. New columns added: `languages`, `travelOutsideRegion`, `tagline`, `websiteUrl`, `instagramHandle`, `yearsInBusiness`, `serviceRadius`, `minBudget`, `maxBudget`
 - **Service** — packages offered by a vendor (name, description, priceType, basePrice, features[])
 - **MenuItem** — food/drink items (name, category, price, dietaryInfo[])
 - **EventRequest** — a planner's request (eventType, date, guestCount, budget, selectedServices)
@@ -218,12 +218,72 @@ Token is set at page load — not refreshed mid-session in most pages. If a call
 - `PROVIDER` — vendors
 - `ADMIN` — full access
 
+**User status flow:**
+- `PENDING_VERIFICATION` — set at registration. User must verify email before accessing any routes except: `POST /verification/send-email-code`, `POST /verification/verify-email`, `GET /auth/me`, `POST /auth/refresh`. All other authenticated routes return 403 with "Please verify your email address to continue."
+- `ACTIVE` — set after successful email verification. Full API access based on role.
+- `SUSPENDED` — admin action. No access.
+
+> ⚠️ `User.status` (email verification) and `ProviderProfile.verificationStatus` (admin approval) are two separate things. Never conflate them.
+
 **Dev access (Planner + Database admin pages):**
 Backend helper `isDevAccess(email)` in `routes/adminRoutes.ts` returns `true` for:
 1. Any email in `ADMIN_EMAILS` env var (comma-separated)
 2. Any email matching `/^test-.*@festv\.app$/i` (the seeded test accounts)
 
 The `requireAdminEmail` middleware uses this for `/admin/*` routes. The frontend dropdown calls `GET /api/v1/auth/dev-access` to know whether to render the DEV section. Test users get DEV access automatically — they're for internal testing only and never see real customers.
+
+---
+
+## Vendor Onboarding Flow
+
+### `accounttype.html` — Account Creation
+- Choose role: Event Planner or Vendor
+- If Vendor: select primary vendor type (one of 5 ProviderType enums)
+- Fill: business name, contact name, email, phone, city, password
+- No document uploads here — moved to vendorsetup Step 3
+- Submit button is gold → creates account with status `PENDING_VERIFICATION` → email verification modal → on verify redirects to `vendorsetup.html`
+
+### `vendorsetup.html` — 3-Step Profile Setup
+Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live until admin approves.
+
+**Step 1 of 3 — Business Profile**
+- Business identity: name, phone, email, website, Instagram, years in business, tagline
+- Location: street address, city, province, country, service radius, travel toggle
+- Vendor type: primary type (radio card selector) + secondary types (multi-select chips, excludes primary)
+- About your business (min 50 chars)
+- Languages spoken (chips: French, English, Spanish, Portuguese, Arabic, Mandarin, Italian, Other)
+- Budget range: min/max event budget
+- Media: placeholder cards for logo, cover image, portfolio (Cloudinary not yet set up)
+- API: `POST /api/v1/providers/profile` (first time) or `PUT /api/v1/providers/profile` (returning)
+- `providerTypes[]` always includes `primaryType`
+
+**Step 2 of 3 — Services & Pricing**
+- Fetches `primaryType` and `providerTypes[]` from `GET /api/v1/providers/profile` — never from localStorage
+- PDF import banner (universal — all vendor types) → `POST /api/v1/pdf-import`
+- Special fields section — adapts per vendor type (capacity, dietary options, style tags, etc.)
+- Multi-type vendors: primary type fields first, secondary type fields below in labeled subsections
+- Services: repeatable cards with quick-add suggestion chips per type. At least 1 required.
+- Menu section: only shown if `providerTypes[]` includes `RESTO_VENUE` or `CATERER`
+- Collapsed card state: summary row with edit/delete after filling
+- API: `PUT /api/v1/providers/profile` + `POST /api/v1/providers/services` + `POST /api/v1/providers/menu-items`
+
+**Step 3 of 3 — Review & Submit**
+- Fetches all data from API: profile, services, menu items
+- Shows read-only summary cards for each section with "Edit" buttons back to Step 1 or 2
+- Verification documents section (above submit button):
+  - Business license / registration (required — PDF, JPG, PNG, max 10MB)
+  - Government-issued ID (required — PDF, JPG, PNG, max 10MB)
+  - Proof of address (optional)
+  - Insurance certificate (optional)
+  - Note: "Your documents are kept private and used only for verification purposes."
+- Gold "Submit for Approval" button
+- After submit: confirmation screen → "Your profile is under review. We'll notify you by email once you're approved." → "Go to Dashboard" button → `vendordashboard.html`
+
+### `vendordashboard.html` — Pending State
+- On load fetches `verificationStatus` from `GET /api/v1/providers/profile`
+- If not `VERIFIED`: shows gold-tinted banner — "Your profile is under review. We'll notify you by email once you're approved and live on FESTV. This usually takes 1–2 business days."
+- If `VERIFIED`: banner hidden, dashboard renders normally
+- Vendor does not appear in `browsevendors.html` until admin flips `verificationStatus` to `VERIFIED`
 
 ---
 
@@ -234,6 +294,7 @@ The `requireAdminEmail` middleware uses this for `/admin/*` routes. The frontend
 - **In-memory JS vars** — page-level state (e.g. `pendingServices[]`, `window._bookingsMap`, `window._vendorPriceMap`)
 - **API-first** — all real data comes from `/api/v1`. Mocked/fallback data is used only when API returns empty
 - **`window._vendorDataReady`** — flag used on `vendorprofile.html` so draft restore waits for vendor API to load before trying to re-select services
+- **Never read vendorType or verificationStatus from localStorage** — always fetch from the API
 
 ---
 
@@ -242,7 +303,7 @@ The `requireAdminEmail` middleware uses this for `/admin/*` routes. The frontend
 | File | Purpose |
 |------|---------|
 | `jess-widget.js` | Floating Jess AI chat button (bottom-right). Included on every page via `<script src="/jess-widget.js">`. Calls `/api/v1/jess/chat`. Has full inline CSS. |
-| `profile-menu.js` | Top-right profile dropdown. Shows user name, role, sign out. Reads from localStorage. **Now also fetches `/api/v1/auth/dev-access` and adds a DEV section (Planner + Database links) for admin emails and test users.** |
+| `profile-menu.js` | Top-right profile dropdown. Shows user name, role, sign out. Reads from localStorage. **Now also fetches `/api/v1/auth/dev-access` and adds a DEV section (Planner + Database links) for admin emails and test users.** Also calls `GET /api/v1/providers/profile/me` on vendor pages to hydrate profile state. |
 | `auth-chip.js` | Small auth utility helpers |
 
 ---
@@ -261,6 +322,10 @@ The `requireAdminEmail` middleware uses this for `/admin/*` routes. The frontend
 
 **Vendor search:** Currently returns ALL providers (not VERIFIED only). Flip `verificationStatus` filter before launch.
 
+**Multi-type vendors:** A vendor can have one `primaryType` and multiple entries in `providerTypes[]`. The `providerTypes[]` array always includes `primaryType`. Step 2 of vendorsetup renders fields and service suggestions for all types in `providerTypes[]`, with primary type first. Menu section appears if `providerTypes[]` includes `RESTO_VENUE` or `CATERER`.
+
+**`getMyProfile` behavior:** Returns `{ success: true, data: { providerProfile: null } }` when no profile exists yet (new vendor). Does not throw 404. vendorsetup.html Step 1 handles null by rendering an empty form.
+
 ---
 
 ## Current State
@@ -274,23 +339,32 @@ The `requireAdminEmail` middleware uses this for `/admin/*` routes. The frontend
 - Favorites (saved vendors, API-backed)
 - Deposit calculation and display
 - About + Contact strip on vendor profile and dashboard
+- Vendor account creation flow (accounttype.html) — role select, type select, basic info, email verification, redirect to vendorsetup
+- Vendor setup Step 1 — business profile + multi-type vendor selection
+- Vendor setup Step 3 — review & confirm + verification doc uploads
+- Pending approval banner on vendordashboard.html
+- User status correctly set to PENDING_VERIFICATION at registration, flips to ACTIVE after email verify
+- Password validation aligned between frontend and backend (uppercase + lowercase + number all required)
+- Zod error detail messages surfaced to user on frontend
 - **Test-account picker on `signin.html`** — 5 dev accounts (planner, photographer, caterer, bartender, DJ), shared password `Test1234!`. Click to autofill. Gated server-side by `ENABLE_TEST_ACCOUNTS=true` (set on Render dev), so picker is invisible in prod.
-- **Test accounts have full ProviderProfiles** — services, portfolio photos (picsum.photos with stable seeds), menu items (caterer + bartender), 3 pricing tiers (caterer), cuisine/theme links. User row is refreshed on every seed run; profile + children created once and preserved.
+- **Test accounts have full ProviderProfiles** — services, portfolio photos (picsum.photos with stable seeds), menu items (caterer + bartender), 3 pricing tiers (caterer), cuisine/theme links.
 - **DEV section in profile dropdown** — admin emails + test users get "Planner" + "Database" links between Account Settings and Sign Out.
 - **`planner.html`** — Monte Carlo simulator with parameter sliders, 3 fan charts, 4 summary cards. Chart.js via CDN. Mobile-responsive.
 - **`database.html`** — Schema ERD (24 nodes, click to highlight relationships) + live Event Feed tab (filter by model, 15s auto-refresh).
 
 ### 🟡 Placeholder / Partial
+- **Vendor setup Step 2** — built but pending migration fix on Render dev (400 error due to new ProviderProfile columns not yet applied to DB)
+- **Admin dashboard** — `admindashboard.html` exists but vendor approval flow not yet wired. Admin cannot yet flip `verificationStatus` to `VERIFIED`. This is the next critical thing to build.
 - **Messages** — card UI exists on both dashboards, not wired to real conversations
 - **Analytics** — card placeholder on vendor dashboard, no real data
-- **Portfolio** — card UI exists with placeholder Unsplash images, Cloudinary not set up. Provider test accounts have seeded portfolio photos (picsum URLs). Upload buttons on `vendordashboard.html` are stubbed with `alert('coming soon')`.
+- **Portfolio** — card UI exists with placeholder Unsplash images, Cloudinary not set up
 - **Friends/Guestlist** — page exists, not wired to API
-- **Admin dashboard** — `admindashboard.html` exists but not fully wired. The DEV `database.html` page covers schema + event feed; full admin UI (provider verification, user mgmt) is still pending.
 - **Stripe / payments** — deposit UI is built, actual payment not connected
-- **`planner.html` ported tabs** — Monte Carlo only. Growth Strategy / Cost Model / Architecture / Roadmap tabs from the original `caterease/Planner.tsx` are NOT yet ported.
-- **`database.html` ported tabs** — Schema + Event Feed only. Provider graph (bubble chart by capacity), Client flow graph, and Settings tab (watched models toggle, env-vars table) from `caterease/EventDashboard.tsx` are NOT yet ported.
+- **`planner.html` ported tabs** — Monte Carlo only. Growth Strategy / Cost Model / Architecture / Roadmap tabs not yet ported.
+- **`database.html` ported tabs** — Schema + Event Feed only. Provider graph, Client flow graph, Settings tab not yet ported.
 
 ### ❌ Not started
+- Admin dashboard vendor approval flow (flip verificationStatus to VERIFIED)
 - Cloudinary image uploads
 - Stripe deposit payment
 - SMS verification (Twilio keys exist in old .env)
@@ -327,6 +401,10 @@ Backend (`/backend/.env` or Render dashboard):
 6. **`requireProvider` middleware** — checks role is `PROVIDER` or `ADMIN`. New vendor accounts need a provider profile created via `POST /providers/profile` before services can be saved.
 7. **Git workflow** — always commit to `dev`, then merge to `main`, push both. Both branches should stay in sync.
 8. **Render auto-deploys** from `main` branch.
-9. **DEV pages auth-gating** — `planner.html` and `database.html` both call `GET /api/v1/auth/dev-access` on load. If `canAccessDev: false`, they show a "Dev access required" panel. Don't assume the page failed if you see this — it means your email isn't in `ADMIN_EMAILS` and isn't a `test-*@festv.app` test account.
-10. **Test-account seeder is idempotent at two levels** — the `User` row is refreshed on every seed run (password + status), but the `ProviderProfile` and all its children (services, portfolio, menu items, pricing tiers, cuisine/theme links) are created ONCE and skipped on subsequent runs. This means manual edits to a test profile persist; only the auth state is force-reset. If you need to reset a test profile entirely, delete its `ProviderProfile` row in the DB and re-run the seeder.
-11. **Two roadmap files** — `roadMap.txt` is the northstar (what's next + what's done). `FESTV_CONTEXT.md` (this file) is the structural quick-start. After every meaningful change, BOTH should be updated: roadMap gets a checkmark or new bullet; this file gets section-level edits where the change affects the architecture, routes, pages, env vars, or workflow.
+9. **DEV pages auth-gating** — `planner.html` and `database.html` both call `GET /api/v1/auth/dev-access` on load. If `canAccessDev: false`, they show a "Dev access required" panel.
+10. **Test-account seeder is idempotent at two levels** — the `User` row is refreshed on every seed run (password + status), but the `ProviderProfile` and all its children are created ONCE and skipped on subsequent runs. Delete the `ProviderProfile` row and re-run seeder to fully reset a test profile.
+11. **Two roadmap files** — `roadMap.txt` is the northstar. `FESTV_CONTEXT.md` is the structural quick-start. Update BOTH after every meaningful change.
+12. **Never read vendorType or verificationStatus from localStorage** — always fetch from `GET /api/v1/providers/profile`. localStorage is only for auth tokens and event drafts.
+13. **Two separate statuses** — `User.status` (PENDING_VERIFICATION → ACTIVE, controlled by email verification) and `ProviderProfile.verificationStatus` (controlled by admin approval). Never conflate them.
+14. **`providerTypes[]` always includes `primaryType`** — never send one without the other. Step 2 of vendorsetup reads `providerTypes[]` to determine which fields and menu sections to show.
+15. **`getMyProfile` returns null not 404** — for new vendors with no profile yet, `GET /api/v1/providers/profile/me` returns `{ success: true, data: { providerProfile: null } }`. vendorsetup.html handles this by rendering an empty form.
