@@ -890,6 +890,7 @@
 
       // Submit: vendor
       document.getElementById('btnVendor').addEventListener('click', function () {
+        var businessName = document.getElementById('vendorBusiness').value.trim();
         var contactName = document.getElementById('vendorContact').value.trim();
         var email       = document.getElementById('vendorEmail').value.trim().toLowerCase();
         var phone       = document.getElementById('vendorPhone').value.trim();
@@ -963,9 +964,10 @@
             }
             // Save one-time prefill so vendorsetup.html Step 1 can skip re-entering this info
             localStorage.setItem('vendorSetupPrefill', JSON.stringify({
-              phone:      phone,
-              city:       document.getElementById('vendorCity').value.trim(),
-              vendorType: selectedVendor
+              businessName: businessName,
+              phone:        phone,
+              city:         document.getElementById('vendorCity').value.trim(),
+              vendorType:   selectedVendor
             }));
             successTitle.textContent = 'Application Submitted';
             successSub.textContent   = 'Thanks for signing up as a ' + label + '. Our team will review your details and reach out within 1–2 business days.';

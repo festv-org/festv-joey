@@ -1414,6 +1414,8 @@
         if (!raw) { validateStep1(); return; }
         var pre = JSON.parse(raw);
         localStorage.removeItem('vendorSetupPrefill');
+        if (pre.businessName && !document.getElementById('s1-businessName').value)
+          setVal('s1-businessName', pre.businessName);
         if (pre.phone && !document.getElementById('s1-phone').value)
           setVal('s1-phone', pre.phone);
         if (pre.city && !document.getElementById('s1-city').value)
