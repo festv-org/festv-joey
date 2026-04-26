@@ -159,6 +159,7 @@ export const getMyProfile = asyncHandler(async (req: AuthenticatedRequest, res: 
           phoneNumber: true,
           city: true,
           state: true,
+          country: true,
           address: true,
         },
       },

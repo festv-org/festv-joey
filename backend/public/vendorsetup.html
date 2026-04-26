@@ -1281,6 +1281,8 @@
       document.getElementById('si-' + currentStep).classList.add('done');
       currentStep = n;
       document.getElementById('panel-' + n).classList.add('active');
+      // When navigating backward, strip 'done' from the target step
+      document.getElementById('si-' + n).classList.remove('done');
       document.getElementById('si-' + n).classList.add('active');
       // step 1 = 33%, step 2 = 66%, step 3 = 100%
       var pct = n === 1 ? 33 : n === 2 ? 66 : 100;
