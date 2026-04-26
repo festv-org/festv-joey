@@ -135,9 +135,14 @@ model ProviderProfile {
   // Business info
   businessName        String
   businessDescription String?             @db.Text
+  tagline             String?             // Short line shown under business name on public profile
+  websiteUrl          String?
+  instagramHandle     String?
+  yearsInBusiness     Int?
+  languages           String[]            @default([])
   providerTypes       ProviderType[]      // What services this profile offers
   primaryType         ProviderType?       // Main service type for this profile
-  
+
   // Images
   bannerImageUrl      String?             // Large hero banner image
   logoUrl             String?             // Profile logo/avatar
@@ -152,7 +157,8 @@ model ProviderProfile {
   insuranceInfo       String?
   
   // Service area
-  serviceRadius       Int                 @default(50) // miles
+  serviceRadius       Int                 @default(50) // km
+  travelOutsideRegion Boolean             @default(false)
   serviceAreas        String[]            // cities/regions served
   
   // Per-person pricing (for companies: caterers, florists, decorators, equipment, bartender companies)
@@ -170,6 +176,39 @@ model ProviderProfile {
   minGuestCount       Int                 @default(10)
   maxGuestCount       Int                 @default(500)
   
+  // ── Step 2 type-specific fields ──
+
+  // RESTO_VENUE
+  seatedCapacity           Int?
+  standingCapacity         Int?
+  venueCuisine             String?             // free-text cuisine description
+  venueIndoorOutdoor       String?             // "INDOOR" | "OUTDOOR" | "BOTH"
+  avTechAvailable          Boolean             @default(false)
+  dietaryOptions           String[]            @default([])
+
+  // CATERER (minGuestCount / maxGuestCount already above)
+  equipmentRentalAvailable Boolean             @default(false)
+  caterSetupIncluded       Boolean             @default(false)
+
+  // ENTERTAINMENT (minimumHours already above)
+  genreTags                String[]            @default([])
+  setupTimeMinutes         Int?
+  equipmentIncluded        Boolean             @default(false)
+  overtimeRatePerHour      Float?
+
+  // PHOTO_VIDEO
+  styleTags                String[]            @default([])
+  deliveryTimelineDays     Int?
+  editedPhotosCount        Int?
+  travelFeePolicy          String?             // "INCLUDED" | "PER_KM" | "QUOTED"
+  rawFilesIncluded         Boolean             @default(false)
+
+  // FLORIST_DECOR
+  floristStyleTags         String[]            @default([])
+  seasonalCustomFloral     Boolean             @default(false)
+  floristSetupIncluded     Boolean             @default(false)
+  rentalItemsAvailable     Boolean             @default(false)
+
   // Operating hours
   operatingDays       String[]            @default(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
   leadTimeDays        Int                 @default(7) // minimum notice required

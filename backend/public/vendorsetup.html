@@ -179,7 +179,150 @@
       font-size: 0.67rem; color: var(--muted); line-height: 1.5; margin-top: 0.2rem;
     }
 
-    /* ── VENDOR TYPE PILLS ── */
+    /* ── SECTION HEADING ── */
+    .form-section-heading {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold-dark);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.55rem;
+      margin: 1.75rem 0 1.1rem;
+    }
+    .form-section-heading:first-child { margin-top: 0; }
+
+    /* ── VENDOR TYPE CARDS ── */
+    .type-cards {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.65rem; margin-bottom: 0.5rem;
+    }
+    .type-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+      position: relative;
+    }
+    .type-card:hover { border-color: var(--gold-light); background: rgba(196,160,106,0.03); }
+    .type-card.selected {
+      border-color: var(--gold);
+      background: rgba(196,160,106,0.07);
+    }
+    .type-card.selected::after {
+      content: '✓';
+      position: absolute; top: 0.55rem; right: 0.75rem;
+      font-size: 0.65rem; color: var(--gold);
+      font-weight: 700;
+    }
+    .type-card-name {
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--dark); margin-bottom: 0.2rem;
+    }
+    .type-card.selected .type-card-name { color: var(--gold-dark); }
+    .type-card-desc {
+      font-size: 0.67rem; color: var(--muted); line-height: 1.45;
+    }
+
+    /* ── CHIP TOGGLES (secondary types, languages) ── */
+    .chip-group {
+      display: flex; flex-wrap: wrap; gap: 0.45rem;
+    }
+    .chip {
+      padding: 0.35rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.2s; user-select: none;
+    }
+    .chip:hover { border-color: var(--gold-light); color: var(--charcoal); }
+    .chip.selected { border-color: var(--gold); background: rgba(196,160,106,0.08); color: var(--gold-dark); }
+
+    /* ── TOGGLE ROW ── */
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .toggle-label {
+      font-size: 0.78rem; color: var(--charcoal); line-height: 1.4;
+    }
+    .toggle-switch {
+      position: relative; width: 40px; height: 22px;
+      flex-shrink: 0; margin-left: 1rem;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-switch .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.12); border-radius: 22px;
+      transition: 0.25s;
+    }
+    .toggle-switch .slider:before {
+      position: absolute; content: '';
+      height: 16px; width: 16px;
+      left: 3px; bottom: 3px;
+      background: white; border-radius: 50%;
+      transition: 0.25s;
+    }
+    .toggle-switch input:checked + .slider { background: var(--gold); }
+    .toggle-switch input:checked + .slider:before { transform: translateX(18px); }
+
+    /* ── MEDIA PLACEHOLDERS ── */
+    .media-grid {
+      display: grid; grid-template-columns: 1fr 2fr;
+      gap: 0.75rem; margin-bottom: 0.75rem;
+    }
+    .media-placeholder {
+      border: 1.5px dashed rgba(0,0,0,0.13);
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.4rem; padding: 1.5rem 1rem;
+      background: rgba(0,0,0,0.015);
+      cursor: default;
+    }
+    .media-placeholder-icon { font-size: 1.4rem; opacity: 0.3; }
+    .media-placeholder-label {
+      font-size: 0.63rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); opacity: 0.6; text-align: center;
+    }
+    .media-portfolio-grid {
+      display: grid; grid-template-columns: repeat(3,1fr);
+      gap: 0.5rem;
+    }
+    .media-portfolio-grid .media-placeholder { padding: 1.25rem 0.5rem; }
+    .media-coming-soon {
+      font-size: 0.7rem; color: var(--muted);
+      background: rgba(196,160,106,0.06);
+      border: 1px solid rgba(196,160,106,0.18);
+      border-radius: 8px; padding: 0.55rem 0.85rem;
+      margin-top: 0.5rem; line-height: 1.5;
+    }
+
+    /* ── CHAR COUNTER ── */
+    .char-counter {
+      font-size: 0.63rem; color: var(--muted);
+      text-align: right; margin-top: 0.2rem;
+    }
+    .char-counter.warn { color: var(--red); }
+
+    /* ── INPUT PREFIX ── */
+    .input-prefix-wrap {
+      position: relative;
+    }
+    .input-prefix-wrap .prefix {
+      position: absolute; left: 0.9rem; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.83rem; color: var(--muted);
+      pointer-events: none;
+    }
+    .input-prefix-wrap .form-input { padding-left: 1.6rem; }
+
+    /* ── VENDOR TYPE PILLS (kept for step 2) ── */
     .type-pills {
       display: flex; flex-wrap: wrap; gap: 0.55rem;
     }
@@ -310,7 +453,7 @@
     /* ── BUTTONS ── */
     .btn-primary {
       width: 100%; padding: 0.95rem 2rem;
-      background: var(--dark); color: var(--white);
+      background: var(--gold); color: var(--dark);
       border: none; border-radius: 10px;
       font-family: 'Montserrat', sans-serif;
       font-size: 0.75rem; font-weight: 700;
@@ -321,7 +464,7 @@
       justify-content: center; gap: 0.55rem;
       margin-top: 1.5rem;
     }
-    .btn-primary:hover { background: var(--charcoal); transform: translateY(-1px); }
+    .btn-primary:hover { background: var(--gold-dark); transform: translateY(-1px); }
     .btn-primary:active { transform: none; }
     .btn-primary:disabled { opacity: 0.6; pointer-events: none; }
     .btn-primary svg { transition: transform 0.2s; }
@@ -421,7 +564,119 @@
       .card { padding: 1.25rem; }
     }
 
-    /* ── PDF ZONE ── */
+    /* ── PDF BANNER (step 2) ── */
+    .pdf-banner {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 0.75rem;
+      background: rgba(196,160,106,0.05);
+      border: 1px solid rgba(196,160,106,0.22);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    .pdf-banner-content {
+      display: flex; align-items: flex-start; gap: 0.75rem; flex: 1; min-width: 200px;
+    }
+    .pdf-banner-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .pdf-banner-title {
+      font-size: 0.78rem; font-weight: 700; color: var(--dark); margin-bottom: 0.2rem;
+    }
+    .pdf-banner-sub { font-size: 0.7rem; color: var(--muted); line-height: 1.5; }
+    .btn-pdf-outline {
+      padding: 0.5rem 1.1rem;
+      background: none;
+      border: 1.5px solid var(--gold);
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold-dark); cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-pdf-outline:hover { background: rgba(196,160,106,0.08); border-color: var(--gold-dark); }
+
+    /* ── RADIO TOGGLE GROUP (Indoor/Outdoor/Both etc.) ── */
+    .radio-toggle-group { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .radio-toggle-btn {
+      padding: 0.35rem 0.8rem;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--muted); cursor: pointer; background: none;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s; user-select: none;
+    }
+    .radio-toggle-btn:hover { border-color: var(--gold-light); color: var(--charcoal); }
+    .radio-toggle-btn.selected { border-color: var(--gold); background: rgba(196,160,106,0.08); color: var(--gold-dark); }
+
+    /* ── SERVICE CARDS ── */
+    .svc-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 0.65rem;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .svc-card:focus-within { border-color: rgba(196,160,106,0.4); }
+    .svc-card-summary {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.8rem 1rem; cursor: pointer;
+      background: var(--white);
+    }
+    .svc-card-summary:hover { background: rgba(0,0,0,0.01); }
+    .svc-summary-left { display: flex; align-items: center; gap: 0.6rem; }
+    .svc-summary-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0;
+    }
+    .svc-summary-name {
+      font-size: 0.82rem; font-weight: 600; color: var(--dark);
+    }
+    .svc-summary-price {
+      font-size: 0.75rem; color: var(--muted); margin-left: 0.5rem;
+    }
+    .svc-summary-actions { display: flex; align-items: center; gap: 0.4rem; }
+    .svc-icon-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 0.78rem; color: var(--muted); padding: 0.2rem;
+      line-height: 1; transition: color 0.2s;
+    }
+    .svc-icon-btn:hover { color: var(--dark); }
+    .svc-icon-btn.del:hover { color: var(--red); }
+    .svc-card-body {
+      padding: 0 1rem 1rem;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+    }
+    .svc-card-body .form-group:first-child { margin-top: 0.85rem; }
+
+    /* ── SUGGESTION CHIPS AREA ── */
+    .suggestion-area {
+      margin-bottom: 1rem;
+    }
+    .suggestion-divider {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 0.65rem 0 0.45rem;
+    }
+
+    /* ── ADD OUTLINE BUTTON ── */
+    .btn-add-outline {
+      width: 100%; padding: 0.7rem;
+      background: none;
+      border: 1.5px dashed rgba(196,160,106,0.35);
+      border-radius: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold-dark); cursor: pointer;
+      transition: all 0.2s; margin-bottom: 0.75rem;
+    }
+    .btn-add-outline:hover {
+      background: rgba(196,160,106,0.06);
+      border-color: var(--gold);
+    }
+
+    /* ── PDF ZONE (step 2 legacy — keeping for drag-drop ── */
     .pdf-zone {
       border: 2px dashed rgba(196,160,106,0.35);
       border-radius: 14px;
@@ -482,13 +737,158 @@
       cursor: pointer; transition: all 0.2s;
     }
     .btn-section-add:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* ── REVIEW CARDS (step 3) ── */
+    .review-card {
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .review-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 1.1rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,0.015);
+    }
+    .review-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 600; color: var(--dark);
+    }
+    .btn-edit-card {
+      padding: 0.3rem 0.85rem;
+      background: none;
+      border: 1.5px solid var(--gold);
+      border-radius: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.63rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold-dark); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-edit-card:hover { background: rgba(196,160,106,0.1); }
+    .review-card-body { padding: 0.85rem 1.1rem; }
+    .review-row {
+      display: flex; align-items: baseline; gap: 0.6rem;
+      margin-bottom: 0.5rem; flex-wrap: wrap;
+    }
+    .review-row-label {
+      font-size: 0.63rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+      min-width: 105px; flex-shrink: 0;
+    }
+    .review-row-value {
+      font-size: 0.78rem; color: var(--charcoal); line-height: 1.5; flex: 1;
+    }
+    .review-row-value.biz-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem; font-weight: 600; color: var(--dark);
+    }
+    .review-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .review-chip {
+      display: inline-flex; align-items: center;
+      padding: 0.2rem 0.6rem;
+      background: rgba(196,160,106,0.1);
+      border: 1px solid rgba(196,160,106,0.25);
+      border-radius: 20px;
+      font-size: 0.65rem; font-weight: 600; color: var(--gold-dark);
+    }
+    .review-chip.muted {
+      background: rgba(0,0,0,0.03);
+      border-color: var(--border);
+      color: var(--charcoal);
+    }
+    .review-svc-row {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .review-svc-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-svc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 0.2rem;
+    }
+    .review-svc-name { font-size: 0.8rem; font-weight: 600; color: var(--dark); }
+    .review-svc-price { font-size: 0.73rem; color: var(--gold-dark); font-weight: 600; }
+    .review-svc-desc { font-size: 0.71rem; color: var(--muted); line-height: 1.45; margin-bottom: 0.2rem; }
+    .review-svc-features { display: flex; flex-wrap: wrap; gap: 0.15rem 0.55rem; }
+    .review-svc-feat { font-size: 0.66rem; color: var(--muted); }
+    .review-svc-feat::before { content: '· '; }
+    .review-menu-row {
+      padding: 0.55rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .review-menu-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .review-menu-header { display: flex; align-items: center; justify-content: space-between; }
+    .review-menu-name { font-size: 0.78rem; font-weight: 600; color: var(--dark); }
+    .review-menu-price { font-size: 0.72rem; color: var(--muted); }
+    .review-menu-cat { font-size: 0.67rem; color: var(--muted); margin: 0.12rem 0; }
+    .review-empty { font-size: 0.72rem; color: var(--muted); padding: 0.4rem 0; font-style: italic; }
+
+    /* ── CONFIRMATION SCREEN ── */
+    .confirm-screen { display: none; text-align: center; padding: 4rem 1.5rem 3rem; }
+    .confirm-screen.show { display: block; }
+    .confirm-icon {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(196,160,106,0.1);
+      border: 2px solid rgba(196,160,106,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.75rem;
+    }
+    .confirm-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem; font-weight: 500; color: var(--dark);
+      margin-bottom: 0.7rem;
+    }
+    .confirm-sub {
+      font-size: 0.78rem; color: var(--muted);
+      max-width: 380px; margin: 0 auto 2.5rem; line-height: 1.7;
+    }
+
+    /* ── VERIFICATION DOCUMENTS (step 3) ── */
+    .vdoc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+    @media (max-width: 600px) { .vdoc-grid { grid-template-columns: 1fr; } }
+    .vdoc-item label.form-label { margin-bottom: 0.35rem; display: block; }
+    .vdoc-zone {
+      border: 2px dashed rgba(196,160,106,0.4);
+      border-radius: 10px;
+      padding: 1.1rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: rgba(196,160,106,0.02);
+      position: relative;
+    }
+    .vdoc-zone:hover { border-color: var(--gold); background: rgba(196,160,106,0.06); }
+    .vdoc-zone.has-file { border-color: var(--green); background: rgba(58,138,85,0.04); }
+    .vdoc-zone input[type="file"] {
+      position: absolute; inset: 0;
+      opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .vdoc-icon { font-size: 1.35rem; display: block; margin-bottom: 0.3rem; pointer-events: none; }
+    .vdoc-title { font-size: 0.72rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.15rem; pointer-events: none; }
+    .vdoc-sub { font-size: 0.63rem; color: var(--muted); line-height: 1.45; pointer-events: none; }
+    .vdoc-filename { display: none; font-size: 0.7rem; font-weight: 600; color: var(--green); margin-top: 0.3rem; pointer-events: none; }
+    .vdoc-zone.has-file .vdoc-filename { display: block; }
+    .vdoc-zone.has-file .vdoc-default  { display: none; }
+    .vdoc-privacy-note {
+      font-size: 0.67rem; color: var(--muted);
+      text-align: center; margin-top: 0.1rem; margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+    .vdoc-privacy-note svg { vertical-align: middle; margin-right: 0.3rem; }
+
   </style>
 </head>
 <body>
 
   <!-- Top progress bar -->
   <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progressBar" style="width:50%"></div>
+    <div class="progress-bar" id="progressBar" style="width:33%"></div>
   </div>
 
   <!-- HEADER -->
@@ -511,7 +911,7 @@
     <div class="step-connector"></div>
     <div class="step-item" id="si-3">
       <div class="step-num">3</div>
-      <div class="step-label">Done</div>
+      <div class="step-label">Review</div>
     </div>
   </div>
 
@@ -521,53 +921,207 @@
       <!-- ── STEP 1: BUSINESS PROFILE ── -->
       <div class="step-panel active" id="panel-1">
         <div class="panel-heading">
-          <div class="panel-label">Step 1 of 2</div>
+          <div class="panel-label">Step 1 of 3</div>
           <h1 class="panel-title">Your Business</h1>
           <p class="panel-sub">Tell planners who you are and what you offer.</p>
         </div>
         <div class="card">
           <div class="error-msg" id="err-1"></div>
 
+          <!-- 1. BUSINESS IDENTITY -->
+          <div class="form-section-heading" style="margin-top:0;">Business Identity</div>
+
+          <div class="form-group">
+            <label class="form-label">Business Name <span class="req">*</span></label>
+            <input class="form-input" id="s1-businessName" type="text" placeholder="e.g. Milo Sound &amp; Lights">
+          </div>
+
           <div class="form-row">
-            <div class="form-group" style="flex:2;">
-              <label class="form-label">Business Name <span class="req">*</span></label>
-              <input class="form-input" id="s1-businessName" type="text" placeholder="Milo Sound &amp; Lights">
+            <div class="form-group">
+              <label class="form-label">Business Phone <span class="req">*</span></label>
+              <input class="form-input" id="s1-phone" type="tel" placeholder="(416) 555-0100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Business Email <span class="req">*</span></label>
+              <input class="form-input" id="s1-email" type="email" placeholder="hello@yourbusiness.com">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">City</label>
+              <label class="form-label">Website URL</label>
+              <input class="form-input" id="s1-website" type="url" placeholder="https://yourbusiness.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Instagram Handle</label>
+              <input class="form-input" id="s1-instagram" type="text" placeholder="@yourbusiness">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Years in Business</label>
+              <input class="form-input" id="s1-years" type="number" min="0" max="100" placeholder="5">
+            </div>
+            <div class="form-group"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tagline</label>
+            <input class="form-input" id="s1-tagline" type="text" maxlength="80" placeholder="A short line that captures what makes you special">
+            <div class="char-counter" id="taglineCounter">0 / 80</div>
+          </div>
+
+          <!-- 2. LOCATION -->
+          <div class="form-section-heading">Location</div>
+
+          <div class="form-group">
+            <label class="form-label">Street Address</label>
+            <input class="form-input" id="s1-address" type="text" placeholder="123 Event Ave">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">City <span class="req">*</span></label>
               <input class="form-input" id="s1-city" type="text" placeholder="Toronto">
             </div>
             <div class="form-group">
-              <label class="form-label">Province</label>
+              <label class="form-label">Province / State <span class="req">*</span></label>
               <input class="form-input" id="s1-province" type="text" placeholder="Ontario">
             </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Country <span class="req">*</span></label>
+            <input class="form-input" id="s1-country" type="text" placeholder="Canada">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Service Radius (km)</label>
+            <input class="form-input" id="s1-radius" type="number" min="0" max="500" placeholder="How far will you travel for an event?">
+          </div>
+
+          <div class="toggle-row">
+            <span class="toggle-label">I'm available to travel outside my region</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="s1-travel">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- 3. VENDOR TYPE -->
+          <div class="form-section-heading">Vendor Type</div>
+
+          <div class="form-group">
+            <label class="form-label">Primary Type <span class="req">*</span></label>
+            <div class="type-cards" id="typeCards">
+              <div class="type-card" data-type="RESTO_VENUE">
+                <div class="type-card-name">Restaurant / Venue</div>
+                <div class="type-card-desc">Dining spaces, private rooms, and full venue experiences</div>
+              </div>
+              <div class="type-card" data-type="CATERER">
+                <div class="type-card-name">Caterer</div>
+                <div class="type-card-desc">Off-site catering, staffing, and full-service food packages</div>
+              </div>
+              <div class="type-card" data-type="ENTERTAINMENT">
+                <div class="type-card-name">Entertainment</div>
+                <div class="type-card-desc">DJs, live music, performers, and production</div>
+              </div>
+              <div class="type-card" data-type="PHOTO_VIDEO">
+                <div class="type-card-name">Photo &amp; Video</div>
+                <div class="type-card-desc">Photography, videography, and creative media</div>
+              </div>
+              <div class="type-card" data-type="FLORIST_DECOR">
+                <div class="type-card-name">Florist &amp; Decor</div>
+                <div class="type-card-desc">Floral design, styling, and event décor</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="secondaryTypesGroup" style="display:none;">
+            <label class="form-label">Do you also offer any of the following?</label>
+            <div class="chip-group" id="secondaryChips"></div>
+          </div>
+
+          <!-- 4. ABOUT -->
+          <div class="form-section-heading">About Your Business</div>
+
+          <div class="form-group">
+            <label class="form-label">About <span class="req">*</span></label>
+            <textarea class="form-textarea" id="s1-description" rows="5" placeholder="Tell planners what makes your business unique, your experience, and what they can expect when working with you."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.35rem;">
+              <div class="field-hint" style="margin-top:0;">This appears on your public profile.</div>
+              <div id="descCounter" style="font-size:0.7rem; font-family:'Montserrat',sans-serif; color:var(--red); font-weight:600; transition:color 0.2s;">0 / 50</div>
+            </div>
+          </div>
+
+          <!-- 5. LANGUAGES -->
+          <div class="form-section-heading">Languages Spoken</div>
+
+          <div class="form-group">
+            <label class="form-label">Languages <span class="req">*</span></label>
+            <div class="chip-group" id="languageChips">
+              <div class="chip" data-lang="French">French</div>
+              <div class="chip" data-lang="English">English</div>
+              <div class="chip" data-lang="Spanish">Spanish</div>
+              <div class="chip" data-lang="Portuguese">Portuguese</div>
+              <div class="chip" data-lang="Arabic">Arabic</div>
+              <div class="chip" data-lang="Mandarin">Mandarin</div>
+              <div class="chip" data-lang="Italian">Italian</div>
+              <div class="chip" data-lang="Other">Other</div>
+            </div>
+            <div id="otherLangGroup" style="display:none; margin-top:0.65rem;">
+              <input class="form-input" id="s1-otherLang" type="text" placeholder="Please specify">
+            </div>
+          </div>
+
+          <!-- 6. BUDGET -->
+          <div class="form-section-heading">Typical Event Budget Range</div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">This helps planners know if you're the right fit before reaching out.</p>
+
+          <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Country</label>
-              <input class="form-input" id="s1-country" type="text" placeholder="Canada">
+              <label class="form-label">Minimum Budget</label>
+              <div class="input-prefix-wrap">
+                <span class="prefix">$</span>
+                <input class="form-input" id="s1-minBudget" type="number" min="0" placeholder="500">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Maximum Budget</label>
+              <div class="input-prefix-wrap">
+                <span class="prefix">$</span>
+                <input class="form-input" id="s1-maxBudget" type="number" min="0" placeholder="10000">
+              </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label">Vendor Type <span class="req">*</span></label>
-            <div class="type-pills" id="typePills">
-              <div class="type-pill" data-type="RESTO_VENUE">🏛 Restaurant / Venue</div>
-              <div class="type-pill" data-type="CATERER">🍽️ Caterer</div>
-              <div class="type-pill" data-type="ENTERTAINMENT">🎧 Entertainment</div>
-              <div class="type-pill" data-type="PHOTO_VIDEO">📸 Photo &amp; Video</div>
-              <div class="type-pill" data-type="FLORIST_DECOR">🌸 Florist &amp; Decor</div>
+          <!-- 7. MEDIA PLACEHOLDERS -->
+          <div class="form-section-heading">Photos &amp; Media</div>
+          <p class="field-hint" style="margin-bottom:0.85rem;">Photo uploads are coming soon. You'll be able to add your logo, cover photo, and portfolio images once this feature is live.</p>
+
+          <div class="media-grid">
+            <div class="media-placeholder" style="aspect-ratio:1/1; min-height:100px;">
+              <div class="media-placeholder-icon">📷</div>
+              <div class="media-placeholder-label">Logo / Profile</div>
+            </div>
+            <div class="media-placeholder" style="min-height:100px;">
+              <div class="media-placeholder-icon">🖼️</div>
+              <div class="media-placeholder-label">Cover / Hero Image</div>
             </div>
           </div>
-
-          <div class="form-group">
-            <label class="form-label">About Your Business <span class="req">*</span></label>
-            <textarea class="form-textarea" id="s1-description" placeholder="Describe your services, style, experience, and what makes you stand out..."></textarea>
+          <div class="media-portfolio-grid" style="margin-bottom:0.65rem;">
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
+            <div class="media-placeholder"><div class="media-placeholder-icon">📷</div></div>
           </div>
+          <div class="media-coming-soon">📸 Photo uploads coming soon — complete your profile now and add photos once the feature is live.</div>
 
-
-          <button class="btn-primary" id="btn1">
+          <!-- CONTINUE -->
+          <button class="btn-primary" id="btn1" disabled>
             <div class="spinner"></div>
             <span class="btn-text">Continue</span>
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -575,158 +1129,199 @@
         </div>
       </div>
 
-      <!-- ── STEP 2: SERVICES & MENU ── -->
+      <!-- ── STEP 2: SERVICES & PRICING ── -->
       <div class="step-panel" id="panel-2">
         <div class="panel-heading">
-          <div class="panel-label">Step 2 of 2</div>
-          <h1 class="panel-title">Services &amp; Menu</h1>
-          <p class="panel-sub">Add your packages and menu items. Upload your PDF for instant setup.</p>
+          <div class="panel-label">Step 2 of 3</div>
+          <h1 class="panel-title">Services &amp; Pricing</h1>
+          <p class="panel-sub">Add your packages so planners know exactly what you offer.</p>
         </div>
         <div class="card">
 
-          <!-- PDF Import Zone -->
-          <div class="pdf-zone" id="pdfZone">
-            <div class="pdf-zone-icon">📄</div>
-            <div class="pdf-zone-title">Upload Your Menu or Services PDF</div>
-            <div class="pdf-zone-sub">Claude reads your PDF and pre-fills your services and menu items. Takes about 10 seconds.</div>
+          <!-- PDF Import Banner -->
+          <div class="pdf-banner" id="pdfBanner">
+            <div class="pdf-banner-content">
+              <div class="pdf-banner-icon">📄</div>
+              <div>
+                <div class="pdf-banner-title">Import your pricing sheet</div>
+                <div class="pdf-banner-sub">Have a services menu or pricing sheet? Import it as a PDF and we'll fill this in for you.</div>
+              </div>
+            </div>
             <input type="file" id="pdfFileInput" accept=".pdf" style="display:none">
-            <button class="btn-pdf-upload" id="btnPickPdf" type="button">Choose PDF</button>
-            <div class="pdf-zone-skip"><a href="#" id="skipPdfLink">Skip — I'll add manually</a></div>
-
-            <!-- Upload in progress state (hidden by default) -->
-            <div id="pdfLoading" style="display:none">
-              <div class="pdf-spinner"></div>
-              <div class="pdf-loading-text">Reading your PDF with Claude AI...</div>
+            <button class="btn-pdf-outline" id="btnPickPdf" type="button">Upload PDF</button>
+            <div id="pdfLoading" style="display:none; width:100%; text-align:center; padding:0.4rem 0;">
+              <div class="pdf-spinner" style="width:20px;height:20px;margin:0 auto 0.35rem;"></div>
+              <div style="font-size:0.7rem;color:var(--muted);">Reading your PDF with Claude AI...</div>
             </div>
-
-            <!-- Success state (hidden by default) -->
-            <div id="pdfSuccess" style="display:none">
-              <div class="pdf-success-icon">✓</div>
-              <div class="pdf-success-text" id="pdfSuccessText">Extracted X items — review and edit below</div>
+            <div id="pdfSuccess" style="display:none; width:100%; font-size:0.72rem; color:var(--green); font-weight:600; padding:0.3rem 0;">
+              ✓ <span id="pdfSuccessText"></span>
             </div>
-
-            <!-- Error state (hidden by default) -->
-            <div id="pdfError" class="error-msg" style="margin-top:1rem;"></div>
+            <div id="pdfError" class="error-msg" style="width:100%; margin:0.5rem 0 0;"></div>
           </div>
+
+          <!-- Special Fields — rendered by JS based on vendor type -->
+          <div id="specialFieldsContainer"></div>
 
           <!-- Services Section -->
-          <div class="section-divider">
-            <div class="section-label">Service Packages</div>
-            <button class="btn-section-add" id="btnShowAddService" type="button">+ Add Manually</button>
-          </div>
-          <div class="services-list" id="servicesList"></div>
+          <div class="form-section-heading">Services &amp; Packages</div>
+          <div class="field-hint" style="margin-bottom:0.85rem;">At least one service is required to publish. Click a suggestion or add manually.</div>
+          <div class="suggestion-area" id="suggestionChipsArea"></div>
+          <div id="serviceCardsArea"></div>
+          <button class="btn-add-outline" id="btnAddServiceCard" type="button">+ Add a service</button>
 
-          <!-- Add service form (initially hidden) -->
-          <div class="add-service-form" id="addServiceForm" style="display:none">
-            <div class="add-service-title">+ Add a Service Package</div>
-
-            <div class="form-group">
-              <label class="form-label">Package Name <span class="req">*</span></label>
-              <input class="form-input" id="svc-name" type="text" placeholder="e.g. Wedding Package, 4-Hour Set, Full Coverage">
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Description <span class="req">*</span></label>
-              <textarea class="form-textarea" id="svc-desc" placeholder="What's included in this package? Be specific — planners use this to decide."></textarea>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Price Type <span class="req">*</span></label>
-                <select class="form-select" id="svc-priceType">
-                  <option value="FLAT_RATE">Flat Rate</option>
-                  <option value="PER_PERSON">Per Person</option>
-                  <option value="PER_HOUR">Per Hour</option>
-                  <option value="CUSTOM">Custom / Quote</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Price ($) <span class="req">*</span></label>
-                <input class="form-input" id="svc-price" type="number" placeholder="1500" min="0">
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">What's Included (add features)</label>
-              <div class="features-input-row">
-                <input class="form-input" id="svc-featureInput" type="text" placeholder="e.g. Sound system, Lighting rig, MC...">
-                <button class="btn-add-tag" type="button" id="btnAddFeature">Add</button>
-              </div>
-              <div class="features-tags" id="featureTagsDisplay"></div>
-            </div>
-
-            <button class="btn-add-service" type="button" id="btnSaveService">Save Package</button>
+          <!-- Menu Section — shown only if RESTO_VENUE or CATERER -->
+          <div id="menuSectionWrap" style="display:none;">
+            <div id="menuSectionLabel" class="form-section-heading">Menu Items</div>
+            <div class="field-hint" style="margin-bottom:0.85rem;">Optional — add your menu items for planners to browse.</div>
+            <div id="menuCardsArea"></div>
+            <button class="btn-add-outline" id="btnAddMenuCard" type="button"><span id="addMenuTitle">+ Add a menu item</span></button>
           </div>
 
-          <!-- Menu / Equipment Section -->
-          <div class="section-divider" id="menuSection">
-            <div class="section-label" id="menuSectionLabel">Menu Items</div>
-            <button class="btn-section-add" id="btnShowAddMenu" type="button">+ Add Manually</button>
-          </div>
-          <div class="menu-list" id="menuList"></div>
-
-          <!-- Add menu item form (initially hidden) -->
-          <div class="add-service-form" id="addMenuForm" style="display:none">
-            <div class="add-service-title" id="addMenuTitle">+ Add a Menu Item</div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Item Name <span class="req">*</span></label>
-                <input class="form-input" id="mi-name" type="text" placeholder="e.g. Arancini Saffron Pea">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Category <span class="req">*</span></label>
-                <input class="form-input" id="mi-category" type="text" placeholder="e.g. Canapés, Starter, Main, Bar">
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label">Price ($)</label>
-                <input class="form-input" id="mi-price" type="number" placeholder="0" min="0" step="0.01">
-              </div>
-              <div class="form-group">
-                <label class="form-label">Dietary Info</label>
-                <input class="form-input" id="mi-dietary" type="text" placeholder="e.g. Vegetarian, Gluten-Free">
-                <span class="field-hint">Comma separated</span>
-              </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Description</label>
-              <input class="form-input" id="mi-desc" type="text" placeholder="Brief description...">
-            </div>
-
-            <button class="btn-add-service" type="button" id="btnSaveMenuItem" style="margin-top:1rem; margin-bottom:0;">Save Item</button>
-          </div>
-
-          <!-- Publish button -->
           <div id="err-2" class="error-msg"></div>
-          <button class="btn-primary" id="btn2">
+          <button class="btn-primary" id="btn2" disabled>
             <div class="spinner"></div>
-            <span class="btn-text">Publish Profile</span>
+            <span class="btn-text">Continue</span>
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button class="btn-secondary" id="btn2skip">Skip — do this later</button>
         </div>
       </div>
 
-      <!-- ── STEP 3: DONE ── -->
+      <!-- ── STEP 3: REVIEW & SUBMIT ── -->
       <div class="step-panel" id="panel-3">
+        <div class="panel-heading">
+          <div class="panel-label">Step 3 of 3</div>
+          <h1 class="panel-title">Review &amp; Submit</h1>
+          <p class="panel-sub">Almost there. Review your profile below before submitting for approval. Once approved, you'll go live on FESTV.</p>
+        </div>
         <div class="card">
-          <div class="done-panel">
-            <div class="done-icon">
-              <svg width="32" height="32" fill="none" viewBox="0 0 32 32">
-                <path d="M6 16.5L13 23.5L26 10" stroke="#3A8A55" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- Loading state -->
+          <div id="s3-loading" style="text-align:center; padding:2rem 0;">
+            <div class="pdf-spinner" style="width:26px;height:26px;margin:0 auto 0.65rem;"></div>
+            <div style="font-size:0.71rem;color:var(--muted);">Loading your profile summary…</div>
+          </div>
+
+          <!-- Summary cards — populated by JS -->
+          <div id="s3-content" style="display:none;">
+
+            <div class="review-card">
+              <div class="review-card-header">
+                <div class="review-card-title">Business Profile</div>
+                <button class="btn-edit-card" onclick="goToStep(1)">Edit</button>
+              </div>
+              <div class="review-card-body" id="s3-bizBody"></div>
+            </div>
+
+            <div class="review-card">
+              <div class="review-card-header">
+                <div class="review-card-title">Vendor Type &amp; Details</div>
+                <button class="btn-edit-card" onclick="goToStep(1)">Edit</button>
+              </div>
+              <div class="review-card-body" id="s3-typeBody"></div>
+            </div>
+
+            <div class="review-card">
+              <div class="review-card-header">
+                <div class="review-card-title">Services &amp; Packages</div>
+                <button class="btn-edit-card" onclick="goToStep(2)">Edit</button>
+              </div>
+              <div class="review-card-body" id="s3-svcBody"></div>
+            </div>
+
+            <div class="review-card" id="s3-cardMenu" style="display:none;">
+              <div class="review-card-header">
+                <div class="review-card-title">Menu Items</div>
+                <button class="btn-edit-card" onclick="goToStep(2)">Edit</button>
+              </div>
+              <div class="review-card-body" id="s3-menuBody"></div>
+            </div>
+
+            <!-- Verification Documents -->
+            <div class="form-section-heading" style="margin-top:1.5rem;">Verification Documents</div>
+            <div class="vdoc-grid">
+
+              <div class="vdoc-item">
+                <label class="form-label">Business License / Registration <span class="req">*</span></label>
+                <div class="vdoc-zone" id="vdoc-zone-bizlicense">
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="s3HandleDoc(this,'vdoc-zone-bizlicense','vdoc-name-bizlicense')">
+                  <div class="vdoc-default">
+                    <span class="vdoc-icon">📄</span>
+                    <div class="vdoc-title">Upload document</div>
+                    <p class="vdoc-sub">PDF, JPG or PNG · Max 10 MB</p>
+                  </div>
+                  <div class="vdoc-filename" id="vdoc-name-bizlicense"></div>
+                </div>
+              </div>
+
+              <div class="vdoc-item">
+                <label class="form-label">Government-Issued ID <span class="req">*</span></label>
+                <div class="vdoc-zone" id="vdoc-zone-govid">
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="s3HandleDoc(this,'vdoc-zone-govid','vdoc-name-govid')">
+                  <div class="vdoc-default">
+                    <span class="vdoc-icon">🪪</span>
+                    <div class="vdoc-title">Upload document</div>
+                    <p class="vdoc-sub">PDF, JPG or PNG · Max 10 MB</p>
+                  </div>
+                  <div class="vdoc-filename" id="vdoc-name-govid"></div>
+                </div>
+              </div>
+
+              <div class="vdoc-item">
+                <label class="form-label">Proof of Address <span style="font-size:0.65rem;color:var(--muted);font-weight:500;">(optional)</span></label>
+                <div class="vdoc-zone" id="vdoc-zone-address">
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="s3HandleDoc(this,'vdoc-zone-address','vdoc-name-address')">
+                  <div class="vdoc-default">
+                    <span class="vdoc-icon">🏠</span>
+                    <div class="vdoc-title">Upload document</div>
+                    <p class="vdoc-sub">PDF, JPG or PNG · Max 10 MB</p>
+                  </div>
+                  <div class="vdoc-filename" id="vdoc-name-address"></div>
+                </div>
+              </div>
+
+              <div class="vdoc-item">
+                <label class="form-label">Insurance Certificate <span style="font-size:0.65rem;color:var(--muted);font-weight:500;">(optional)</span></label>
+                <div class="vdoc-zone" id="vdoc-zone-insurance">
+                  <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="s3HandleDoc(this,'vdoc-zone-insurance','vdoc-name-insurance')">
+                  <div class="vdoc-default">
+                    <span class="vdoc-icon">🛡️</span>
+                    <div class="vdoc-title">Upload document</div>
+                    <p class="vdoc-sub">PDF, JPG or PNG · Max 10 MB</p>
+                  </div>
+                  <div class="vdoc-filename" id="vdoc-name-insurance"></div>
+                </div>
+              </div>
+
+            </div>
+            <p class="vdoc-privacy-note">
+              <svg width="11" height="11" fill="none" viewBox="0 0 11 11"><path d="M5.5 1a2 2 0 0 1 2 2v1H3.5V3a2 2 0 0 1 2-2zM2.5 4.5h6a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-.5.5h-6A.5.5 0 0 1 2 9V5a.5.5 0 0 1 .5-.5z" stroke="currentColor" stroke-width="0.9" stroke-linejoin="round"/></svg>
+              Your documents are kept private and used only for verification purposes.
+            </p>
+
+            <div id="err-3" class="error-msg"></div>
+            <button class="btn-primary" id="btn3">
+              <div class="spinner"></div>
+              <span class="btn-text">Submit for Approval</span>
+              <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <!-- Confirmation screen — shown after submit -->
+          <div class="confirm-screen" id="s3-confirm">
+            <div class="confirm-icon">
+              <svg width="36" height="36" fill="none" viewBox="0 0 36 36">
+                <path d="M8 19L15 26L28 12" stroke="#C4A06A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <div class="done-title">Profile Published</div>
-            <p class="done-sub">Your profile is now live and visible to event planners browsing FESTV. You can update your details anytime from your dashboard.</p>
-            <button class="btn-primary" id="btnToDashboard" style="margin-top:0; max-width:280px; margin-left:auto; margin-right:auto;">
+            <div class="confirm-title">You're all set</div>
+            <p class="confirm-sub">Your profile is under review. We'll notify you by email once you're approved and live on FESTV. In the meantime, explore your dashboard.</p>
+            <button class="btn-primary" id="btnToDashboard" style="max-width:260px; margin:0 auto;">
               <span class="btn-text">Go to Dashboard</span>
               <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
           </div>
+
         </div>
       </div>
 
@@ -747,13 +1342,28 @@
       document.getElementById('headerGreeting').textContent = 'Hi, ' + user.firstName;
     }
 
-    var currentStep   = 1;
-    var selectedTypes = [];
-    var pendingFeatures = [];
-    var pendingServices = [];
+    var currentStep      = 1;
+    var primaryType      = null;
+    var secondaryTypes   = [];
+    var selectedLanguages = [];
+    var pendingFeatures  = [];
+    var pendingServices  = [];
     var pendingMenuItems = [];
     var createdProfileId = null;
     var existingProfile  = null; // set if vendor already has a profile
+
+    var ALL_TYPES = [
+      { value: 'RESTO_VENUE',   label: 'Restaurant / Venue' },
+      { value: 'CATERER',       label: 'Caterer' },
+      { value: 'ENTERTAINMENT', label: 'Entertainment' },
+      { value: 'PHOTO_VIDEO',   label: 'Photo & Video' },
+      { value: 'FLORIST_DECOR', label: 'Florist & Decor' },
+    ];
+
+    function setVal(id, val) {
+      var el = document.getElementById(id);
+      if (el) el.value = val;
+    }
 
     // ── Auth helper ──
     function authFetch(url, opts) {
@@ -774,9 +1384,11 @@
       document.getElementById('si-' + currentStep).classList.add('done');
       currentStep = n;
       document.getElementById('panel-' + n).classList.add('active');
+      // When navigating backward, strip 'done' from the target step
+      document.getElementById('si-' + n).classList.remove('done');
       document.getElementById('si-' + n).classList.add('active');
-      // step 1 = 50%, step 2 = 66% (in progress), step 3 = 100%
-      var pct = n === 1 ? 50 : n === 2 ? 66 : 100;
+      // step 1 = 33%, step 2 = 66%, step 3 = 100%
+      var pct = n === 1 ? 33 : n === 2 ? 66 : 100;
       document.getElementById('progressBar').style.width = pct + '%';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -790,284 +1402,972 @@
       document.getElementById(id).classList.remove('show');
     }
 
+    // ── One-time prefill from accounttype.html registration ──
+    function applyRegistrationPrefill() {
+      try {
+        // Email lives in localStorage.user regardless of whether a prefill entry exists
+        var storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (storedUser.email && !document.getElementById('s1-email').value)
+          setVal('s1-email', storedUser.email);
+
+        var raw = localStorage.getItem('vendorSetupPrefill');
+        if (!raw) { validateStep1(); return; }
+        var pre = JSON.parse(raw);
+        localStorage.removeItem('vendorSetupPrefill');
+        if (pre.businessName && !document.getElementById('s1-businessName').value)
+          setVal('s1-businessName', pre.businessName);
+        if (pre.phone && !document.getElementById('s1-phone').value)
+          setVal('s1-phone', pre.phone);
+        if (pre.city && !document.getElementById('s1-city').value)
+          setVal('s1-city', pre.city);
+        if (pre.vendorType && !primaryType) {
+          var card = document.querySelector('.type-card[data-type="' + pre.vendorType + '"]');
+          if (card) card.click(); // triggers existing handler: sets primaryType, re-renders chips, calls validateStep1
+        }
+        validateStep1();
+      } catch (e) {}
+    }
+
     // ── Pre-fill if vendor already has a profile ──
     authFetch('/providers/profile/me')
       .then(function (data) {
         var p = data.data || data;
-        if (!p || !p.id) return;
+        if (!p || !p.id) {
+          applyRegistrationPrefill();
+          return;
+        }
         existingProfile  = p;
         createdProfileId = p.id;
 
-        // Business name & description
-        if (p.businessName)        document.getElementById('s1-businessName').value = p.businessName;
-        if (p.businessDescription) document.getElementById('s1-description').value  = p.businessDescription;
-        // Location from user object
-        if (p.user && p.user.city)    document.getElementById('s1-city').value     = p.user.city;
-        if (p.user && p.user.state)   document.getElementById('s1-province').value = p.user.state;
-        if (p.user && p.user.country) document.getElementById('s1-country').value  = p.user.country;
+        // Business Identity
+        if (p.businessName)        setVal('s1-businessName', p.businessName);
+        if (p.tagline)             setVal('s1-tagline', p.tagline);
+        if (p.websiteUrl)          setVal('s1-website', p.websiteUrl);
+        if (p.instagramHandle)     setVal('s1-instagram', '@' + p.instagramHandle);
+        if (p.yearsInBusiness != null) setVal('s1-years', p.yearsInBusiness);
+        if (p.businessDescription) setVal('s1-description', p.businessDescription);
+        updateTaglineCounter();
 
-        // Vendor type pills
-        var types = p.providerTypes || (p.primaryType ? [p.primaryType] : []);
-        types.forEach(function (t) {
-          selectedTypes.push(t);
-          var pill = document.querySelector('.type-pill[data-type="' + t + '"]');
-          if (pill) pill.classList.add('selected');
+        // Location — from embedded user object
+        var u = p.user || {};
+        if (u.phoneNumber) setVal('s1-phone', u.phoneNumber);
+        if (u.email)       setVal('s1-email', u.email);
+        if (u.address)     setVal('s1-address', u.address);
+        if (u.city)        setVal('s1-city', u.city);
+        if (u.state)       setVal('s1-province', u.state);
+        if (u.country)     setVal('s1-country', u.country);
+
+        // Service area
+        if (p.serviceRadius != null) setVal('s1-radius', p.serviceRadius);
+        if (p.travelOutsideRegion)   document.getElementById('s1-travel').checked = true;
+
+        // Primary vendor type card
+        if (p.primaryType) {
+          primaryType = p.primaryType;
+          var card = document.querySelector('.type-card[data-type="' + p.primaryType + '"]');
+          if (card) card.classList.add('selected');
+          renderSecondaryChips();
+        }
+
+        // Secondary types
+        if (p.providerTypes) {
+          p.providerTypes.forEach(function(t) {
+            if (t !== primaryType) secondaryTypes.push(t);
+          });
+          // Mark the newly-rendered secondary chips
+          document.querySelectorAll('#secondaryChips .chip').forEach(function(chip) {
+            if (secondaryTypes.indexOf(chip.getAttribute('data-type')) !== -1) {
+              chip.classList.add('selected');
+            }
+          });
+        }
+
+        // Languages
+        var langs = p.languages || [];
+        langs.forEach(function(lang) {
+          var knownChip = document.querySelector('#languageChips .chip[data-lang="' + lang + '"]');
+          if (knownChip) {
+            knownChip.classList.add('selected');
+            selectedLanguages.push(lang);
+          } else {
+            // Treat as custom "Other" language
+            var otherChip = document.querySelector('#languageChips .chip[data-lang="Other"]');
+            if (otherChip && selectedLanguages.indexOf('Other') === -1) {
+              otherChip.classList.add('selected');
+              selectedLanguages.push('Other');
+            }
+            document.getElementById('s1-otherLang').value = lang;
+            document.getElementById('otherLangGroup').style.display = '';
+          }
         });
 
-        // Update menu section label based on type
-        var isFoodOrFloral = selectedTypes.some(function (t) { return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1; });
-        document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
+        // Budget
+        if (p.minimumBudget != null) setVal('s1-minBudget', p.minimumBudget);
+        if (p.maximumBudget != null) setVal('s1-maxBudget', p.maximumBudget);
 
-        // Update button text to reflect editing
-        document.getElementById('btn1').textContent = 'Update Profile →';
+        // Update step 2 section labels
+        updateMenuSectionLabels();
+        validateStep1();
       })
-      .catch(function () {}); // no profile yet, that's fine
+      .catch(function () { applyRegistrationPrefill(); }); // no profile yet — that's fine
 
-    // ── Vendor type pills ──
-    document.querySelectorAll('.type-pill').forEach(function (pill) {
-      pill.addEventListener('click', function () {
-        var type = pill.getAttribute('data-type');
-        var idx  = selectedTypes.indexOf(type);
-        if (idx === -1) {
-          selectedTypes.push(type);
-          pill.classList.add('selected');
-        } else {
-          selectedTypes.splice(idx, 1);
-          pill.classList.remove('selected');
-        }
-        // Update menu section label
-        var isFoodOrFloral = selectedTypes.some(function (t) { return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1; });
-        document.getElementById('menuSectionLabel').textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
-        document.getElementById('addMenuTitle').textContent = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
+    // ── Vendor type cards (primary — pick exactly one) ──
+    document.querySelectorAll('.type-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var type = card.getAttribute('data-type');
+        // Deselect all cards
+        document.querySelectorAll('.type-card').forEach(function(c) { c.classList.remove('selected'); });
+        // If this type was in secondaryTypes, remove it
+        var idx = secondaryTypes.indexOf(type);
+        if (idx !== -1) secondaryTypes.splice(idx, 1);
+        // Select new primary
+        primaryType = type;
+        card.classList.add('selected');
+        renderSecondaryChips();
+        updateMenuSectionLabels();
+        validateStep1();
       });
     });
 
-    // ── STEP 1: Create Profile ──
+    function renderSecondaryChips() {
+      var grp = document.getElementById('secondaryTypesGroup');
+      var container = document.getElementById('secondaryChips');
+      if (!primaryType) { grp.style.display = 'none'; return; }
+      grp.style.display = '';
+      container.innerHTML = ALL_TYPES
+        .filter(function(t) { return t.value !== primaryType; })
+        .map(function(t) {
+          var sel = secondaryTypes.indexOf(t.value) !== -1 ? ' selected' : '';
+          return '<div class="chip' + sel + '" data-type="' + t.value + '">' + t.label + '</div>';
+        }).join('');
+      container.querySelectorAll('.chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var t = chip.getAttribute('data-type');
+          var i = secondaryTypes.indexOf(t);
+          if (i === -1) { secondaryTypes.push(t); chip.classList.add('selected'); }
+          else { secondaryTypes.splice(i, 1); chip.classList.remove('selected'); }
+          updateMenuSectionLabels();
+        });
+      });
+    }
+
+    function updateMenuSectionLabels() {
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var isFoodOrFloral = allTypes.some(function(t) {
+        return ['CATERER','RESTO_VENUE','FLORIST_DECOR'].indexOf(t) !== -1;
+      });
+      var labelEl = document.getElementById('menuSectionLabel');
+      var addEl   = document.getElementById('addMenuTitle');
+      if (labelEl) labelEl.textContent = isFoodOrFloral ? 'Menu Items' : 'Equipment & Gear';
+      if (addEl)   addEl.textContent   = isFoodOrFloral ? '+ Add a Menu Item' : '+ Add Equipment';
+    }
+
+    // ── Language chips ──
+    document.querySelectorAll('#languageChips .chip').forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var lang = chip.getAttribute('data-lang');
+        var idx  = selectedLanguages.indexOf(lang);
+        if (idx === -1) {
+          selectedLanguages.push(lang);
+          chip.classList.add('selected');
+        } else {
+          selectedLanguages.splice(idx, 1);
+          chip.classList.remove('selected');
+        }
+        document.getElementById('otherLangGroup').style.display =
+          selectedLanguages.indexOf('Other') !== -1 ? '' : 'none';
+        validateStep1();
+      });
+    });
+
+    // ── Description char counter ──
+    function updateDescCounter() {
+      var len = (document.getElementById('s1-description').value || '').length;
+      var counter = document.getElementById('descCounter');
+      counter.textContent = len + ' / 50';
+      counter.style.color = len >= 50 ? 'var(--green)' : 'var(--red)';
+    }
+    document.getElementById('s1-description').addEventListener('input', updateDescCounter);
+
+    // ── Tagline char counter ──
+    function updateTaglineCounter() {
+      var val = (document.getElementById('s1-tagline').value || '').length;
+      var counter = document.getElementById('taglineCounter');
+      counter.textContent = val + ' / 80';
+      counter.classList.toggle('warn', val > 70);
+    }
+    document.getElementById('s1-tagline').addEventListener('input', updateTaglineCounter);
+
+    // ── Live validation — keep Continue disabled until required fields pass ──
+    function validateStep1() {
+      var bName    = document.getElementById('s1-businessName').value.trim();
+      var bPhone   = document.getElementById('s1-phone').value.trim();
+      var bEmail   = document.getElementById('s1-email').value.trim();
+      var bCity    = document.getElementById('s1-city').value.trim();
+      var bProv    = document.getElementById('s1-province').value.trim();
+      var bCountry = document.getElementById('s1-country').value.trim();
+      var bDesc    = document.getElementById('s1-description').value.trim();
+      var emailOk  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bEmail);
+      var valid = bName && bPhone && bEmail && emailOk &&
+                  bCity && bProv && bCountry &&
+                  primaryType &&
+                  bDesc.length >= 50 &&
+                  selectedLanguages.length > 0;
+      document.getElementById('btn1').disabled = !valid;
+    }
+
+    ['s1-businessName','s1-phone','s1-email','s1-city','s1-province','s1-country','s1-description'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', validateStep1);
+    });
+
+    // ── STEP 1: Save Profile ──
     document.getElementById('btn1').addEventListener('click', function () {
       clearError('err-1');
-      var btn   = this;
-      var bName = document.getElementById('s1-businessName').value.trim();
-      var bDesc = document.getElementById('s1-description').value.trim();
+      var btn = this;
 
-      if (!bName)             { showError('err-1', 'Business name is required.'); return; }
-      if (!bDesc)             { showError('err-1', 'Please describe your business.'); return; }
-      if (selectedTypes.length === 0) { showError('err-1', 'Please select at least one vendor type.'); return; }
+      var bName    = document.getElementById('s1-businessName').value.trim();
+      var bPhone   = document.getElementById('s1-phone').value.trim();
+      var bEmail   = document.getElementById('s1-email').value.trim();
+      var bCity    = document.getElementById('s1-city').value.trim();
+      var bProv    = document.getElementById('s1-province').value.trim();
+      var bCountry = document.getElementById('s1-country').value.trim();
+      var bDesc    = document.getElementById('s1-description').value.trim();
 
-      var payload = {
-        businessName:        bName,
-        businessDescription: bDesc,
-        providerTypes:       selectedTypes,
-        primaryType:         selectedTypes[0],
-      };
-
-      var city     = document.getElementById('s1-city').value.trim();
-      var province = document.getElementById('s1-province').value.trim();
-      var country  = document.getElementById('s1-country').value.trim();
+      // Guard (button should already be disabled, but be safe)
+      if (!bName)    { showError('err-1', 'Business name is required.'); return; }
+      if (!bPhone)   { showError('err-1', 'Business phone is required.'); return; }
+      if (!bEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(bEmail)) {
+        showError('err-1', 'A valid business email is required.'); return;
+      }
+      if (!bCity || !bProv || !bCountry) {
+        showError('err-1', 'City, province/state, and country are all required.'); return;
+      }
+      if (!primaryType) { showError('err-1', 'Please select a primary vendor type.'); return; }
+      if (bDesc.length < 50) { showError('err-1', 'About your business must be at least 50 characters.'); return; }
+      if (selectedLanguages.length === 0) { showError('err-1', 'Please select at least one language.'); return; }
 
       btn.classList.add('loading');
+
+      // ── User-level fields ──
+      var userPayload = {
+        phoneNumber: bPhone,
+        city:        bCity,
+        state:       bProv,
+        country:     bCountry,
+      };
+      var bAddress = document.getElementById('s1-address').value.trim();
+      if (bAddress) userPayload.address = bAddress;
+
+      // ── Resolve languages — swap 'Other' with the custom text ──
+      var langs = selectedLanguages.map(function(l) {
+        if (l === 'Other') {
+          var custom = document.getElementById('s1-otherLang').value.trim();
+          return custom || 'Other';
+        }
+        return l;
+      });
+
+      // ── Provider profile payload ──
+      var tagline = document.getElementById('s1-tagline').value.trim();
+      var website = document.getElementById('s1-website').value.trim();
+      var insta   = document.getElementById('s1-instagram').value.trim().replace(/^@/, '');
+      var years   = parseInt(document.getElementById('s1-years').value, 10);
+      var radius  = parseInt(document.getElementById('s1-radius').value, 10);
+      var minBudg = parseFloat(document.getElementById('s1-minBudget').value);
+      var maxBudg = parseFloat(document.getElementById('s1-maxBudget').value);
+
+      var profilePayload = {
+        businessName:        bName,
+        businessDescription: bDesc,
+        providerTypes:       [primaryType].concat(secondaryTypes),
+        primaryType:         primaryType,
+        languages:           langs,
+        travelOutsideRegion: document.getElementById('s1-travel').checked,
+      };
+      if (tagline)        profilePayload.tagline         = tagline;
+      if (website)        profilePayload.websiteUrl      = website;
+      if (insta)          profilePayload.instagramHandle = insta;
+      if (!isNaN(years))  profilePayload.yearsInBusiness = years;
+      if (!isNaN(radius)) profilePayload.serviceRadius   = radius;
+      if (!isNaN(minBudg)) profilePayload.minimumBudget  = minBudg;
+      if (!isNaN(maxBudg)) profilePayload.maximumBudget  = maxBudg;
+
       var profileMethod = existingProfile ? 'PUT' : 'POST';
 
-      // Save location to user profile in parallel
-      if (city || province || country) {
-        var userPayload = {};
-        if (city)     userPayload.city    = city;
-        if (province) userPayload.state   = province;
-        if (country)  userPayload.country = country;
-        authFetch('/users/profile', { method: 'PUT', body: JSON.stringify(userPayload) }).catch(function(){});
-      }
-
-      authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(payload) })
-        .then(function (data) {
-          btn.classList.remove('loading');
-          if (data.success || data.data) {
-            createdProfileId = (data.data && data.data.id) || createdProfileId;
-            goToStep(2);
-          } else {
-            var msg = data.error || data.message || 'Failed to save profile.';
-            if (data.details && data.details.length) msg += ' (' + data.details.map(function(d){ return d.field + ': ' + d.message; }).join(', ') + ')';
-            showError('err-1', msg);
+      // Fire both calls in parallel — user fields + provider profile
+      Promise.all([
+        authFetch('/users/profile', { method: 'PUT', body: JSON.stringify(userPayload) }).catch(function(){}),
+        authFetch('/providers/profile', { method: profileMethod, body: JSON.stringify(profilePayload) }),
+      ])
+      .then(function(results) {
+        btn.classList.remove('loading');
+        var profileResult = results[1];
+        if (profileResult && (profileResult.success || (profileResult.data && profileResult.data.id))) {
+          createdProfileId = (profileResult.data && profileResult.data.id) || createdProfileId;
+          existingProfile  = profileResult.data || existingProfile;
+          updateMenuSectionLabels();
+          goToStep(2);
+        } else {
+          var msg = (profileResult && (profileResult.error || profileResult.message)) || 'Failed to save profile.';
+          if (profileResult && profileResult.details && profileResult.details.length) {
+            msg += ' (' + profileResult.details.map(function(d){ return d.field + ': ' + d.message; }).join(', ') + ')';
           }
-        })
-        .catch(function (err) {
-          btn.classList.remove('loading');
-          showError('err-1', err && err.message ? err.message : 'Connection error. Please try again.');
+          showError('err-1', msg);
+        }
+      })
+      .catch(function(err) {
+        btn.classList.remove('loading');
+        showError('err-1', err && err.message ? err.message : 'Connection error. Please try again.');
+      });
+    });
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ══════════════════════════════════════════
+    // STEP 2 — Services & Pricing
+    // ══════════════════════════════════════════
+
+    var _cardIdSeq   = 0;
+    var s2Services   = [];
+    var s2MenuItems  = [];
+    var sfValues     = {};
+
+    var PRICE_TYPES = {
+      RESTO_VENUE:  [
+        { label: 'Per Person',  value: 'PER_PERSON' },
+        { label: 'Flat Rate',   value: 'FLAT_RATE' },
+        { label: 'Per Hour',    value: 'PER_HOUR' },
+        { label: 'Custom',      value: 'CUSTOM' },
+      ],
+      CATERER: [
+        { label: 'Per Person',  value: 'PER_PERSON' },
+        { label: 'Flat Rate',   value: 'FLAT_RATE' },
+        { label: 'Custom',      value: 'CUSTOM' },
+      ],
+      ENTERTAINMENT: [
+        { label: 'Per Hour',    value: 'PER_HOUR' },
+        { label: 'Flat Rate',   value: 'FLAT_RATE' },
+        { label: 'Custom',      value: 'CUSTOM' },
+      ],
+      PHOTO_VIDEO: [
+        { label: 'Per Hour',    value: 'PER_HOUR' },
+        { label: 'Flat Rate',   value: 'FLAT_RATE' },
+        { label: 'Custom',      value: 'CUSTOM' },
+      ],
+      FLORIST_DECOR: [
+        { label: 'Flat Rate',   value: 'FLAT_RATE' },
+        { label: 'Per Unit',    value: 'CUSTOM' },
+        { label: 'Per Table',   value: 'CUSTOM' },
+        { label: 'Custom',      value: 'CUSTOM' },
+      ],
+    };
+
+    var SUGGESTIONS = {
+      RESTO_VENUE: [
+        { name: 'Private dining room rental', value: 'FLAT_RATE' },
+        { name: 'Full venue buyout',           value: 'FLAT_RATE' },
+        { name: 'Cocktail hour package',       value: 'PER_PERSON' },
+        { name: 'Seated dinner package',       value: 'PER_PERSON' },
+        { name: 'Buffet package',              value: 'PER_PERSON' },
+        { name: 'Brunch / lunch package',      value: 'PER_PERSON' },
+        { name: 'Flat rate venue fee',         value: 'FLAT_RATE' },
+        { name: 'Valet',                       value: 'FLAT_RATE' },
+        { name: 'Raw bar',                     value: 'PER_PERSON' },
+        { name: 'Meat carving station',        value: 'FLAT_RATE' },
+        { name: 'Fish station',                value: 'FLAT_RATE' },
+        { name: 'Salad station',               value: 'FLAT_RATE' },
+        { name: 'Pasta station',               value: 'FLAT_RATE' },
+        { name: 'Custom station',              value: 'FLAT_RATE', custom: true },
+      ],
+      CATERER: [
+        { name: 'Plated dinner',               value: 'PER_PERSON' },
+        { name: 'Buffet',                      value: 'PER_PERSON' },
+        { name: 'Cocktail / appetizer package',value: 'PER_PERSON' },
+        { name: 'Grazing table / charcuterie', value: 'FLAT_RATE' },
+        { name: 'Dessert table',               value: 'FLAT_RATE' },
+        { name: 'Cake cutting service',        value: 'FLAT_RATE' },
+        { name: 'Staff — servers',             value: 'PER_HOUR' },
+        { name: 'Staff — bartenders',          value: 'PER_HOUR' },
+        { name: 'Raw bar',                     value: 'PER_PERSON' },
+        { name: 'Meat carving station',        value: 'FLAT_RATE' },
+        { name: 'Custom station',              value: 'FLAT_RATE', custom: true },
+      ],
+      ENTERTAINMENT: [
+        { name: 'DJ set',                      value: 'PER_HOUR' },
+        { name: 'Live band',                   value: 'FLAT_RATE' },
+        { name: 'MC / emcee',                  value: 'FLAT_RATE' },
+        { name: 'Photo booth rental',          value: 'FLAT_RATE' },
+        { name: 'Lighting package',            value: 'FLAT_RATE' },
+        { name: 'Sound system rental',         value: 'FLAT_RATE' },
+        { name: 'Performer',                   value: 'FLAT_RATE' },
+        { name: 'Kids entertainment',          value: 'FLAT_RATE' },
+        { name: 'Custom',                      value: 'FLAT_RATE', custom: true },
+      ],
+      PHOTO_VIDEO: [
+        { name: 'Photography',                 value: 'FLAT_RATE' },
+        { name: 'Videography',                 value: 'FLAT_RATE' },
+        { name: 'Photo + video bundle',        value: 'FLAT_RATE' },
+        { name: 'Same-day edit',               value: 'FLAT_RATE' },
+        { name: 'Photo booth',                 value: 'FLAT_RATE' },
+        { name: 'Drone footage',               value: 'FLAT_RATE' },
+        { name: 'Second shooter add-on',       value: 'FLAT_RATE' },
+        { name: 'Album / print package',       value: 'FLAT_RATE' },
+      ],
+      FLORIST_DECOR: [
+        { name: 'Bridal bouquet',              value: 'FLAT_RATE' },
+        { name: 'Centerpieces',                value: 'CUSTOM' },
+        { name: 'Ceremony arch / backdrop',    value: 'FLAT_RATE' },
+        { name: 'Full venue floral install',   value: 'CUSTOM' },
+        { name: 'Cocktail hour arrangements',  value: 'FLAT_RATE' },
+        { name: 'Bud vases',                   value: 'CUSTOM' },
+        { name: 'Candle / lighting decor',     value: 'FLAT_RATE' },
+        { name: 'Signage / stationery',        value: 'FLAT_RATE' },
+      ],
+    };
+
+    var DIETARY_OPTS = ['Vegan', 'Vegetarian', 'Halal', 'Kosher', 'Gluten-Free', 'Nut-Free'];
+
+    function getMergedPriceTypes() {
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : ['RESTO_VENUE'];
+      var seen = {}, result = [];
+      allTypes.forEach(function(t) {
+        (PRICE_TYPES[t] || []).forEach(function(pt) {
+          if (!seen[pt.label]) { seen[pt.label] = true; result.push(pt); }
         });
-    });
-
-    // ── Features (for service form) ──
-    document.getElementById('btnAddFeature').addEventListener('click', addFeature);
-    document.getElementById('svc-featureInput').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); addFeature(); }
-    });
-
-    function addFeature() {
-      var val = document.getElementById('svc-featureInput').value.trim();
-      if (!val) return;
-      pendingFeatures.push(val);
-      document.getElementById('svc-featureInput').value = '';
-      renderFeatureTags();
-    }
-    function removeFeature(i) {
-      pendingFeatures.splice(i, 1);
-      renderFeatureTags();
-    }
-    function renderFeatureTags() {
-      var html = pendingFeatures.map(function (f, i) {
-        return '<div class="feature-tag">' + escHtml(f) + '<button type="button" onclick="removeFeatureTag(' + i + ')">×</button></div>';
-      }).join('');
-      document.getElementById('featureTagsDisplay').innerHTML = html;
-    }
-
-    // ── Save Service Package ──
-    document.getElementById('btnSaveService').addEventListener('click', function () {
-      var name  = document.getElementById('svc-name').value.trim();
-      var desc  = document.getElementById('svc-desc').value.trim();
-      var pType = document.getElementById('svc-priceType').value;
-      var price = parseFloat(document.getElementById('svc-price').value);
-
-      if (!name || !desc) { showError('err-2', 'Please fill in the package name and description.'); return; }
-      if (!price && pType !== 'CUSTOM') { showError('err-2', 'Please enter a price.'); return; }
-      clearError('err-2');
-
-      pendingServices.push({
-        name:        name,
-        description: desc,
-        priceType:   pType,
-        basePrice:   price || 0,
-        features:    pendingFeatures.slice(),
-        providerType: selectedTypes[0] || 'RESTO_VENUE',
       });
+      return result;
+    }
 
-      // Reset form fields
-      document.getElementById('svc-name').value  = '';
-      document.getElementById('svc-desc').value  = '';
-      document.getElementById('svc-price').value = '';
-      document.getElementById('svc-priceType').value = 'FLAT_RATE';
-      pendingFeatures = [];
-      renderFeatureTags();
+    function typeLabel(t) {
+      return { RESTO_VENUE: 'Restaurant / Venue', CATERER: 'Caterer', ENTERTAINMENT: 'Entertainment', PHOTO_VIDEO: 'Photo & Video', FLORIST_DECOR: 'Florist & Decor' }[t] || t;
+    }
 
-      // Hide form and scroll services list into view
-      document.getElementById('addServiceForm').style.display = 'none';
-      renderServicesList();
-      var sl = document.getElementById('servicesList');
-      if (sl) sl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-
-    function renderServicesList() {
-      var html = pendingServices.map(function (s, i) {
-        var priceLabel = s.priceType === 'CUSTOM' ? 'Custom Quote' :
-                         s.priceType === 'PER_HOUR' ? '$' + s.basePrice + '/hr' :
-                         s.priceType === 'PER_PERSON' ? '$' + s.basePrice + '/pp' :
-                         '$' + s.basePrice.toLocaleString();
-        var tags = s.features.map(function (f) { return '<span class="service-tag">' + escHtml(f) + '</span>'; }).join('');
-        return '<div class="service-item"><button class="btn-remove" onclick="removeSvc(' + i + ')">✕</button>' +
-          '<div class="service-item-header"><div class="service-item-name">' + escHtml(s.name) + '</div><div class="service-item-price">' + priceLabel + '</div></div>' +
-          (s.description ? '<div class="service-item-desc">' + escHtml(s.description) + '</div>' : '') +
-          (tags ? '<div class="service-item-tags">' + tags + '</div>' : '') +
-          '</div>';
-      }).join('');
-      // If services exist, show count + "Add another" hint
-      if (pendingServices.length > 0) {
-        html += '<div style="font-size:0.72rem;color:var(--muted);padding:0.5rem 0 0.25rem;text-align:right;">' +
-          pendingServices.length + ' package' + (pendingServices.length > 1 ? 's' : '') + ' added — click <strong>+ Add Manually</strong> above to add more</div>';
+    function initStep2() {
+      if (primaryType) {
+        _doInitStep2();
+      } else {
+        // Jumped here directly (e.g. ?step=2) — fetch profile to get vendor type first
+        authFetch('/providers/profile/me').then(function(data) {
+          var p = data.data || data.providerProfile || data;
+          if (p && (p.primaryType || (p.providerTypes && p.providerTypes.length))) {
+            primaryType    = p.primaryType || p.providerTypes[0];
+            secondaryTypes = (p.providerTypes || []).filter(function(t) { return t !== primaryType; });
+          }
+          _doInitStep2();
+        }).catch(function() { _doInitStep2(); });
       }
-      document.getElementById('servicesList').innerHTML = html;
     }
 
-    // ── Save Menu Item ──
-    document.getElementById('btnSaveMenuItem').addEventListener('click', function () {
-      var name     = document.getElementById('mi-name').value.trim();
-      var category = document.getElementById('mi-category').value.trim();
-      var price    = parseFloat(document.getElementById('mi-price').value) || 0;
-      var dietary  = document.getElementById('mi-dietary').value.trim();
-      var desc     = document.getElementById('mi-desc').value.trim();
+    function _doInitStep2() {
+      renderSpecialFields();
+      renderSuggestionChips();
+      renderServiceCards();
+      renderMenuCards();
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var needsMenu = allTypes.some(function(t) { return t === 'RESTO_VENUE' || t === 'CATERER'; });
+      document.getElementById('menuSectionWrap').style.display = needsMenu ? '' : 'none';
+      validateStep2();
+    }
 
-      if (!name || !category) { showError('err-2', 'Item name and category are required.'); return; }
-      clearError('err-2');
+    function validateStep2() {
+      document.getElementById('btn2').disabled = (s2Services.length === 0);
+    }
 
-      pendingMenuItems.push({
-        name:        name,
-        category:    category,
-        price:       price,
-        description: desc || undefined,
-        dietaryInfo: dietary ? dietary.split(',').map(function (s) { return s.trim(); }).filter(Boolean) : [],
-      });
+    // ── Special Fields ──
+    function renderSpecialFields() {
+      var container = document.getElementById('specialFieldsContainer');
+      var allTypes  = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var html = '';
+      allTypes.forEach(function(type, idx) { html += buildSpecialFieldsHTML(type, idx === 0); });
+      container.innerHTML = html;
+      bindSpecialFieldEvents(container);
+    }
 
-      document.getElementById('mi-name').value     = '';
-      document.getElementById('mi-category').value = '';
-      document.getElementById('mi-price').value    = '';
-      document.getElementById('mi-dietary').value  = '';
-      document.getElementById('mi-desc').value     = '';
+    function buildSpecialFieldsHTML(type, isPrimary) {
+      var heading = isPrimary ? typeLabel(type) + ' Details' : 'As a ' + typeLabel(type);
+      var h = '<div class="form-section-heading">' + escHtml(heading) + '</div>';
 
-      // Hide form and scroll menu list into view
-      document.getElementById('addMenuForm').style.display = 'none';
-      renderMenuList();
-      var ml = document.getElementById('menuList');
-      if (ml) ml.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
+      if (type === 'RESTO_VENUE') {
+        h += '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Seated Capacity</label>' +
+          '<input class="form-input sf-input" id="sf-seatedCapacity" type="number" min="0" placeholder="150"></div>' +
+          '<div class="form-group"><label class="form-label">Standing Capacity</label>' +
+          '<input class="form-input sf-input" id="sf-standingCapacity" type="number" min="0" placeholder="250"></div></div>' +
+          '<div class="form-group"><label class="form-label">Cuisine Type</label>' +
+          '<input class="form-input sf-input" id="sf-venueCuisine" type="text" placeholder="e.g. French, Italian, Pan-Asian"></div>' +
+          '<div class="form-group"><label class="form-label">Venue Type</label>' +
+          '<div class="radio-toggle-group" data-sfkey="venueIndoorOutdoor">' +
+          buildRadioBtns(['Indoor','Outdoor','Both'],['INDOOR','OUTDOOR','BOTH']) + '</div></div>' +
+          '<div class="toggle-row" style="border-top:none;padding-top:0;">' +
+          '<span class="toggle-label">AV / tech available</span>' +
+          '<label class="toggle-switch"><input type="checkbox" class="sf-check" data-sfkey="avTechAvailable"><span class="slider"></span></label></div>' +
+          '<div class="form-group"><label class="form-label">Dietary Options</label>' +
+          '<div class="chip-group" id="sf-chips-dietaryOptions-RESTO">' + buildSfChips(DIETARY_OPTS, 'dietaryOptions-RESTO') + '</div></div>';
+      }
 
-    function renderMenuList() {
-      var html = pendingMenuItems.map(function (m, i) {
-        return '<div class="menu-item-row">' +
-          '<div class="menu-item-info"><div class="menu-item-name">' + escHtml(m.name) + '</div>' +
-          '<div class="menu-item-cat">' + escHtml(m.category) + (m.dietaryInfo && m.dietaryInfo.length ? ' · ' + m.dietaryInfo.join(', ') : '') + '</div></div>' +
-          (m.price ? '<div class="menu-item-price">$' + m.price.toFixed(2) + '</div>' : '') +
-          '<button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.8rem;" onclick="removeMenuItem(' + i + ')">✕</button></div>';
+      if (type === 'CATERER') {
+        h += '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Min Guest Count</label>' +
+          '<input class="form-input sf-input" id="sf-minGuestCount" type="number" min="1" placeholder="20"></div>' +
+          '<div class="form-group"><label class="form-label">Max Guest Count</label>' +
+          '<input class="form-input sf-input" id="sf-maxGuestCount" type="number" min="1" placeholder="500"></div></div>' +
+          '<div class="form-group" style="display:flex;gap:1.5rem;flex-wrap:wrap;">' +
+          buildCheckToggle('sf-equipmentRentalAvailable','equipmentRentalAvailable','Equipment rental available') +
+          buildCheckToggle('sf-caterSetupIncluded','caterSetupIncluded','Setup / teardown included') + '</div>' +
+          '<div class="form-group"><label class="form-label">Dietary Options</label>' +
+          '<div class="chip-group" id="sf-chips-dietaryOptions-CATER">' + buildSfChips(DIETARY_OPTS, 'dietaryOptions-CATER') + '</div></div>';
+      }
+
+      if (type === 'ENTERTAINMENT') {
+        h += '<div class="form-group"><label class="form-label">Genre / Style</label>' +
+          '<div class="chip-group" id="sf-chips-genreTags">' +
+          buildSfChips(['Top 40','Hip Hop','Jazz','Classical','Latin','R&B','Electronic','Rock','Country'], 'genreTags') + '</div>' +
+          '<div id="sf-genreTags-customWrap" style="display:none;margin-top:0.55rem;">' +
+          '<input class="form-input sf-input" id="sf-genreTags-custom" type="text" placeholder="Custom genre..."></div></div>' +
+          '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Setup Time (minutes)</label>' +
+          '<input class="form-input sf-input" id="sf-setupTimeMinutes" type="number" min="0" placeholder="60"></div>' +
+          '<div class="form-group"><label class="form-label">Overtime Rate ($/hr)</label>' +
+          '<input class="form-input sf-input" id="sf-overtimeRatePerHour" type="number" min="0" placeholder="150"></div></div>' +
+          '<div class="form-group"><label class="form-label">Minimum Hours Required</label>' +
+          '<input class="form-input sf-input" id="sf-minimumHours" type="number" min="1" placeholder="2"></div>' +
+          '<div class="form-group" style="display:flex;gap:1.5rem;">' +
+          buildCheckToggle('sf-equipmentIncluded','equipmentIncluded','Equipment / sound system included') + '</div>';
+      }
+
+      if (type === 'PHOTO_VIDEO') {
+        h += '<div class="form-group"><label class="form-label">Style</label>' +
+          '<div class="chip-group" id="sf-chips-styleTags">' +
+          buildSfChips(['Editorial','Candid','Documentary','Fine Art','Dark & Moody','Light & Airy'], 'styleTags') + '</div>' +
+          '<div id="sf-styleTags-customWrap" style="display:none;margin-top:0.55rem;">' +
+          '<input class="form-input sf-input" id="sf-styleTags-custom" type="text" placeholder="Custom style..."></div></div>' +
+          '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Delivery Timeline (days)</label>' +
+          '<input class="form-input sf-input" id="sf-deliveryTimelineDays" type="number" min="1" placeholder="30"></div>' +
+          '<div class="form-group"><label class="form-label">Edited Photos Included</label>' +
+          '<input class="form-input sf-input" id="sf-editedPhotosCount" type="number" min="0" placeholder="300"></div></div>' +
+          '<div class="form-group"><label class="form-label">Travel Fee Policy</label>' +
+          '<div class="radio-toggle-group" data-sfkey="travelFeePolicy">' +
+          buildRadioBtns(['Included','Charged per km','Quoted separately'],['INCLUDED','PER_KM','QUOTED']) + '</div></div>' +
+          '<div class="form-group" style="display:flex;gap:1.5rem;">' +
+          buildCheckToggle('sf-rawFilesIncluded','rawFilesIncluded','RAW files included') + '</div>';
+      }
+
+      if (type === 'FLORIST_DECOR') {
+        h += '<div class="form-group"><label class="form-label">Style</label>' +
+          '<div class="chip-group" id="sf-chips-floristStyleTags">' +
+          buildSfChips(['Romantic','Modern','Rustic','Minimalist','Tropical','Bohemian'], 'floristStyleTags') + '</div>' +
+          '<div id="sf-floristStyleTags-customWrap" style="display:none;margin-top:0.55rem;">' +
+          '<input class="form-input sf-input" id="sf-floristStyleTags-custom" type="text" placeholder="Custom style..."></div></div>' +
+          '<div class="form-group" style="display:flex;flex-wrap:wrap;gap:1.5rem;">' +
+          buildCheckToggle('sf-seasonalCustomFloral','seasonalCustomFloral','Seasonal / custom florals available') +
+          buildCheckToggle('sf-floristSetupIncluded','floristSetupIncluded','Setup / breakdown included') +
+          buildCheckToggle('sf-rentalItemsAvailable','rentalItemsAvailable','Rental items available') + '</div>';
+      }
+
+      return h;
+    }
+
+    function buildRadioBtns(labels, values) {
+      return labels.map(function(l, i) {
+        return '<button type="button" class="radio-toggle-btn" data-val="' + values[i] + '">' + escHtml(l) + '</button>';
       }).join('');
-      document.getElementById('menuList').innerHTML = html;
     }
 
-    // ── Section toggle buttons ──
-    document.getElementById('btnShowAddService').addEventListener('click', function() {
-      var f = document.getElementById('addServiceForm');
-      f.style.display = f.style.display === 'none' ? '' : 'none';
-    });
-    document.getElementById('btnShowAddMenu').addEventListener('click', function() {
-      var f = document.getElementById('addMenuForm');
-      f.style.display = f.style.display === 'none' ? '' : 'none';
+    function buildSfChips(opts, sfKey) {
+      return opts.map(function(o) {
+        return '<div class="chip" data-sfkey="' + sfKey + '" data-val="' + escHtml(o) + '">' + escHtml(o) + '</div>';
+      }).join('') + '<div class="chip" data-sfkey="' + sfKey + '" data-val="__custom__">Custom</div>';
+    }
+
+    function buildCheckToggle(id, sfKey, label) {
+      return '<div class="toggle-row" style="border-top:none;padding:0.25rem 0;flex:1;min-width:200px;">' +
+        '<span class="toggle-label">' + escHtml(label) + '</span>' +
+        '<label class="toggle-switch"><input type="checkbox" class="sf-check" id="' + id + '" data-sfkey="' + sfKey + '">' +
+        '<span class="slider"></span></label></div>';
+    }
+
+    function bindSpecialFieldEvents(container) {
+      container.querySelectorAll('.radio-toggle-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var group = btn.closest('.radio-toggle-group');
+          var sfKey = group.getAttribute('data-sfkey');
+          group.querySelectorAll('.radio-toggle-btn').forEach(function(b) { b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          sfValues[sfKey] = btn.getAttribute('data-val');
+        });
+      });
+      container.querySelectorAll('.chip[data-sfkey]').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var sfKey = chip.getAttribute('data-sfkey');
+          var val   = chip.getAttribute('data-val');
+          if (val === '__custom__') {
+            chip.classList.toggle('selected');
+            var wrap = document.getElementById('sf-' + sfKey + '-customWrap');
+            if (wrap) wrap.style.display = chip.classList.contains('selected') ? '' : 'none';
+            return;
+          }
+          chip.classList.toggle('selected');
+          var group = chip.closest('.chip-group');
+          sfValues[sfKey] = [];
+          group.querySelectorAll('.chip.selected[data-sfkey="' + sfKey + '"]').forEach(function(c) {
+            if (c.getAttribute('data-val') !== '__custom__') sfValues[sfKey].push(c.getAttribute('data-val'));
+          });
+        });
+      });
+      container.querySelectorAll('.sf-input').forEach(function(input) {
+        input.addEventListener('input', function() { sfValues[input.id.replace('sf-', '')] = input.value; });
+      });
+      container.querySelectorAll('.sf-check').forEach(function(cb) {
+        cb.addEventListener('change', function() { sfValues[cb.getAttribute('data-sfkey')] = cb.checked; });
+      });
+    }
+
+    function collectSpecialFields() {
+      var patch = {};
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      function getEl(id) { return document.getElementById(id); }
+      function numVal(id) { var el = getEl(id); return el ? parseInt(el.value, 10) : NaN; }
+      function floatVal(id) { var el = getEl(id); return el ? parseFloat(el.value) : NaN; }
+      function strVal(id) { var el = getEl(id); return el ? el.value.trim() : ''; }
+      function collectChips(groupId, customId) {
+        var result = [];
+        var grp = getEl(groupId);
+        if (grp) grp.querySelectorAll('.chip.selected').forEach(function(c) {
+          var v = c.getAttribute('data-val');
+          if (v && v !== '__custom__') result.push(v);
+        });
+        var ci = getEl(customId);
+        if (ci && ci.value.trim()) result.push(ci.value.trim());
+        return result;
+      }
+
+      if (allTypes.indexOf('RESTO_VENUE') !== -1) {
+        var sc = numVal('sf-seatedCapacity'), stc = numVal('sf-standingCapacity');
+        var vc = strVal('sf-venueCuisine');
+        if (!isNaN(sc))  patch.seatedCapacity   = sc;
+        if (!isNaN(stc)) patch.standingCapacity  = stc;
+        if (vc)          patch.venueCuisine      = vc;
+        if (sfValues.venueIndoorOutdoor) patch.venueIndoorOutdoor = sfValues.venueIndoorOutdoor;
+        if (sfValues.avTechAvailable)    patch.avTechAvailable    = true;
+      }
+
+      if (allTypes.indexOf('CATERER') !== -1) {
+        var mg = numVal('sf-minGuestCount'), xg = numVal('sf-maxGuestCount');
+        if (!isNaN(mg)) patch.minGuestCount = mg;
+        if (!isNaN(xg)) patch.maxGuestCount = xg;
+        if (sfValues.equipmentRentalAvailable) patch.equipmentRentalAvailable = true;
+        if (sfValues.caterSetupIncluded)       patch.caterSetupIncluded       = true;
+      }
+
+      // Merge dietary options from RESTO and CATER
+      if (allTypes.indexOf('RESTO_VENUE') !== -1 || allTypes.indexOf('CATERER') !== -1) {
+        var dR = sfValues['dietaryOptions-RESTO'] || [];
+        var dC = sfValues['dietaryOptions-CATER'] || [];
+        var merged = dR.concat(dC.filter(function(v) { return dR.indexOf(v) === -1; }));
+        if (merged.length) patch.dietaryOptions = merged;
+      }
+
+      if (allTypes.indexOf('ENTERTAINMENT') !== -1) {
+        var st = numVal('sf-setupTimeMinutes'), or2 = floatVal('sf-overtimeRatePerHour'), mh = numVal('sf-minimumHours');
+        if (!isNaN(st))  patch.setupTimeMinutes   = st;
+        if (!isNaN(or2)) patch.overtimeRatePerHour = or2;
+        if (!isNaN(mh))  patch.minimumHours        = mh;
+        if (sfValues.equipmentIncluded) patch.equipmentIncluded = true;
+        var gt = collectChips('sf-chips-genreTags', 'sf-genreTags-custom');
+        if (gt.length) patch.genreTags = gt;
+      }
+
+      if (allTypes.indexOf('PHOTO_VIDEO') !== -1) {
+        var dtl = numVal('sf-deliveryTimelineDays'), epc = numVal('sf-editedPhotosCount');
+        if (!isNaN(dtl)) patch.deliveryTimelineDays = dtl;
+        if (!isNaN(epc)) patch.editedPhotosCount    = epc;
+        if (sfValues.travelFeePolicy)  patch.travelFeePolicy  = sfValues.travelFeePolicy;
+        if (sfValues.rawFilesIncluded) patch.rawFilesIncluded = true;
+        var st2 = collectChips('sf-chips-styleTags', 'sf-styleTags-custom');
+        if (st2.length) patch.styleTags = st2;
+      }
+
+      if (allTypes.indexOf('FLORIST_DECOR') !== -1) {
+        if (sfValues.seasonalCustomFloral) patch.seasonalCustomFloral = true;
+        if (sfValues.floristSetupIncluded) patch.floristSetupIncluded = true;
+        if (sfValues.rentalItemsAvailable) patch.rentalItemsAvailable = true;
+        var fst = collectChips('sf-chips-floristStyleTags', 'sf-floristStyleTags-custom');
+        if (fst.length) patch.floristStyleTags = fst;
+      }
+
+      return patch;
+    }
+
+    // ── Suggestion Chips ──
+    function renderSuggestionChips() {
+      var container = document.getElementById('suggestionChipsArea');
+      var allTypes  = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var seenNames = {}, html = '';
+      allTypes.forEach(function(type, idx) {
+        var suggs    = SUGGESTIONS[type] || [];
+        var newSuggs = suggs.filter(function(s) { return !seenNames[s.name]; });
+        newSuggs.forEach(function(s) { seenNames[s.name] = true; });
+        if (!newSuggs.length) return;
+        if (idx > 0) html += '<div class="suggestion-divider">Also as ' + typeLabel(type) + '</div>';
+        html += '<div class="chip-group" style="margin-bottom:0.35rem;">';
+        newSuggs.forEach(function(s) {
+          html += '<div class="chip suggestion-chip" data-name="' + escHtml(s.name) + '" data-pricetype="' + s.value + '" data-custom="' + (s.custom ? '1' : '0') + '">' + escHtml(s.name) + '</div>';
+        });
+        html += '</div>';
+      });
+      container.innerHTML = '<div class="suggestion-area">' + html + '</div>';
+      container.querySelectorAll('.suggestion-chip').forEach(function(chip) {
+        chip.addEventListener('click', function() {
+          var name = chip.getAttribute('data-name');
+          var pt   = chip.getAttribute('data-pricetype') || 'FLAT_RATE';
+          var isCustom = chip.getAttribute('data-custom') === '1';
+          addServiceCard(isCustom ? '' : name, pt);
+        });
+      });
+    }
+
+    // ── Service Cards ──
+    function addServiceCard(name, priceType) {
+      s2Services.push({ _id: ++_cardIdSeq, name: name || '', priceType: priceType || 'FLAT_RATE', basePrice: 0, description: '', features: [], collapsed: false });
+      renderServiceCards();
+      var area = document.getElementById('serviceCardsArea');
+      if (area && area.lastElementChild) area.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function renderServiceCards() {
+      var priceTypes = getMergedPriceTypes();
+      document.getElementById('serviceCardsArea').innerHTML = s2Services.map(function(card) {
+        return card.collapsed && card.name ? renderCollapsedCard(card) : renderExpandedCard(card, priceTypes);
+      }).join('');
+      validateStep2();
+    }
+
+    function renderCollapsedCard(card) {
+      var priceLabel = card.basePrice > 0 ? ('$' + parseFloat(card.basePrice).toLocaleString()) : 'Custom / TBD';
+      return '<div class="svc-card" id="svc-card-' + card._id + '">' +
+        '<div class="svc-card-summary" onclick="s2ToggleCard(' + card._id + ')">' +
+        '<div class="svc-summary-left"><div class="svc-summary-dot"></div>' +
+        '<span class="svc-summary-name">' + escHtml(card.name) + '</span>' +
+        '<span class="svc-summary-price">' + escHtml(priceLabel) + '</span></div>' +
+        '<div class="svc-summary-actions">' +
+        '<button class="svc-icon-btn" type="button" onclick="event.stopPropagation();s2ToggleCard(' + card._id + ')">✏️</button>' +
+        '<button class="svc-icon-btn del" type="button" onclick="event.stopPropagation();s2RemoveCard(' + card._id + ')">✕</button>' +
+        '</div></div></div>';
+    }
+
+    function renderExpandedCard(card, priceTypes) {
+      var ptOptions = priceTypes.map(function(pt) {
+        return '<option value="' + pt.value + '"' + (pt.value === card.priceType ? ' selected' : '') + '>' + escHtml(pt.label) + '</option>';
+      }).join('');
+      var featuresHtml = card.features.map(function(f, fi) {
+        return '<div class="feature-tag">' + escHtml(f) + '<button type="button" onclick="s2RemoveFeature(' + card._id + ',' + fi + ')">×</button></div>';
+      }).join('');
+      return '<div class="svc-card" id="svc-card-' + card._id + '">' +
+        '<div class="svc-card-summary" style="cursor:default;justify-content:flex-end;padding:0.55rem 0.9rem 0;">' +
+        (card.name ? '<span style="flex:1;font-size:0.74rem;font-weight:600;color:var(--muted);">' + escHtml(card.name) + '</span>' : '<span style="flex:1;"></span>') +
+        '<button class="svc-icon-btn del" type="button" onclick="s2RemoveCard(' + card._id + ')">✕</button></div>' +
+        '<div class="svc-card-body">' +
+        '<div class="form-group"><label class="form-label">Service Name <span class="req">*</span></label>' +
+        '<input class="form-input" value="' + escHtml(card.name) + '" placeholder="e.g. Wedding Photography Package" oninput="s2UpdateCard(' + card._id + ',\'name\',this.value)"></div>' +
+        '<div class="form-row">' +
+        '<div class="form-group"><label class="form-label">Price Type</label>' +
+        '<select class="form-select" onchange="s2UpdateCard(' + card._id + ',\'priceType\',this.value)">' + ptOptions + '</select></div>' +
+        '<div class="form-group"><label class="form-label">Price ($)</label>' +
+        '<input class="form-input" type="number" min="0" value="' + (card.basePrice || '') + '" placeholder="0" oninput="s2UpdateCard(' + card._id + ',\'basePrice\',parseFloat(this.value)||0)"></div></div>' +
+        '<div class="form-group"><label class="form-label">Description</label>' +
+        '<textarea class="form-textarea" rows="3" placeholder="What\'s included? Be specific — planners use this to decide." oninput="s2UpdateCard(' + card._id + ',\'description\',this.value)">' + escHtml(card.description) + '</textarea></div>' +
+        '<div class="form-group"><label class="form-label">Features / Inclusions</label>' +
+        '<div class="features-input-row">' +
+        '<input class="form-input" id="svc-feat-' + card._id + '" type="text" placeholder="e.g. 8 hours coverage..." onkeydown="if(event.key===\'Enter\'){event.preventDefault();s2AddFeature(' + card._id + ')}">' +
+        '<button class="btn-add-tag" type="button" onclick="s2AddFeature(' + card._id + ')">Add</button></div>' +
+        '<div class="features-tags" id="svc-feat-list-' + card._id + '">' + featuresHtml + '</div></div>' +
+        '<button class="btn-add-service" type="button" onclick="s2SaveCard(' + card._id + ')" style="margin-bottom:0;">Save package</button>' +
+        '</div></div>';
+    }
+
+    window.s2ToggleCard  = function(id) { var c = s2Services.find(function(x){return x._id===id;}); if(c){c.collapsed=!c.collapsed;renderServiceCards();} };
+    window.s2RemoveCard  = function(id) { s2Services = s2Services.filter(function(x){return x._id!==id;}); renderServiceCards(); };
+    window.s2UpdateCard  = function(id,field,value) { var c=s2Services.find(function(x){return x._id===id;}); if(c){c[field]=value;} validateStep2(); };
+    window.s2AddFeature  = function(id) {
+      var input = document.getElementById('svc-feat-' + id);
+      if (!input || !input.value.trim()) return;
+      var c = s2Services.find(function(x){return x._id===id;});
+      if (c) { c.features.push(input.value.trim()); input.value='';
+        var list = document.getElementById('svc-feat-list-' + id);
+        if (list) list.innerHTML = c.features.map(function(f,fi){
+          return '<div class="feature-tag">'+escHtml(f)+'<button type="button" onclick="s2RemoveFeature('+id+','+fi+')">×</button></div>';
+        }).join('');
+      }
+    };
+    window.s2RemoveFeature = function(id,fi) { var c=s2Services.find(function(x){return x._id===id;}); if(c){c.features.splice(fi,1);renderServiceCards();} };
+    window.s2SaveCard = function(id) {
+      var c = s2Services.find(function(x){return x._id===id;});
+      if (!c || !c.name.trim()) { showError('err-2','Give this service a name before saving.'); return; }
+      clearError('err-2'); c.collapsed=true; renderServiceCards();
+    };
+
+    document.getElementById('btnAddServiceCard').addEventListener('click', function() { addServiceCard('','FLAT_RATE'); });
+
+    // ── Menu Cards ──
+    function renderMenuCards() {
+      document.getElementById('menuCardsArea').innerHTML = s2MenuItems.map(function(item) {
+        var dietHtml = DIETARY_OPTS.map(function(d) {
+          var sel = item.dietaryTags.indexOf(d) !== -1 ? ' selected' : '';
+          return '<div class="chip'+sel+'" onclick="s2ToggleMenuDiet('+item._id+',\''+d+'\')" style="font-size:0.65rem;padding:0.25rem 0.6rem;">'+d+'</div>';
+        }).join('');
+        return '<div class="svc-card" id="menu-card-'+item._id+'">' +
+          '<div class="svc-card-summary" style="cursor:default;justify-content:flex-end;padding:0.55rem 0.9rem 0;">' +
+          (item.name ? '<span style="flex:1;font-size:0.74rem;font-weight:600;color:var(--muted);">'+escHtml(item.name)+'</span>' : '<span style="flex:1;"></span>') +
+          '<button class="svc-icon-btn del" type="button" onclick="s2RemoveMenuItem('+item._id+')">✕</button></div>' +
+          '<div class="svc-card-body">' +
+          '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Item Name <span class="req">*</span></label>' +
+          '<input class="form-input" value="'+escHtml(item.name)+'" placeholder="e.g. Arancini" oninput="s2UpdateMenuItem('+item._id+',\'name\',this.value)"></div>' +
+          '<div class="form-group"><label class="form-label">Category</label>' +
+          '<select class="form-select" onchange="s2UpdateMenuItem('+item._id+',\'category\',this.value)">' +
+          ['Starter','Main','Dessert','Drink','Other'].map(function(c){return '<option value="'+c+'"'+(item.category===c?' selected':'')+'>'+c+'</option>';}).join('') +
+          '</select></div></div>' +
+          '<div class="form-row">' +
+          '<div class="form-group"><label class="form-label">Price ($)</label>' +
+          '<input class="form-input" type="number" min="0" step="0.01" value="'+(item.price||'')+'" placeholder="0.00" oninput="s2UpdateMenuItem('+item._id+',\'price\',parseFloat(this.value)||0)"></div>' +
+          '<div class="form-group"><label class="form-label">Description</label>' +
+          '<input class="form-input" value="'+escHtml(item.description)+'" placeholder="Brief description..." oninput="s2UpdateMenuItem('+item._id+',\'description\',this.value)"></div></div>' +
+          '<div class="form-group"><label class="form-label">Dietary Tags</label><div class="chip-group">'+dietHtml+'</div></div>' +
+          '</div></div>';
+      }).join('');
+    }
+
+    window.s2RemoveMenuItem  = function(id) { s2MenuItems=s2MenuItems.filter(function(x){return x._id!==id;}); renderMenuCards(); };
+    window.s2UpdateMenuItem  = function(id,field,value) { var m=s2MenuItems.find(function(x){return x._id===id;}); if(m) m[field]=value; };
+    window.s2ToggleMenuDiet  = function(id,tag) {
+      var m = s2MenuItems.find(function(x){return x._id===id;});
+      if (!m) return;
+      var idx = m.dietaryTags.indexOf(tag);
+      if (idx===-1) m.dietaryTags.push(tag); else m.dietaryTags.splice(idx,1);
+      renderMenuCards();
+    };
+
+    document.getElementById('btnAddMenuCard').addEventListener('click', function() {
+      s2MenuItems.push({ _id:++_cardIdSeq, name:'', category:'Starter', price:0, dietaryTags:[], description:'' });
+      renderMenuCards();
     });
 
-    // ── STEP 2: Publish Profile (services + menu items) ──
+    // ── PDF Import ──
+    var pdfFileInput = document.getElementById('pdfFileInput');
+    var btnPickPdf   = document.getElementById('btnPickPdf');
+    var pdfLoading   = document.getElementById('pdfLoading');
+    var pdfSuccess   = document.getElementById('pdfSuccess');
+    var pdfError     = document.getElementById('pdfError');
+
+    btnPickPdf.addEventListener('click', function() { pdfFileInput.click(); });
+    pdfFileInput.addEventListener('change', function() {
+      if (pdfFileInput.files && pdfFileInput.files[0]) uploadPdf(pdfFileInput.files[0]);
+    });
+
+    function uploadPdf(file) {
+      if (!primaryType) { showError('err-2','Go back to Step 1 and select your vendor type first.'); return; }
+      pdfError.classList.remove('show');
+      btnPickPdf.style.display = 'none';
+      pdfLoading.style.display = ''; pdfSuccess.style.display = 'none';
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('vendorType', primaryType);
+      fetch(API + '/pdf-import', { method:'POST', headers:{'Authorization':'Bearer '+token}, body:formData })
+        .then(function(r){return r.json();})
+        .then(function(data) {
+          pdfLoading.style.display='none'; btnPickPdf.style.display='';
+          if (!data.success) throw new Error(data.error || 'Extraction failed.');
+          var counts = normalizePdfData(data.data);
+          pdfSuccess.style.display='';
+          document.getElementById('pdfSuccessText').textContent = 'Extracted '+counts.services+' packages and '+counts.items+' items — review and edit below';
+        })
+        .catch(function(err) {
+          pdfLoading.style.display='none'; btnPickPdf.style.display='';
+          pdfError.textContent = (err&&err.message)||'Could not read PDF. Try again or add manually.';
+          pdfError.classList.add('show');
+        });
+    }
+
+    function normalizePdfData(d) {
+      var sc=0, ic=0;
+      var pkgs = d.packages||d.services||[];
+      pkgs.forEach(function(p){
+        s2Services.push({_id:++_cardIdSeq,name:p.name||'Package',description:p.description||(p.includes?p.includes.join(', '):''),priceType:p.pricePerPerson?'PER_PERSON':'FLAT_RATE',basePrice:p.flatPrice||p.pricePerPerson||0,features:p.includes||[],collapsed:true}); sc++;
+      });
+      if(d.barPackages) d.barPackages.forEach(function(bp){
+        s2Services.push({_id:++_cardIdSeq,name:bp.name||'Bar Package',description:bp.includes?bp.includes.join(', '):'',priceType:bp.pricePerPerson?'PER_PERSON':'FLAT_RATE',basePrice:bp.flatPrice||bp.pricePerPerson||0,features:bp.includes||[],collapsed:true}); sc++;
+      });
+      if(d.menuSections) d.menuSections.forEach(function(sec){
+        (sec.items||[]).forEach(function(item){
+          s2MenuItems.push({_id:++_cardIdSeq,name:item.name||'Item',category:sec.section||'Starter',price:item.price||0,description:item.description||'',dietaryTags:item.dietaryTags||[]}); ic++;
+        });
+      });
+      if(d.arrangements) d.arrangements.forEach(function(a){
+        s2MenuItems.push({_id:++_cardIdSeq,name:a.name||'Arrangement',category:'Other',price:a.pricePerUnit||a.flatPrice||0,description:a.description||'',dietaryTags:[]}); ic++;
+      });
+      renderServiceCards(); renderMenuCards();
+      return {services:sc, items:ic};
+    }
+
+    // ── STEP 2: Publish ──
     document.getElementById('btn2').addEventListener('click', function() {
       clearError('err-2');
+      if (s2Services.length === 0) { showError('err-2','Add at least one service package before publishing.'); return; }
       var btn = this;
       btn.classList.add('loading');
 
-      var svcPromises = pendingServices.map(function(svc) {
-        return authFetch('/providers/services', { method: 'POST', body: JSON.stringify(svc) })
-          .then(function(data) {
-            if (!data.success && !data.id) {
-              console.warn('[FESTV] Service save failed:', data.error || data.message, svc.name);
-            }
-            return data;
-          })
-          .catch(function(err) {
-            console.error('[FESTV] Service save error:', err, svc.name);
-          });
-      });
+      var specialPatch = collectSpecialFields();
+      var p0 = authFetch('/providers/profile', { method:'PUT', body:JSON.stringify(specialPatch) }).catch(function(){});
 
-      var menuPromises = pendingMenuItems.map(function(item) {
-        return authFetch('/providers/menu-items', { method: 'POST', body: JSON.stringify(item) })
-          .then(function(data) {
-            if (!data.success && !data.id) {
-              console.warn('[FESTV] Menu item save failed:', data.error || data.message, item.name);
-            }
-            return data;
-          })
-          .catch(function(err) {
-            console.error('[FESTV] Menu item save error:', err, item.name);
-          });
-      });
+      // Delete-then-recreate: fetch existing services + menu items, delete all, then POST fresh.
+      // This prevents duplicates when the vendor goes back and re-submits Step 2.
+      var cardsToSave   = s2Services.filter(function(c){return c.name.trim();});
+      var menuToSave    = s2MenuItems.filter(function(m){return m.name.trim();});
 
-      Promise.all(svcPromises.concat(menuPromises))
-        .then(function() {
-          btn.classList.remove('loading');
-          goToStep(3);
-        })
-        .catch(function() {
-          btn.classList.remove('loading');
-          goToStep(3);
+      Promise.all([
+        authFetch('/providers/services').catch(function(){ return { services: [] }; }),
+        authFetch('/providers/menu-items').catch(function(){ return { menuItems: [] }; })
+      ]).then(function(existing) {
+        var existingSvcs  = (existing[0] && existing[0].services)  || [];
+        var existingMenus = (existing[1] && existing[1].menuItems) || [];
+
+        var deletePromises = []
+          .concat(existingSvcs.map(function(s) {
+            return authFetch('/providers/services/' + s.id, { method:'DELETE' }).catch(function(){});
+          }))
+          .concat(existingMenus.map(function(m) {
+            return authFetch('/providers/menu-items/' + m.id, { method:'DELETE' }).catch(function(){});
+          }));
+
+        return Promise.all(deletePromises);
+      }).then(function() {
+        var svcPromises = cardsToSave.map(function(card) {
+          return authFetch('/providers/services', { method:'POST', body:JSON.stringify({
+            name:card.name.trim(), description:card.description.trim()||card.name.trim(),
+            priceType:card.priceType, basePrice:card.basePrice||0, features:card.features,
+            providerType:primaryType||'RESTO_VENUE'
+          })}).catch(function(e){console.warn('[FESTV] svc error',e);});
         });
+
+        var menuPromises = menuToSave.map(function(item) {
+          return authFetch('/providers/menu-items', { method:'POST', body:JSON.stringify({
+            name:item.name.trim(), category:item.category, price:item.price||0,
+            description:item.description||undefined, dietaryInfo:item.dietaryTags
+          })}).catch(function(e){console.warn('[FESTV] menu error',e);});
+        });
+
+        return Promise.all([p0].concat(svcPromises).concat(menuPromises));
+      }).then(function() {
+        btn.classList.remove('loading');
+        goToStep(3);
+      }).catch(function(err) {
+        btn.classList.remove('loading');
+        showError('err-2',(err&&err.message)?err.message:'Something went wrong. Please try again.');
+      });
     });
     document.getElementById('btn2skip').addEventListener('click', function() { goToStep(3); });
 
@@ -1076,193 +2376,223 @@
       window.location.href = 'vendordashboard.html';
     });
 
-    // ── PDF Import ──
-    var pdfFileInput = document.getElementById('pdfFileInput');
-    var btnPickPdf   = document.getElementById('btnPickPdf');
-    var skipPdfLink  = document.getElementById('skipPdfLink');
-    var pdfZone      = document.getElementById('pdfZone');
-    var pdfLoading   = document.getElementById('pdfLoading');
-    var pdfSuccess   = document.getElementById('pdfSuccess');
-    var pdfError     = document.getElementById('pdfError');
+    // ── STEP 3: Review & Submit ──
+    function initStep3() {
+      var loading = document.getElementById('s3-loading');
+      var content = document.getElementById('s3-content');
+      loading.style.display = '';
+      content.style.display = 'none';
+      document.getElementById('s3-confirm').classList.remove('show');
+      clearError('err-3');
 
-    btnPickPdf.addEventListener('click', function() { pdfFileInput.click(); });
-    pdfFileInput.addEventListener('change', function() {
-      if (pdfFileInput.files && pdfFileInput.files[0]) {
-        uploadPdf(pdfFileInput.files[0]);
-      }
-    });
+      Promise.all([
+        authFetch('/providers/profile/me'),
+        authFetch('/providers/services'),
+        authFetch('/providers/menu-items')
+      ]).then(function(results) {
+        var profile   = (results[0] && (results[0].data || results[0].providerProfile || results[0])) || null;
+        var services  = (results[1] && results[1].services) || [];
+        var menuItems = (results[2] && results[2].menuItems) || [];
 
-    // Drag and drop
-    pdfZone.addEventListener('dragover', function(e) { e.preventDefault(); pdfZone.classList.add('drag-over'); });
-    pdfZone.addEventListener('dragleave', function() { pdfZone.classList.remove('drag-over'); });
-    pdfZone.addEventListener('drop', function(e) {
-      e.preventDefault(); pdfZone.classList.remove('drag-over');
-      var file = e.dataTransfer.files[0];
-      if (file && file.type === 'application/pdf') uploadPdf(file);
-      else { pdfError.textContent = 'Please drop a PDF file.'; pdfError.classList.add('show'); }
-    });
+        if (!profile || !profile.id) { goToStep(1); return; }
 
-    skipPdfLink.addEventListener('click', function(e) { e.preventDefault(); hidePdfZone(); });
+        s3RenderBiz(profile);
+        s3RenderType(profile);
+        s3RenderSvc(services);
 
-    function hidePdfZone() {
-      pdfZone.style.display = 'none';
-      document.getElementById('addServiceForm').style.display = '';
-      document.getElementById('addMenuForm').style.display = '';
+        var types = profile.providerTypes || [];
+        if (types.indexOf('RESTO_VENUE') !== -1 || types.indexOf('CATERER') !== -1) {
+          document.getElementById('s3-cardMenu').style.display = '';
+          s3RenderMenu(menuItems);
+        } else {
+          document.getElementById('s3-cardMenu').style.display = 'none';
+        }
+
+        loading.style.display = 'none';
+        content.style.display = '';
+      }).catch(function() {
+        loading.style.display = 'none';
+        content.style.display = '';
+        showError('err-3', 'Could not load your profile summary. Please try again.');
+      });
     }
 
-    function uploadPdf(file) {
-      if (!selectedTypes.length) {
-        pdfError.textContent = 'Please go back to Step 1 and select your vendor type first.';
-        pdfError.classList.add('show');
+    function s3Row(label, valueHtml) {
+      if (valueHtml === null || valueHtml === undefined || valueHtml === '') return '';
+      return '<div class="review-row">' +
+        '<div class="review-row-label">' + escHtml(label) + '</div>' +
+        '<div class="review-row-value">' + valueHtml + '</div></div>';
+    }
+
+    function s3Chips(arr, muted) {
+      if (!arr || !arr.length) return '';
+      return '<div class="review-chips">' +
+        arr.map(function(v) {
+          return '<span class="review-chip' + (muted ? ' muted' : '') + '">' + escHtml(v) + '</span>';
+        }).join('') + '</div>';
+    }
+
+    function s3TypeLabel(t) {
+      var map = { RESTO_VENUE: 'Restaurant / Venue', CATERER: 'Caterer',
+                  ENTERTAINMENT: 'Entertainment', PHOTO_VIDEO: 'Photo & Video', FLORIST_DECOR: 'Florist & Decor' };
+      return map[t] || t;
+    }
+
+    function s3RenderBiz(p) {
+      var u = p.user || {};
+      var html = '';
+      html += '<div class="review-row"><div class="review-row-value biz-name">' + escHtml(p.businessName || '—') + '</div></div>';
+      if (p.tagline)           html += s3Row('Tagline',     escHtml(p.tagline));
+      if (u.phoneNumber)       html += s3Row('Phone',       escHtml(u.phoneNumber));
+      if (u.email)             html += s3Row('Email',       escHtml(u.email));
+      if (p.websiteUrl)        html += s3Row('Website',     escHtml(p.websiteUrl));
+      if (p.instagramHandle)   html += s3Row('Instagram',   '@' + escHtml(p.instagramHandle));
+      if (p.yearsInBusiness != null) html += s3Row('Experience', p.yearsInBusiness + ' yr' + (p.yearsInBusiness !== 1 ? 's' : ''));
+      var addrParts = [u.address, [u.city, u.state, u.country].filter(Boolean).join(', ')].filter(Boolean);
+      if (addrParts.length)    html += s3Row('Location',    escHtml(addrParts.join(', ')));
+      if (p.serviceRadius) {
+        var travel = p.travelOutsideRegion ? ' · will travel outside region' : '';
+        html += s3Row('Service Area', p.serviceRadius + ' km radius' + travel);
+      }
+      if (p.businessDescription) html += s3Row('About',    escHtml(p.businessDescription));
+      if (p.languages && p.languages.length) html += s3Row('Languages', s3Chips(p.languages));
+      if (p.minimumBudget || p.maximumBudget) {
+        var bMin = p.minimumBudget ? '$' + Number(p.minimumBudget).toLocaleString() : '';
+        var bMax = p.maximumBudget ? '$' + Number(p.maximumBudget).toLocaleString() : '';
+        html += s3Row('Budget Range', escHtml(bMin && bMax ? bMin + ' – ' + bMax : bMin || bMax));
+      }
+      document.getElementById('s3-bizBody').innerHTML = html;
+    }
+
+    function s3RenderType(p) {
+      var html = '';
+      var primary = p.primaryType || (p.providerTypes && p.providerTypes[0]);
+      if (primary) html += s3Row('Primary Type', '<span class="review-chip">' + escHtml(s3TypeLabel(primary)) + '</span>');
+      var secondaries = (p.providerTypes || []).filter(function(t) { return t !== primary; });
+      if (secondaries.length) html += s3Row('Also Offers', s3Chips(secondaries.map(s3TypeLabel), true));
+
+      var types = p.providerTypes || [];
+      if (types.indexOf('RESTO_VENUE') !== -1) {
+        if (p.seatedCapacity)   html += s3Row('Seated Cap.',  p.seatedCapacity + ' guests');
+        if (p.standingCapacity) html += s3Row('Standing Cap.',p.standingCapacity + ' guests');
+        if (p.venueCuisine)     html += s3Row('Cuisine',      escHtml(p.venueCuisine));
+        if (p.venueIndoorOutdoor) html += s3Row('Setting', escHtml(p.venueIndoorOutdoor.charAt(0) + p.venueIndoorOutdoor.slice(1).toLowerCase()));
+        if (p.dietaryOptions && p.dietaryOptions.length) html += s3Row('Dietary', s3Chips(p.dietaryOptions, true));
+        if (p.avTechAvailable)  html += s3Row('AV Tech',      'Available');
+      }
+      if (types.indexOf('CATERER') !== -1) {
+        if (p.equipmentRentalAvailable) html += s3Row('Equipment Rental', 'Available');
+        if (p.caterSetupIncluded)       html += s3Row('Setup',            'Included');
+      }
+      if (types.indexOf('ENTERTAINMENT') !== -1) {
+        if (p.genreTags && p.genreTags.length)   html += s3Row('Genres',       s3Chips(p.genreTags, true));
+        if (p.setupTimeMinutes)                  html += s3Row('Setup Time',   p.setupTimeMinutes + ' min');
+        if (p.equipmentIncluded)                 html += s3Row('Equipment',    'Included');
+        if (p.overtimeRatePerHour)               html += s3Row('Overtime Rate','$' + p.overtimeRatePerHour + '/hr');
+      }
+      if (types.indexOf('PHOTO_VIDEO') !== -1) {
+        if (p.styleTags && p.styleTags.length)   html += s3Row('Style',        s3Chips(p.styleTags, true));
+        if (p.deliveryTimelineDays)              html += s3Row('Delivery',     p.deliveryTimelineDays + ' days');
+        if (p.editedPhotosCount)                 html += s3Row('Edited Photos',p.editedPhotosCount);
+        if (p.travelFeePolicy)                   html += s3Row('Travel Fee',   escHtml(p.travelFeePolicy.replace(/_/g,' ').toLowerCase()));
+        if (p.rawFilesIncluded)                  html += s3Row('Raw Files',    'Included');
+      }
+      if (types.indexOf('FLORIST_DECOR') !== -1) {
+        if (p.floristStyleTags && p.floristStyleTags.length) html += s3Row('Style', s3Chips(p.floristStyleTags, true));
+        if (p.seasonalCustomFloral) html += s3Row('Seasonal / Custom', 'Yes');
+        if (p.floristSetupIncluded) html += s3Row('Setup',             'Included');
+        if (p.rentalItemsAvailable) html += s3Row('Rental Items',      'Available');
+      }
+
+      document.getElementById('s3-typeBody').innerHTML = html || '<div class="review-empty">No type details added.</div>';
+    }
+
+    function s3RenderSvc(services) {
+      if (!services.length) {
+        document.getElementById('s3-svcBody').innerHTML = '<div class="review-empty">No services added yet.</div>';
         return;
       }
-      pdfError.classList.remove('show');
-      // Show loading
-      btnPickPdf.style.display = 'none';
-      document.querySelector('.pdf-zone-skip').style.display = 'none';
-      pdfLoading.style.display = '';
-      pdfSuccess.style.display = 'none';
-
-      var formData = new FormData();
-      formData.append('file', file);
-      formData.append('vendorType', selectedTypes[0]);
-
-      fetch(API + '/pdf-import', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token },
-        body: formData
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        pdfLoading.style.display = 'none';
-        if (!data.success) {
-          throw new Error(data.error || 'Extraction failed.');
-        }
-        var counts = normalizePdfData(data.data, data.vendorType);
-        pdfSuccess.style.display = '';
-        document.getElementById('pdfSuccessText').textContent =
-          'Extracted ' + counts.services + ' packages and ' + counts.items + ' items — review and edit below';
-        hidePdfZone();
-      })
-      .catch(function(err) {
-        pdfLoading.style.display = 'none';
-        btnPickPdf.style.display = '';
-        document.querySelector('.pdf-zone-skip').style.display = '';
-        pdfError.textContent = err.message || 'Could not read PDF. Try again or add manually.';
-        pdfError.classList.add('show');
-      });
+      var html = services.map(function(s) {
+        var price = s.priceType === 'PER_PERSON' ? '$' + s.basePrice + '/person'
+                  : s.priceType === 'PER_HOUR'   ? '$' + s.basePrice + '/hr'
+                  : s.priceType === 'CUSTOM'      ? 'Custom Quote'
+                  : '$' + Number(s.basePrice || 0).toLocaleString();
+        var feats = (s.features || []).map(function(f) {
+          return '<span class="review-svc-feat">' + escHtml(f) + '</span>';
+        }).join('');
+        return '<div class="review-svc-row">' +
+          '<div class="review-svc-header">' +
+            '<div class="review-svc-name">' + escHtml(s.name) + '</div>' +
+            '<div class="review-svc-price">' + escHtml(price) + '</div>' +
+          '</div>' +
+          (s.description ? '<div class="review-svc-desc">' + escHtml(s.description) + '</div>' : '') +
+          (feats ? '<div class="review-svc-features">' + feats + '</div>' : '') +
+          '</div>';
+      }).join('');
+      document.getElementById('s3-svcBody').innerHTML = html;
     }
 
-    // Normalize extracted JSON into pendingServices and pendingMenuItems
-    function normalizePdfData(d, vType) {
-      var svcCount = 0, itemCount = 0;
-
-      // Services / packages
-      var pkgs = d.packages || d.services || [];
-      pkgs.forEach(function(pkg) {
-        pendingServices.push({
-          name:        pkg.name || 'Package',
-          description: pkg.description || (pkg.includes ? pkg.includes.join(', ') : ''),
-          priceType:   pkg.pricePerPerson ? 'PER_PERSON' : 'FLAT_RATE',
-          basePrice:   pkg.flatPrice || pkg.pricePerPerson || 0,
-          features:    pkg.includes || [],
-          providerType: selectedTypes[0] || 'RESTO_VENUE',
-        });
-        svcCount++;
-      });
-
-      // Menu items (caterer / resto)
-      if (d.menuSections) {
-        d.menuSections.forEach(function(section) {
-          (section.items || []).forEach(function(item) {
-            pendingMenuItems.push({
-              name:        item.name || 'Item',
-              category:    section.section || 'Menu',
-              price:       item.price || item.pricePerPerson || 0,
-              description: item.description || '',
-              dietaryInfo: item.dietaryTags || [],
-            });
-            itemCount++;
-          });
-        });
+    function s3RenderMenu(items) {
+      if (!items.length) {
+        document.getElementById('s3-menuBody').innerHTML = '<div class="review-empty">No menu items added.</div>';
+        return;
       }
-
-      // Bar packages → services
-      if (d.barPackages) {
-        d.barPackages.forEach(function(bp) {
-          pendingServices.push({
-            name:        bp.name || 'Bar Package',
-            description: bp.includes ? bp.includes.join(', ') : '',
-            priceType:   bp.pricePerPerson ? 'PER_PERSON' : 'FLAT_RATE',
-            basePrice:   bp.flatPrice || bp.pricePerPerson || 0,
-            features:    bp.includes || [],
-            providerType: selectedTypes[0] || 'RESTO_VENUE',
-          });
-          svcCount++;
-        });
-      }
-
-      // Arrangements (florist) → menu items
-      if (d.arrangements) {
-        d.arrangements.forEach(function(a) {
-          pendingMenuItems.push({
-            name:        a.name || 'Arrangement',
-            category:    'Arrangements',
-            price:       a.pricePerUnit || a.flatPrice || 0,
-            description: a.description || '',
-            dietaryInfo: [],
-          });
-          itemCount++;
-        });
-      }
-
-      // Add-ons → menu items
-      if (d.addOns) {
-        d.addOns.forEach(function(ao) {
-          pendingMenuItems.push({
-            name:        ao.name || 'Add-on',
-            category:    'Add-ons',
-            price:       ao.price || 0,
-            description: ao.unit ? 'Per ' + ao.unit : '',
-            dietaryInfo: [],
-          });
-          itemCount++;
-        });
-      }
-
-      // Equipment (entertainment)
-      if (d.equipmentIncluded && d.equipmentIncluded.length) {
-        d.equipmentIncluded.forEach(function(eq) {
-          pendingMenuItems.push({
-            name:        eq,
-            category:    'Equipment',
-            price:       0,
-            description: '',
-            dietaryInfo: [],
-          });
-          itemCount++;
-        });
-      }
-
-      renderServicesList();
-      renderMenuList();
-      return { services: svcCount, items: itemCount };
+      var html = items.map(function(m) {
+        var diet = (m.dietaryInfo || []).map(function(d) {
+          return '<span class="review-chip muted" style="font-size:0.6rem;padding:0.15rem 0.45rem;">' + escHtml(d) + '</span>';
+        }).join('');
+        return '<div class="review-menu-row">' +
+          '<div class="review-menu-header">' +
+            '<div class="review-menu-name">' + escHtml(m.name) + '</div>' +
+            (m.price ? '<div class="review-menu-price">$' + parseFloat(m.price).toFixed(2) + '</div>' : '') +
+          '</div>' +
+          (m.category ? '<div class="review-menu-cat">' + escHtml(m.category) + '</div>' : '') +
+          (diet ? '<div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin-top:0.25rem;">' + diet + '</div>' : '') +
+          (m.description ? '<div class="review-svc-desc" style="margin-top:0.2rem;">' + escHtml(m.description) + '</div>' : '') +
+          '</div>';
+      }).join('');
+      document.getElementById('s3-menuBody').innerHTML = html;
     }
 
-    // ── Global helpers (called from inline onclick) ──
-    window.removeSvc = function (i) {
-      pendingServices.splice(i, 1);
-      renderServicesList();
-    };
-    window.removeFeatureTag = function (i) { removeFeature(i); };
-    window.removeMenuItem = function (i) {
-      pendingMenuItems.splice(i, 1);
-      renderMenuList();
+    document.getElementById('btn3').addEventListener('click', function() {
+      clearError('err-3');
+      var btn = this;
+      btn.classList.add('loading');
+      // All data already saved in Steps 1 & 2 — just confirm
+      setTimeout(function() {
+        btn.classList.remove('loading');
+        document.getElementById('s3-content').style.display = 'none';
+        document.getElementById('s3-confirm').classList.add('show');
+        // Lock back navigation so vendor can't re-submit
+        history.pushState(null, '', window.location.href);
+        window.onpopstate = function() { history.pushState(null, '', window.location.href); };
+      }, 500);
+    });
+
+    // ── Step 3: Verification document upload handler ──
+    window.s3HandleDoc = function(input, zoneId, nameId) {
+      var zone = document.getElementById(zoneId);
+      var nameEl = document.getElementById(nameId);
+      if (!input.files || !input.files[0]) return;
+      var file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) {
+        input.value = '';
+        showError('err-3', 'File "' + file.name + '" exceeds 10 MB. Please choose a smaller file.');
+        return;
+      }
+      zone.classList.add('has-file');
+      nameEl.textContent = '✓ ' + file.name;
+      clearError('err-3');
     };
 
-    function escHtml(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+    // ── goToStep hook: init step 2 and 3 when entering them ──
+    var _origGoToStep = goToStep;
+    goToStep = function(n) { _origGoToStep(n); if (n === 2) initStep2(); if (n === 3) initStep3(); };
+
+    // ── Dev shortcut: ?step=2 or ?step=3 jumps directly to that step ──
+    var _devHost = ['localhost', '127.0.0.1', 'festv-dev-test.onrender.com'].indexOf(window.location.hostname) !== -1;
+    var _stepParam = parseInt(new URLSearchParams(window.location.search).get('step'), 10);
+    if (_devHost && (_stepParam === 2 || _stepParam === 3)) { goToStep(_stepParam); }
 
   })();
   </script>

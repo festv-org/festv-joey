@@ -21,13 +21,14 @@ async function runStartupMigrations() {
     // ALTER TYPE … ADD VALUE can't run inside a transaction, so we check first
     const existing = await prisma.$queryRaw<{ exists: boolean }[]>`
       SELECT EXISTS (
-        SELECT 1 FROM pg_enum
-        WHERE enumtypid = 'NotificationType'::regtype
-          AND enumlabel = 'NEW_REQUEST'
+        SELECT 1 FROM pg_enum e
+        JOIN pg_type t ON t.oid = e.enumtypid
+        WHERE t.typname = 'NotificationType'
+          AND e.enumlabel = 'NEW_REQUEST'
       ) AS exists
     `;
     if (!existing[0]?.exists) {
-      await prisma.$executeRawUnsafe(`ALTER TYPE "NotificationType" ADD VALUE 'NEW_REQUEST'`);
+      await prisma.$executeRawUnsafe(`ALTER TYPE "NotificationType" ADD VALUE IF NOT EXISTS 'NEW_REQUEST'`);
     }
     console.log('✅ Startup migrations OK');
   } catch (err) {

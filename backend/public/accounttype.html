@@ -289,75 +289,15 @@
     }
     .eye-btn:hover { color: var(--charcoal); }
 
-    /* ── PROOF OF OWNERSHIP (conditional) ── */
-    .proof-group {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, margin-top 0.3s;
-      margin-top: 0;
-    }
-    .proof-group.open {
-      max-height: 300px;
-      opacity: 1;
-      margin-top: 1rem;
-    }
-    .upload-zone {
-      border: 2px dashed rgba(196,160,106,0.45);
-      border-radius: 10px;
-      padding: 1.5rem 1.25rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      background: rgba(196,160,106,0.03);
-      position: relative;
-    }
-    .upload-zone:hover { border-color: var(--gold); background: rgba(196,160,106,0.07); }
-    .upload-zone.has-file { border-color: var(--green); background: rgba(58,138,85,0.04); }
-    .upload-zone input[type="file"] {
-      position: absolute; inset: 0;
-      opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .upload-icon { font-size: 1.6rem; margin-bottom: 0.45rem; display: block; pointer-events: none; }
-    .upload-title { font-size: 0.76rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.25rem; pointer-events: none; }
-    .upload-sub  { font-size: 0.67rem; color: var(--muted); line-height: 1.5; pointer-events: none; }
-    .upload-filename { display: none; font-size: 0.72rem; font-weight: 600; color: var(--green); margin-top: 0.35rem; pointer-events: none; }
-    .upload-zone.has-file .upload-filename  { display: block; }
-    .upload-zone.has-file .upload-default   { display: none; }
     .field-hint { font-size: 0.67rem; color: var(--muted); line-height: 1.5; margin-top: 0.2rem; }
 
     /* ── REVIEW NOTE ── */
-    .review-note {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
-      background: rgba(196,160,106,0.07);
-      border: 1px solid rgba(196,160,106,0.25);
-      border-radius: 10px;
-      padding: 1rem 1.1rem;
-      margin-top: 1.5rem;
-    }
-    .review-note-icon {
-      font-size: 1rem;
-      flex-shrink: 0;
-      margin-top: 0.05rem;
-    }
-    .review-note-text {
-      font-size: 0.72rem;
-      color: var(--charcoal);
-      line-height: 1.6;
-    }
-    .review-note-text strong {
-      font-weight: 600;
-      color: var(--dark);
-    }
-
     /* ── SUBMIT BUTTON ── */
     .btn-submit {
       width: 100%;
       padding: 1rem 2rem;
-      background: var(--dark);
-      color: var(--white);
+      background: var(--gold);
+      color: var(--dark);
       border: none;
       border-radius: 10px;
       font-family: 'Montserrat', sans-serif;
@@ -373,7 +313,7 @@
       gap: 0.55rem;
       margin-top: 1.5rem;
     }
-    .btn-submit:hover { background: var(--charcoal); transform: translateY(-1px); }
+    .btn-submit:hover { background: var(--gold-dark); transform: translateY(-1px); }
     .btn-submit:active { transform: translateY(0); }
     .btn-submit svg { transition: transform 0.2s; }
     .btn-submit:hover svg { transform: translateX(3px); }
@@ -635,7 +575,7 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">City <span class="req">*</span></label>
+            <label class="form-label">City</label>
             <input class="form-input" id="vendorCity" type="text" placeholder="Toronto" autocomplete="address-level2">
           </div>
 
@@ -661,33 +601,9 @@
             </div>
           </div>
 
-          <!-- Proof of ownership (restaurant / venue / caterer only) -->
-          <div class="proof-group" id="proofGroup">
-            <div class="form-group" style="margin-bottom:0;">
-              <label class="form-label">Proof of Ownership <span class="req">*</span></label>
-              <div class="upload-zone" id="uploadZone">
-                <input type="file" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileUpload(this)">
-                <div class="upload-default">
-                  <span class="upload-icon">📄</span>
-                  <div class="upload-title">Upload a business document</div>
-                  <p class="upload-sub">Business license, lease agreement, or certificate of ownership<br>PDF, JPG or PNG · Max 10 MB</p>
-                </div>
-                <div class="upload-filename" id="uploadFilename"></div>
-              </div>
-              <span class="field-hint">Required for venues, restaurants, and caterers to verify ownership.</span>
-            </div>
-          </div>
-
-          <!-- Review note -->
-          <div class="review-note">
-            <span class="review-note-icon">🕐</span>
-            <p class="review-note-text">
-              <strong>Your account will be reviewed by the FESTV team</strong> before you can access your vendor profile. We'll verify your details and notify you by email once approved — usually within 1–2 business days.
-            </p>
-          </div>
 
           <button class="btn-submit" id="btnVendor">
-            Submit for Review
+            Create Account
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14">
               <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -759,7 +675,18 @@
         fetch('/api/v1/verification/send-email-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
-        }).catch(function() {});
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.success) {
+            verifyError.textContent = data.message || 'Failed to send verification email. Use "Resend code" to try again.';
+            verifyError.style.display = 'block';
+          }
+        })
+        .catch(function() {
+          verifyError.textContent = 'Failed to send verification email. Please tap "Resend code" to try again.';
+          verifyError.style.display = 'block';
+        });
       }
 
       document.getElementById('btnVerifyCode').addEventListener('click', function() {
@@ -805,8 +732,21 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + _verifyToken }
         })
         .then(function(r) { return r.json(); })
-        .then(function() { btn.textContent = 'Code sent!'; setTimeout(function() { btn.textContent = 'Resend code'; }, 3000); })
-        .catch(function() { btn.textContent = 'Resend code'; });
+        .then(function(data) {
+          if (data.success) {
+            btn.textContent = 'Code sent!';
+            setTimeout(function() { btn.textContent = 'Resend code'; }, 3000);
+          } else {
+            btn.textContent = 'Resend code';
+            verifyError.textContent = data.error || data.message || 'Failed to resend code. Please try again.';
+            verifyError.style.display = 'block';
+          }
+        })
+        .catch(function() {
+          btn.textContent = 'Resend code';
+          verifyError.textContent = 'Failed to resend code. Please try again.';
+          verifyError.style.display = 'block';
+        });
       });
       var successTitle       = document.getElementById('successTitle');
       var successSub         = document.getElementById('successSub');
@@ -851,9 +791,6 @@
         document.getElementById('vcard-' + vendor).classList.add('selected');
         vendorFormLabel.textContent = vendorLabels[vendor] + ' Details';
 
-        // Show proof of ownership only for restaurant/venue and caterer
-        var needsProof = vendor === 'RESTO_VENUE' || vendor === 'CATERER';
-        document.getElementById('proofGroup').classList.toggle('open', needsProof);
 
         vendorFormSection.classList.add('open');
         scrollTo(vendorFormSection);
@@ -899,6 +836,11 @@
           errEl.style.display = 'block';
           return;
         }
+        if (!/[a-z]/.test(pw)) {
+          errEl.textContent = 'Password must contain at least one lowercase letter (e.g. Festv2026).';
+          errEl.style.display = 'block';
+          return;
+        }
         if (!/[0-9]/.test(pw)) {
           errEl.textContent = 'Password must contain at least one number (e.g. Festv2026).';
           errEl.style.display = 'block';
@@ -933,7 +875,8 @@
             successSub.textContent   = 'Your planner account has been created. Start building your perfect event.';
             showVerifyOverlay(email, payload.accessToken, 'plannerdashboard.html');
           } else {
-            errEl.textContent = data.message || data.error || 'Registration failed. Please try again.';
+            var detail = (data.details && data.details[0] && data.details[0].message) ? data.details[0].message : null;
+            errEl.textContent = detail || data.message || data.error || 'Registration failed. Please try again.';
             errEl.style.display = 'block';
           }
         })
@@ -947,6 +890,7 @@
 
       // Submit: vendor
       document.getElementById('btnVendor').addEventListener('click', function () {
+        var businessName = document.getElementById('vendorBusiness').value.trim();
         var contactName = document.getElementById('vendorContact').value.trim();
         var email       = document.getElementById('vendorEmail').value.trim().toLowerCase();
         var phone       = document.getElementById('vendorPhone').value.trim();
@@ -956,6 +900,12 @@
         var label       = vendorLabels[selectedVendor] || 'Vendor';
 
         errEl.style.display = 'none';
+
+        if (!selectedVendor) {
+          errEl.textContent = 'Please select your vendor type before continuing.';
+          errEl.style.display = 'block';
+          return;
+        }
 
         if (!contactName || !email || !pw || !pwConf) {
           errEl.textContent = 'Please fill in all required fields.';
@@ -974,6 +924,11 @@
         }
         if (!/[A-Z]/.test(pw)) {
           errEl.textContent = 'Password must contain at least one uppercase letter (e.g. Festv2026).';
+          errEl.style.display = 'block';
+          return;
+        }
+        if (!/[a-z]/.test(pw)) {
+          errEl.textContent = 'Password must contain at least one lowercase letter (e.g. Festv2026).';
           errEl.style.display = 'block';
           return;
         }
@@ -1007,11 +962,19 @@
               localStorage.setItem('refreshToken', payload.refreshToken);
               localStorage.setItem('user', JSON.stringify(payload.user));
             }
+            // Save one-time prefill so vendorsetup.html Step 1 can skip re-entering this info
+            localStorage.setItem('vendorSetupPrefill', JSON.stringify({
+              businessName: businessName,
+              phone:        phone,
+              city:         document.getElementById('vendorCity').value.trim(),
+              vendorType:   selectedVendor
+            }));
             successTitle.textContent = 'Application Submitted';
             successSub.textContent   = 'Thanks for signing up as a ' + label + '. Our team will review your details and reach out within 1–2 business days.';
             showVerifyOverlay(email, payload.accessToken, 'vendorsetup.html');
           } else {
-            errEl.textContent = data.message || data.error || 'Registration failed. Please try again.';
+            var detail = (data.details && data.details[0] && data.details[0].message) ? data.details[0].message : null;
+            errEl.textContent = detail || data.message || data.error || 'Registration failed. Please try again.';
             errEl.style.display = 'block';
           }
         })
@@ -1024,15 +987,6 @@
       });
     });
 
-    // File upload handler
-    function handleFileUpload(input) {
-      var zone     = document.getElementById('uploadZone');
-      var filename = document.getElementById('uploadFilename');
-      if (input.files && input.files[0]) {
-        zone.classList.add('has-file');
-        filename.textContent = '✓ ' + input.files[0].name;
-      }
-    }
 
     // Password visibility toggle
     function togglePw(id, btn) {

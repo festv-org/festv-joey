@@ -120,9 +120,6 @@ export const getMyProfiles = asyncHandler(async (req: AuthenticatedRequest, res:
           { displayOrder: 'asc' },
         ],
       },
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         orderBy: { displayOrder: 'asc' },
         take: 10,
@@ -159,24 +156,25 @@ export const getMyProfile = asyncHandler(async (req: AuthenticatedRequest, res: 
           phoneNumber: true,
           city: true,
           state: true,
+          country: true,
           address: true,
         },
       },
       services: true,
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         orderBy: { displayOrder: 'asc' },
         take: 10,
       },
     },
   });
-  
+
+  // A new vendor with no profile yet is a valid state — return null so the
+  // frontend renders an empty setup form rather than treating this as an error.
   if (!profile) {
-    throw new NotFoundError('Provider profile');
+    res.json({ success: true, data: null });
+    return;
   }
-  
+
   res.json({
     success: true,
     data: profile,
@@ -255,9 +253,6 @@ export const getProviderById = asyncHandler(async (req: AuthenticatedRequest, re
           { displayOrder: 'asc' },
         ],
       },
-      cuisineTypes: true,
-      eventThemes: true,
-      equipmentOfferings: true,
       portfolioItems: {
         where: { isPublic: true },
         orderBy: [
