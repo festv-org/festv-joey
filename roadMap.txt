@@ -13,12 +13,14 @@ Build Vendors, get to the point where we can book an event completely via etrans
 		-[x] seedTestAccounts.ts rewritten: profile + services + portfolio + menu items + pricing levels + cuisine/theme links per provider type. Idempotent at profile level (skips if (userId, primaryType) row already exists — no duplicates, preserves manual edits)
 		-[x] photographer (PHOTO_VIDEO solo, hourly), caterer (CATERER company, per-person + 3 pricing tiers + 5 menu items + cuisines/themes), bartender (CATERER solo, hybrid + 4 cocktails), DJ (ENTERTAINMENT solo, hourly) all defined
 		-[x] picsum.photos with stable seeds for banners, logos, portfolio (deterministic — same image every run)
-		-[ ] deploy + verify vendor dashboard loads cleanly for all 4 provider test accounts (no 404s on profile/me, bookings/provider, event-requests/available/for-providers)
+		-[ ] deploy + verify vendor dashboard loads cleanly for all 4 provider test accounts (no 404s on profile/me, bookings/provider, event-requests/available/for-providers) — caterease-db needs ENABLE_TEST_ACCOUNTS=true + seed run
 		-[ ] note: RESTO_VENUE and FLORIST_DECOR enums not yet covered — add 6th + 7th test account if useful
+	-[ ] clean up ghost migration row in caterease-db: DELETE FROM _prisma_migrations WHERE migration_name = '20260423_consolidate_provider_types' AND applied_steps_count = 0; (cosmetic only, not blocking)
 
  bigger:
 	-[ ] 0auth google/fb sign-in options
 	-[x] pdf reader (Jess AI PDF import — live in vendor setup)
+	-[ ] admin dashboard vendor approval flow — flip verificationStatus to VERIFIED (highest priority before launch)
 	-[ ] stripe integration, e-transfer auto request for security?
 	-[ ] step by step analyzing backend (Flow diagrams and TablePlus)
 	-[ ] wire vendor portfolio uploads to Cloudinary
@@ -27,6 +29,7 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[ ] build menu item isAvailable toggle in vendor dashboard
 	-[ ] make menu items selectable in planner request flow
 	-[ ] mobile responsiveness pass on all pages
+	-[ ] flip vendor search to VERIFIED only before launch (currently returns ALL providers)
 
 
 ## Completed
@@ -69,6 +72,11 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[x] database.html ported from caterease/EventDashboard.tsx — Schema tab (interactive ERD with 24 nodes + clickable relationship highlighting) + Event Feed tab (filter by model, live refresh every 15s, stats cards)
 	-[ ] full database.html port — still missing: Provider graph tab (bubble graph by capacity), Client flow graph tab, Settings tab (watched models toggle, env vars table). Schema + Event Feed are the most-used parts; rest can be added on demand
 	-[ ] full planner.html port — still missing: Growth Strategy tab (profit-first vs growth-first vs hybrid), Cost Model tab (stacked bar + tier cards), Architecture tab, Roadmap timeline tab. Monte Carlo is the core tool; other tabs are reference material
+	-[x] Vendor setup Step 2 (publish) — 400 error on POST /api/v1/providers/profile/me fixed: ProviderProfile schema migration (tagline, websiteUrl, instagramHandle, yearsInBusiness, languages, travelOutsideRegion, serviceRadius, minimumBudget, maximumBudget) applied to caterease-db via 20260428_apply_profile_columns; confirmed live on festv.org
+	-[x] runStartupMigrations safe enum check — replaced unsafe ::regtype cast with pg_type JOIN; added IF NOT EXISTS to ALTER TYPE
+	-[x] 20260423_z_ensure_notification_type migration — ensures NotificationType enum exists before 20260424 ALTER TYPE runs; fixes "type notificationtype does not exist" error on fresh DBs
+	-[x] /audit slash command — production health check: DB columns, stuck migrations, NotificationType enum, 4 API endpoints, migration drift, env var presence (Claude Code CLI only)
+	-[x] /start, /end-session, /debug slash commands — session workflow commands (Claude Code CLI only)
 	-[x] Test-account picker on signin.html — 5 dev accounts (🎉 planner, 📷 photographer, 🍽️ caterer, 🍸 bartender, 🎧 DJ), shared password Test1234!, autofills email + password on click
 	-[x] Backend seeder seedTestAccounts.ts — idempotent, refreshes password + ACTIVE status on every run
 	-[x] POST /api/v1/auth/seed-test-accounts endpoint — gated by ENABLE_TEST_ACCOUNTS=true; returns 404 in prod

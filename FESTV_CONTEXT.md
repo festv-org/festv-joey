@@ -353,7 +353,7 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 - **`database.html`** — Schema ERD (24 nodes, click to highlight relationships) + live Event Feed tab (filter by model, 15s auto-refresh).
 
 ### 🟡 Placeholder / Partial
-- **Vendor setup Step 2** — built but pending migration fix on Render dev (400 error due to new ProviderProfile columns not yet applied to DB)
+- **Vendor setup Step 2** — built and 400 error fixed (all ProviderProfile columns now in production DB, confirmed live on festv.org). Functional but untested end-to-end with a real vendor account.
 - **Admin dashboard** — `admindashboard.html` exists but vendor approval flow not yet wired. Admin cannot yet flip `verificationStatus` to `VERIFIED`. This is the next critical thing to build.
 - **Messages** — card UI exists on both dashboards, not wired to real conversations
 - **Analytics** — card placeholder on vendor dashboard, no real data
@@ -395,12 +395,14 @@ Backend (`/backend/.env` or Render dashboard):
 
 1. **Two frontends exist** — only `/backend/public/*.html` is the real UI. The `/frontend/` React app is legacy/unused.
 2. **README says "CaterEase"** — the project was renamed to FESTV. Ignore the README.
+3. **Two databases on Render** — `festv_db` (`dpg-d7lro0u47okc73cd0h6g-a`) is an orphaned DB no longer connected to any service. The live service uses `caterease-db` (`dpg-d7ij6d0sfn5c73e9n790-a`). Always connect to `caterease-db` for production queries.
 3. **Safari caching** — all HTML pages need a `pageshow` bfcache listener in `<head>` and `Cache-Control: no-store` headers (already set in `index.ts`).
 4. **UTC date bug** — always parse event dates as local midnight: `new Date(dateStr.split('T')[0] + 'T00:00:00')` not `new Date(dateStr)`.
 5. **ProviderType enums** — only these 5 are valid everywhere: `RESTO_VENUE`, `CATERER`, `ENTERTAINMENT`, `PHOTO_VIDEO`, `FLORIST_DECOR`. Never use old names.
 6. **`requireProvider` middleware** — checks role is `PROVIDER` or `ADMIN`. New vendor accounts need a provider profile created via `POST /providers/profile` before services can be saved.
 7. **Git workflow** — always commit to `dev`, then merge to `main`, push both. Both branches should stay in sync.
-8. **Render auto-deploys** from `main` branch.
+8. **Render auto-deploys from `main` branch** — pushing to `dev` alone does NOT trigger a deploy. Always merge dev → main and push main before expecting Render to pick up changes.
+9. **Custom slash commands need the Claude Code CLI** — `/start`, `/end-session`, `/debug`, `/audit` only work when running `claude` in the terminal (not in the Claude Code desktop/web app). Install with `npm install -g @anthropic-ai/claude-code`.
 9. **DEV pages auth-gating** — `planner.html` and `database.html` both call `GET /api/v1/auth/dev-access` on load. If `canAccessDev: false`, they show a "Dev access required" panel.
 10. **Test-account seeder is idempotent at two levels** — the `User` row is refreshed on every seed run (password + status), but the `ProviderProfile` and all its children are created ONCE and skipped on subsequent runs. Delete the `ProviderProfile` row and re-run seeder to fully reset a test profile.
 11. **Two roadmap files** — `roadMap.txt` is the northstar. `FESTV_CONTEXT.md` is the structural quick-start. Update BOTH after every meaningful change.
