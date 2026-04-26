@@ -743,7 +743,7 @@
 
   <!-- Top progress bar -->
   <div class="progress-bar-wrap">
-    <div class="progress-bar" id="progressBar" style="width:50%"></div>
+    <div class="progress-bar" id="progressBar" style="width:33%"></div>
   </div>
 
   <!-- HEADER -->
@@ -776,7 +776,7 @@
       <!-- ── STEP 1: BUSINESS PROFILE ── -->
       <div class="step-panel active" id="panel-1">
         <div class="panel-heading">
-          <div class="panel-label">Step 1 of 2</div>
+          <div class="panel-label">Step 1 of 3</div>
           <h1 class="panel-title">Your Business</h1>
           <p class="panel-sub">Tell planners who you are and what you offer.</p>
         </div>
@@ -984,7 +984,7 @@
       <!-- ── STEP 2: SERVICES & PRICING ── -->
       <div class="step-panel" id="panel-2">
         <div class="panel-heading">
-          <div class="panel-label">Step 2 of 2</div>
+          <div class="panel-label">Step 2 of 3</div>
           <h1 class="panel-title">Services &amp; Pricing</h1>
           <p class="panel-sub">Add your packages so planners know exactly what you offer.</p>
         </div>
@@ -1032,7 +1032,7 @@
           <div id="err-2" class="error-msg"></div>
           <button class="btn-primary" id="btn2" disabled>
             <div class="spinner"></div>
-            <span class="btn-text">Publish Profile</span>
+            <span class="btn-text">Continue</span>
             <svg width="14" height="14" fill="none" viewBox="0 0 14 14"><path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
           <button class="btn-secondary" id="btn2skip">Skip — do this later</button>
@@ -1118,8 +1118,8 @@
       currentStep = n;
       document.getElementById('panel-' + n).classList.add('active');
       document.getElementById('si-' + n).classList.add('active');
-      // step 1 = 50%, step 2 = 66% (in progress), step 3 = 100%
-      var pct = n === 1 ? 50 : n === 2 ? 66 : 100;
+      // step 1 = 33%, step 2 = 66%, step 3 = 100%
+      var pct = n === 1 ? 33 : n === 2 ? 66 : 100;
       document.getElementById('progressBar').style.width = pct + '%';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
