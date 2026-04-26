@@ -675,7 +675,18 @@
         fetch('/api/v1/verification/send-email-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
-        }).catch(function() {});
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (!data.success) {
+            verifyError.textContent = data.message || 'Failed to send verification email. Use "Resend code" to try again.';
+            verifyError.style.display = 'block';
+          }
+        })
+        .catch(function() {
+          verifyError.textContent = 'Failed to send verification email. Please tap "Resend code" to try again.';
+          verifyError.style.display = 'block';
+        });
       }
 
       document.getElementById('btnVerifyCode').addEventListener('click', function() {
