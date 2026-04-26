@@ -1707,8 +1707,8 @@
         // Jumped here directly (e.g. ?step=2) — fetch profile to get vendor type first
         authFetch('/providers/profile/me').then(function(data) {
           var p = data.data || data.providerProfile || data;
-          if (p && p.primaryType) {
-            primaryType    = p.primaryType;
+          if (p && (p.primaryType || (p.providerTypes && p.providerTypes.length))) {
+            primaryType    = p.primaryType || p.providerTypes[0];
             secondaryTypes = (p.providerTypes || []).filter(function(t) { return t !== primaryType; });
           }
           _doInitStep2();
