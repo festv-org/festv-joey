@@ -55,7 +55,7 @@ export const register = asyncHandler(async (req: AuthenticatedRequest, res: Resp
       role: primaryRole,
       roles: roles,
       phoneNumber: data.phoneNumber,
-      status: 'ACTIVE', // In production, set to PENDING_VERIFICATION
+      status: 'PENDING_VERIFICATION',
     },
     select: {
       id: true,

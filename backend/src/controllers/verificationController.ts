@@ -70,15 +70,15 @@ export const verifyEmail = asyncHandler(async (req: AuthenticatedRequest, res: R
     throw new AppError('Invalid or expired code', 400);
   }
   
-  // Mark as verified
+  // Mark as verified and activate the account
   await prisma.user.update({
     where: { id: userId },
-    data: { emailVerified: true },
+    data: { emailVerified: true, status: 'ACTIVE' },
   });
-  
+
   // Delete used code
   await prisma.verificationCode.delete({ where: { id: verification.id } });
-  
+
   res.json({ success: true, message: 'Email verified successfully' });
 });
 

@@ -46,11 +46,34 @@ export const authenticate = async (
         });
       }
       
-      if (user.status !== 'ACTIVE') {
+      if (user.status === 'SUSPENDED') {
         return res.status(403).json({
           success: false,
-          error: 'Account is not active',
+          error: 'Account suspended. Please contact support.',
         });
+      }
+
+      if (user.status === 'INACTIVE') {
+        return res.status(403).json({
+          success: false,
+          error: 'Account is inactive.',
+        });
+      }
+
+      if (user.status === 'PENDING_VERIFICATION') {
+        const PENDING_ALLOWED = [
+          '/api/v1/verification/send-email-code',
+          '/api/v1/verification/verify-email',
+          '/api/v1/auth/me',
+          '/api/v1/auth/refresh-token',
+        ];
+        const reqPath = req.originalUrl.split('?')[0];
+        if (!PENDING_ALLOWED.includes(reqPath)) {
+          return res.status(403).json({
+            success: false,
+            error: 'Please verify your email address to continue.',
+          });
+        }
       }
       
       req.user = {
