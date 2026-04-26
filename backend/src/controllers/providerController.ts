@@ -168,10 +168,13 @@ export const getMyProfile = asyncHandler(async (req: AuthenticatedRequest, res: 
     },
   });
 
+  // A new vendor with no profile yet is a valid state — return null so the
+  // frontend renders an empty setup form rather than treating this as an error.
   if (!profile) {
-    throw new NotFoundError('Provider profile');
+    res.json({ success: true, data: null });
+    return;
   }
-  
+
   res.json({
     success: true,
     data: profile,
