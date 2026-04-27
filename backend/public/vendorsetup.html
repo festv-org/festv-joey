@@ -466,7 +466,7 @@
     }
     .btn-primary:hover { background: var(--gold-dark); transform: translateY(-1px); }
     .btn-primary:active { transform: none; }
-    .btn-primary:disabled { opacity: 0.6; pointer-events: none; }
+    .btn-primary:disabled { background: var(--gold-light); color: rgba(26,23,20,0.55); pointer-events: none; cursor: default; }
     .btn-primary svg { transition: transform 0.2s; }
     .btn-primary:hover svg { transform: translateX(3px); }
 
@@ -1791,9 +1791,6 @@
         { name: 'Cake cutting service',        value: 'FLAT_RATE' },
         { name: 'Staff — servers',             value: 'PER_HOUR' },
         { name: 'Staff — bartenders',          value: 'PER_HOUR' },
-        { name: 'Raw bar',                     value: 'PER_PERSON' },
-        { name: 'Meat carving station',        value: 'FLAT_RATE' },
-        { name: 'Custom station',              value: 'FLAT_RATE', custom: true },
       ],
       ENTERTAINMENT: [
         { name: 'DJ set',                      value: 'PER_HOUR' },
@@ -1882,12 +1879,20 @@
       var allTypes  = primaryType ? [primaryType].concat(secondaryTypes) : [];
       var html = '';
       allTypes.forEach(function(type, idx) { html += buildSpecialFieldsHTML(type, idx === 0); });
+      // Single shared dietary options section — shown once if any food/venue type is present
+      var needsDietary = allTypes.some(function(t) { return t === 'RESTO_VENUE' || t === 'CATERER'; });
+      if (needsDietary) {
+        html += '<div class="form-group"><label class="form-label">Dietary Options</label>' +
+          '<div class="chip-group" id="sf-chips-dietaryOptions-SHARED">' + buildSfChips(DIETARY_OPTS, 'dietaryOptions-SHARED') + '</div></div>';
+      }
       container.innerHTML = html;
       bindSpecialFieldEvents(container);
     }
 
     function buildSpecialFieldsHTML(type, isPrimary) {
-      var heading = isPrimary ? typeLabel(type) + ' Details' : 'As a ' + typeLabel(type);
+      var tLabel = typeLabel(type);
+      var article = /^[AEIOUaeiou]/.test(tLabel) ? 'an' : 'a';
+      var heading = isPrimary ? tLabel + ' Details' : 'As ' + article + ' ' + tLabel + ' Provider';
       var h = '<div class="form-section-heading">' + escHtml(heading) + '</div>';
 
       if (type === 'RESTO_VENUE') {
@@ -1903,9 +1908,7 @@
           buildRadioBtns(['Indoor','Outdoor','Both'],['INDOOR','OUTDOOR','BOTH']) + '</div></div>' +
           '<div class="toggle-row" style="border-top:none;padding-top:0;">' +
           '<span class="toggle-label">AV / tech available</span>' +
-          '<label class="toggle-switch"><input type="checkbox" class="sf-check" data-sfkey="avTechAvailable"><span class="slider"></span></label></div>' +
-          '<div class="form-group"><label class="form-label">Dietary Options</label>' +
-          '<div class="chip-group" id="sf-chips-dietaryOptions-RESTO">' + buildSfChips(DIETARY_OPTS, 'dietaryOptions-RESTO') + '</div></div>';
+          '<label class="toggle-switch"><input type="checkbox" class="sf-check" data-sfkey="avTechAvailable"><span class="slider"></span></label></div>';
       }
 
       if (type === 'CATERER') {
@@ -1916,9 +1919,7 @@
           '<input class="form-input sf-input" id="sf-maxGuestCount" type="number" min="1" placeholder="500"></div></div>' +
           '<div class="form-group" style="display:flex;gap:1.5rem;flex-wrap:wrap;">' +
           buildCheckToggle('sf-equipmentRentalAvailable','equipmentRentalAvailable','Equipment rental available') +
-          buildCheckToggle('sf-caterSetupIncluded','caterSetupIncluded','Setup / teardown included') + '</div>' +
-          '<div class="form-group"><label class="form-label">Dietary Options</label>' +
-          '<div class="chip-group" id="sf-chips-dietaryOptions-CATER">' + buildSfChips(DIETARY_OPTS, 'dietaryOptions-CATER') + '</div></div>';
+          buildCheckToggle('sf-caterSetupIncluded','caterSetupIncluded','Setup / teardown included') + '</div>';
       }
 
       if (type === 'ENTERTAINMENT') {
@@ -2063,12 +2064,10 @@
         if (sfValues.caterSetupIncluded)       patch.caterSetupIncluded       = true;
       }
 
-      // Merge dietary options from RESTO and CATER
+      // Single shared dietary options section
       if (allTypes.indexOf('RESTO_VENUE') !== -1 || allTypes.indexOf('CATERER') !== -1) {
-        var dR = sfValues['dietaryOptions-RESTO'] || [];
-        var dC = sfValues['dietaryOptions-CATER'] || [];
-        var merged = dR.concat(dC.filter(function(v) { return dR.indexOf(v) === -1; }));
-        if (merged.length) patch.dietaryOptions = merged;
+        var shared = collectChips('sf-chips-dietaryOptions-SHARED', null);
+        if (shared.length) patch.dietaryOptions = shared;
       }
 
       if (allTypes.indexOf('ENTERTAINMENT') !== -1) {
