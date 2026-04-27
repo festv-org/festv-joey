@@ -2612,6 +2612,7 @@
     // ── goToStep hook: init step 2 and 3 when entering them ──
     var _origGoToStep = goToStep;
     goToStep = function(n) { _origGoToStep(n); if (n === 2) initStep2(); if (n === 3) initStep3(); };
+    window.goToStep = goToStep; // expose to inline onclick handlers outside the IIFE
 
     // ── Dev shortcut: ?step=2 or ?step=3 jumps directly to that step ──
     var _devHost = ['localhost', '127.0.0.1', 'festv-dev-test.onrender.com'].indexOf(window.location.hostname) !== -1;
