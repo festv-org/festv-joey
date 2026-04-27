@@ -18,6 +18,11 @@ Extract the following and return ONLY valid JSON (no markdown, no commentary):
     {
       "name": string,              // e.g. "Full Venue Buyout", "Private Dining Room"
       "description": string,
+      "category": string,          // MUST be one of: "Venue Packages" | "Bar & Beverages" | "Food & Menu" | "Add-ons & Extras"
+                                   // Use "Venue Packages" for: venue buyout, event hire, seated dinner, cocktail hour, private dining, reception, ceremony
+                                   // Use "Bar & Beverages" for: open bar, beer & wine, champagne tower, beverage packages, bottle service
+                                   // Use "Food & Menu" for: buffet, plated dinner, food stations, grazing table, canapés, brunch
+                                   // Use "Add-ons & Extras" for: valet, dance floor, DJ equipment, lighting, AV, coat check, floral
       "pricePerPerson": number|null,
       "flatPrice": number|null,
       "minimumSpend": number|null, // use for minimum spend / F&B minimum / revenue minimum
@@ -41,6 +46,7 @@ Extract the following and return ONLY valid JSON (no markdown, no commentary):
   "barPackages": [
     {
       "name": string,              // e.g. "Open Bar", "Beer & Wine"
+      "category": "Bar & Beverages",  // always "Bar & Beverages" for bar packages
       "pricePerPerson": number|null,
       "flatPrice": number|null,
       "duration": string|null,
@@ -50,6 +56,7 @@ Extract the following and return ONLY valid JSON (no markdown, no commentary):
   "addOns": [
     {
       "name": string,
+      "category": "Add-ons & Extras",  // always "Add-ons & Extras" for add-ons
       "price": number|null,
       "unit": string|null          // e.g. "per person", "per table", "flat"
     }
@@ -80,6 +87,10 @@ Extract and return ONLY valid JSON:
     {
       "name": string,
       "description": string|null,
+      "category": string,          // MUST be one of: "Bar & Beverages" | "Food & Menu" | "Add-ons & Extras"
+                                   // Use "Food & Menu" for: buffet, plated meals, food stations, tasting menus, brunch, grazing tables, catering packages
+                                   // Use "Bar & Beverages" for: open bar, wine pairings, cocktail packages, non-alcoholic beverage packages
+                                   // Use "Add-ons & Extras" for: staff, rentals, setup/breakdown, delivery, cake cutting, linen
       "pricePerPerson": number|null,
       "flatPrice": number|null,
       "minGuests": number|null,
@@ -89,6 +100,7 @@ Extract and return ONLY valid JSON:
   "addOns": [
     {
       "name": string,
+      "category": "Add-ons & Extras",  // always "Add-ons & Extras" for add-ons
       "price": number|null,
       "unit": string|null
     }
@@ -105,6 +117,10 @@ Extract and return ONLY valid JSON:
     {
       "name": string,              // e.g. "4-Hour DJ Package", "Live Band - Standard"
       "description": string|null,
+      "category": string,          // MUST be one of: "Performance Packages" | "Equipment & Production" | "Add-ons & Extras"
+                                   // Use "Performance Packages" for: DJ sets, live band bookings, performer packages, show packages, hourly performance rates
+                                   // Use "Equipment & Production" for: PA system, sound system, lighting rig, stage, backline, AV production packages
+                                   // Use "Add-ons & Extras" for: MC services, photo booth, extra hour add-ons, fog machine, monogram light, dance floor
       "flatPrice": number|null,
       "duration": string|null,
       "includes": string[],        // e.g. ["Setup/breakdown", "MC", "Light show"]
@@ -129,6 +145,10 @@ Extract and return ONLY valid JSON:
     {
       "name": string,              // e.g. "6-Hour Photo Coverage", "Full Day Photo + Video"
       "description": string|null,
+      "category": string,          // MUST be one of: "Coverage Packages" | "Production & Extras" | "Prints & Albums"
+                                   // Use "Coverage Packages" for: hourly photo coverage, full-day packages, photo + video bundles, engagement sessions, second shooter packages
+                                   // Use "Production & Extras" for: same-day edits, highlight reels, drone footage, livestreaming, photo booth, extra hours, travel fees
+                                   // Use "Prints & Albums" for: wedding albums, flush-mount albums, prints, canvas wraps, USB drives, slideshows, digital gallery
       "flatPrice": number|null,
       "duration": string|null,
       "includes": string[],        // deliverables: edited photos, highlight reel, etc.
@@ -162,6 +182,9 @@ Extract and return ONLY valid JSON:
     {
       "name": string,
       "description": string|null,
+      "category": string,          // MUST be one of: "Design & Arrangements" | "Add-ons & Extras"
+                                   // Use "Design & Arrangements" for: full floral packages, ceremony/reception decor, bridal party florals, tablescape packages, installation packages
+                                   // Use "Add-ons & Extras" for: delivery/setup/breakdown, rentals (vases, arches, linens), preservation, consultations
       "flatPrice": number|null,
       "includes": string[]
     }
@@ -169,6 +192,7 @@ Extract and return ONLY valid JSON:
   "addOns": [
     {
       "name": string,
+      "category": "Add-ons & Extras",  // always "Add-ons & Extras" for add-ons
       "price": number|null,
       "unit": string|null
     }
