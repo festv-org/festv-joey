@@ -658,6 +658,15 @@
       text-transform: uppercase; color: var(--muted);
       margin: 0.65rem 0 0.45rem;
     }
+    .category-header {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--gold);
+      font-family: 'Montserrat', sans-serif;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(196,160,106,0.25);
+      margin: 1.25rem 0 0.6rem;
+    }
+    .category-header:first-child { margin-top: 0; }
 
     /* ── ADD OUTLINE BUTTON ── */
     .btn-add-outline {
@@ -1767,61 +1776,61 @@
 
     var SUGGESTIONS = {
       RESTO_VENUE: [
-        { name: 'Private dining room rental', value: 'FLAT_RATE' },
-        { name: 'Full venue buyout',           value: 'FLAT_RATE' },
-        { name: 'Cocktail hour package',       value: 'PER_PERSON' },
-        { name: 'Seated dinner package',       value: 'PER_PERSON' },
-        { name: 'Buffet package',              value: 'PER_PERSON' },
-        { name: 'Brunch / lunch package',      value: 'PER_PERSON' },
-        { name: 'Flat rate venue fee',         value: 'FLAT_RATE' },
-        { name: 'Valet',                       value: 'FLAT_RATE' },
-        { name: 'Raw bar',                     value: 'PER_PERSON' },
-        { name: 'Meat carving station',        value: 'FLAT_RATE' },
-        { name: 'Fish station',                value: 'FLAT_RATE' },
-        { name: 'Salad station',               value: 'FLAT_RATE' },
-        { name: 'Pasta station',               value: 'FLAT_RATE' },
-        { name: 'Custom station',              value: 'FLAT_RATE', custom: true },
+        { name: 'Private dining room rental', value: 'FLAT_RATE',  category: 'Venue Packages' },
+        { name: 'Full venue buyout',           value: 'FLAT_RATE',  category: 'Venue Packages' },
+        { name: 'Cocktail hour package',       value: 'PER_PERSON', category: 'Venue Packages' },
+        { name: 'Seated dinner package',       value: 'PER_PERSON', category: 'Venue Packages' },
+        { name: 'Flat rate venue fee',         value: 'FLAT_RATE',  category: 'Venue Packages' },
+        { name: 'Buffet package',              value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Brunch / lunch package',      value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Raw bar',                     value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Meat carving station',        value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Fish station',                value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Salad station',               value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Pasta station',               value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Custom station',              value: 'FLAT_RATE',  category: 'Food & Menu', custom: true },
+        { name: 'Valet',                       value: 'FLAT_RATE',  category: 'Add-ons & Extras' },
       ],
       CATERER: [
-        { name: 'Plated dinner',               value: 'PER_PERSON' },
-        { name: 'Buffet',                      value: 'PER_PERSON' },
-        { name: 'Cocktail / appetizer package',value: 'PER_PERSON' },
-        { name: 'Grazing table / charcuterie', value: 'FLAT_RATE' },
-        { name: 'Dessert table',               value: 'FLAT_RATE' },
-        { name: 'Cake cutting service',        value: 'FLAT_RATE' },
-        { name: 'Staff — servers',             value: 'PER_HOUR' },
-        { name: 'Staff — bartenders',          value: 'PER_HOUR' },
+        { name: 'Plated dinner',               value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Buffet',                      value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Cocktail / appetizer package',value: 'PER_PERSON', category: 'Food & Menu' },
+        { name: 'Grazing table / charcuterie', value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Dessert table',               value: 'FLAT_RATE',  category: 'Food & Menu' },
+        { name: 'Cake cutting service',        value: 'FLAT_RATE',  category: 'Add-ons & Extras' },
+        { name: 'Staff — servers',             value: 'PER_HOUR',   category: 'Add-ons & Extras' },
+        { name: 'Staff — bartenders',          value: 'PER_HOUR',   category: 'Add-ons & Extras' },
       ],
       ENTERTAINMENT: [
-        { name: 'DJ set',                      value: 'PER_HOUR' },
-        { name: 'Live band',                   value: 'FLAT_RATE' },
-        { name: 'MC / emcee',                  value: 'FLAT_RATE' },
-        { name: 'Photo booth rental',          value: 'FLAT_RATE' },
-        { name: 'Lighting package',            value: 'FLAT_RATE' },
-        { name: 'Sound system rental',         value: 'FLAT_RATE' },
-        { name: 'Performer',                   value: 'FLAT_RATE' },
-        { name: 'Kids entertainment',          value: 'FLAT_RATE' },
-        { name: 'Custom',                      value: 'FLAT_RATE', custom: true },
+        { name: 'DJ set',                      value: 'PER_HOUR',   category: 'Performance Packages' },
+        { name: 'Live band',                   value: 'FLAT_RATE',  category: 'Performance Packages' },
+        { name: 'Performer',                   value: 'FLAT_RATE',  category: 'Performance Packages' },
+        { name: 'Kids entertainment',          value: 'FLAT_RATE',  category: 'Performance Packages' },
+        { name: 'Custom',                      value: 'FLAT_RATE',  category: 'Performance Packages', custom: true },
+        { name: 'Lighting package',            value: 'FLAT_RATE',  category: 'Equipment & Production' },
+        { name: 'Sound system rental',         value: 'FLAT_RATE',  category: 'Equipment & Production' },
+        { name: 'MC / emcee',                  value: 'FLAT_RATE',  category: 'Add-ons & Extras' },
+        { name: 'Photo booth rental',          value: 'FLAT_RATE',  category: 'Add-ons & Extras' },
       ],
       PHOTO_VIDEO: [
-        { name: 'Photography',                 value: 'FLAT_RATE' },
-        { name: 'Videography',                 value: 'FLAT_RATE' },
-        { name: 'Photo + video bundle',        value: 'FLAT_RATE' },
-        { name: 'Same-day edit',               value: 'FLAT_RATE' },
-        { name: 'Photo booth',                 value: 'FLAT_RATE' },
-        { name: 'Drone footage',               value: 'FLAT_RATE' },
-        { name: 'Second shooter add-on',       value: 'FLAT_RATE' },
-        { name: 'Album / print package',       value: 'FLAT_RATE' },
+        { name: 'Photography',                 value: 'FLAT_RATE',  category: 'Coverage Packages' },
+        { name: 'Videography',                 value: 'FLAT_RATE',  category: 'Coverage Packages' },
+        { name: 'Photo + video bundle',        value: 'FLAT_RATE',  category: 'Coverage Packages' },
+        { name: 'Second shooter add-on',       value: 'FLAT_RATE',  category: 'Coverage Packages' },
+        { name: 'Same-day edit',               value: 'FLAT_RATE',  category: 'Production & Extras' },
+        { name: 'Photo booth',                 value: 'FLAT_RATE',  category: 'Production & Extras' },
+        { name: 'Drone footage',               value: 'FLAT_RATE',  category: 'Production & Extras' },
+        { name: 'Album / print package',       value: 'FLAT_RATE',  category: 'Prints & Albums' },
       ],
       FLORIST_DECOR: [
-        { name: 'Bridal bouquet',              value: 'FLAT_RATE' },
-        { name: 'Centerpieces',                value: 'CUSTOM' },
-        { name: 'Ceremony arch / backdrop',    value: 'FLAT_RATE' },
-        { name: 'Full venue floral install',   value: 'CUSTOM' },
-        { name: 'Cocktail hour arrangements',  value: 'FLAT_RATE' },
-        { name: 'Bud vases',                   value: 'CUSTOM' },
-        { name: 'Candle / lighting decor',     value: 'FLAT_RATE' },
-        { name: 'Signage / stationery',        value: 'FLAT_RATE' },
+        { name: 'Bridal bouquet',              value: 'FLAT_RATE',  category: 'Design & Arrangements' },
+        { name: 'Centerpieces',                value: 'CUSTOM',     category: 'Design & Arrangements' },
+        { name: 'Ceremony arch / backdrop',    value: 'FLAT_RATE',  category: 'Design & Arrangements' },
+        { name: 'Full venue floral install',   value: 'CUSTOM',     category: 'Design & Arrangements' },
+        { name: 'Cocktail hour arrangements',  value: 'FLAT_RATE',  category: 'Design & Arrangements' },
+        { name: 'Bud vases',                   value: 'CUSTOM',     category: 'Design & Arrangements' },
+        { name: 'Candle / lighting decor',     value: 'FLAT_RATE',  category: 'Design & Arrangements' },
+        { name: 'Signage / stationery',        value: 'FLAT_RATE',  category: 'Add-ons & Extras' },
       ],
     };
 
@@ -1840,6 +1849,25 @@
 
     function typeLabel(t) {
       return { RESTO_VENUE: 'Restaurant / Venue', CATERER: 'Caterer', ENTERTAINMENT: 'Entertainment', PHOTO_VIDEO: 'Photo & Video', FLORIST_DECOR: 'Florist & Decor' }[t] || t;
+    }
+
+    var CATEGORY_ORDER = {
+      RESTO_VENUE:   ['Venue Packages', 'Bar & Beverages', 'Food & Menu', 'Add-ons & Extras'],
+      CATERER:       ['Bar & Beverages', 'Food & Menu', 'Add-ons & Extras'],
+      ENTERTAINMENT: ['Performance Packages', 'Equipment & Production', 'Add-ons & Extras'],
+      PHOTO_VIDEO:   ['Coverage Packages', 'Production & Extras', 'Prints & Albums'],
+      FLORIST_DECOR: ['Design & Arrangements', 'Add-ons & Extras'],
+    };
+
+    function getCategoriesForCurrentType() {
+      var allTypes = primaryType ? [primaryType].concat(secondaryTypes) : [];
+      var seen = {}, result = [];
+      allTypes.forEach(function(t) {
+        (CATEGORY_ORDER[t] || []).forEach(function(cat) {
+          if (!seen[cat]) { seen[cat] = true; result.push(cat); }
+        });
+      });
+      return result;
     }
 
     function initStep2() {
@@ -2105,33 +2133,45 @@
     function renderSuggestionChips() {
       var container = document.getElementById('suggestionChipsArea');
       var allTypes  = primaryType ? [primaryType].concat(secondaryTypes) : [];
-      var seenNames = {}, html = '';
-      allTypes.forEach(function(type, idx) {
-        var suggs    = SUGGESTIONS[type] || [];
-        var newSuggs = suggs.filter(function(s) { return !seenNames[s.name]; });
-        newSuggs.forEach(function(s) { seenNames[s.name] = true; });
-        if (!newSuggs.length) return;
-        if (idx > 0) html += '<div class="suggestion-divider">Also as ' + typeLabel(type) + '</div>';
+      var categories = getCategoriesForCurrentType();
+      // Collect all unique suggestions, grouped by category
+      var grouped = {}, seenNames = {};
+      allTypes.forEach(function(type) {
+        (SUGGESTIONS[type] || []).forEach(function(s) {
+          if (seenNames[s.name]) return;
+          seenNames[s.name] = true;
+          var cat = s.category || 'Other';
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(s);
+        });
+      });
+      var orderedCats = categories.concat(['Other']);
+      var html = '';
+      orderedCats.forEach(function(cat) {
+        var suggs = grouped[cat] || [];
+        if (!suggs.length) return;
+        html += '<div class="category-header">' + escHtml(cat) + '</div>';
         html += '<div class="chip-group" style="margin-bottom:0.35rem;">';
-        newSuggs.forEach(function(s) {
-          html += '<div class="chip suggestion-chip" data-name="' + escHtml(s.name) + '" data-pricetype="' + s.value + '" data-custom="' + (s.custom ? '1' : '0') + '">' + escHtml(s.name) + '</div>';
+        suggs.forEach(function(s) {
+          html += '<div class="chip suggestion-chip" data-name="' + escHtml(s.name) + '" data-pricetype="' + s.value + '" data-custom="' + (s.custom ? '1' : '0') + '" data-category="' + escHtml(s.category || '') + '">' + escHtml(s.name) + '</div>';
         });
         html += '</div>';
       });
       container.innerHTML = '<div class="suggestion-area">' + html + '</div>';
       container.querySelectorAll('.suggestion-chip').forEach(function(chip) {
         chip.addEventListener('click', function() {
-          var name = chip.getAttribute('data-name');
-          var pt   = chip.getAttribute('data-pricetype') || 'FLAT_RATE';
+          var name     = chip.getAttribute('data-name');
+          var pt       = chip.getAttribute('data-pricetype') || 'FLAT_RATE';
           var isCustom = chip.getAttribute('data-custom') === '1';
-          addServiceCard(isCustom ? '' : name, pt);
+          var cat      = chip.getAttribute('data-category') || '';
+          addServiceCard(isCustom ? '' : name, pt, cat);
         });
       });
     }
 
     // ── Service Cards ──
-    function addServiceCard(name, priceType) {
-      s2Services.push({ _id: ++_cardIdSeq, name: name || '', priceType: priceType || 'FLAT_RATE', basePrice: 0, description: '', features: [], collapsed: false });
+    function addServiceCard(name, priceType, category) {
+      s2Services.push({ _id: ++_cardIdSeq, name: name || '', priceType: priceType || 'FLAT_RATE', basePrice: 0, description: '', features: [], category: category || '', collapsed: false });
       renderServiceCards();
       var area = document.getElementById('serviceCardsArea');
       if (area && area.lastElementChild) area.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2139,18 +2179,39 @@
 
     function renderServiceCards() {
       var priceTypes = getMergedPriceTypes();
-      document.getElementById('serviceCardsArea').innerHTML = s2Services.map(function(card) {
-        return card.collapsed && card.name ? renderCollapsedCard(card) : renderExpandedCard(card, priceTypes);
-      }).join('');
+      var categories = getCategoriesForCurrentType();
+      // Group cards by category; anything unrecognised or empty → "Other"
+      var grouped = {}, uncategorized = [];
+      s2Services.forEach(function(card) {
+        var cat = card.category || '';
+        if (cat && categories.indexOf(cat) !== -1) {
+          if (!grouped[cat]) grouped[cat] = [];
+          grouped[cat].push(card);
+        } else {
+          uncategorized.push(card);
+        }
+      });
+      var html = '';
+      var orderedCats = categories.concat(['Other']);
+      orderedCats.forEach(function(cat) {
+        var cards = cat === 'Other' ? uncategorized : (grouped[cat] || []);
+        if (!cards.length) return;
+        html += '<div class="category-header">' + escHtml(cat) + '</div>';
+        cards.forEach(function(card) {
+          html += card.collapsed && card.name ? renderCollapsedCard(card) : renderExpandedCard(card, priceTypes);
+        });
+      });
+      document.getElementById('serviceCardsArea').innerHTML = html;
       validateStep2();
     }
 
     function renderCollapsedCard(card) {
       var priceLabel = card.basePrice > 0 ? ('$' + parseFloat(card.basePrice).toLocaleString()) : 'Custom / TBD';
+      var catLabel   = card.category ? '<div style="font-size:0.6rem;color:var(--muted);font-weight:500;margin-top:0.1rem;letter-spacing:0.04em;">' + escHtml(card.category) + '</div>' : '';
       return '<div class="svc-card" id="svc-card-' + card._id + '">' +
         '<div class="svc-card-summary" onclick="s2ToggleCard(' + card._id + ')">' +
         '<div class="svc-summary-left"><div class="svc-summary-dot"></div>' +
-        '<span class="svc-summary-name">' + escHtml(card.name) + '</span>' +
+        '<div style="display:flex;flex-direction:column;min-width:0;"><span class="svc-summary-name">' + escHtml(card.name) + '</span>' + catLabel + '</div>' +
         '<span class="svc-summary-price">' + escHtml(priceLabel) + '</span></div>' +
         '<div class="svc-summary-actions">' +
         '<button class="svc-icon-btn" type="button" onclick="event.stopPropagation();s2ToggleCard(' + card._id + ')">✏️</button>' +
@@ -2165,6 +2226,9 @@
       var featuresHtml = card.features.map(function(f, fi) {
         return '<div class="feature-tag">' + escHtml(f) + '<button type="button" onclick="s2RemoveFeature(' + card._id + ',' + fi + ')">×</button></div>';
       }).join('');
+      var catOptions = getCategoriesForCurrentType().map(function(cat) {
+        return '<option value="' + escHtml(cat) + '"' + (cat === card.category ? ' selected' : '') + '>' + escHtml(cat) + '</option>';
+      }).join('');
       return '<div class="svc-card" id="svc-card-' + card._id + '">' +
         '<div class="svc-card-summary" style="cursor:default;justify-content:flex-end;padding:0.55rem 0.9rem 0;">' +
         (card.name ? '<span style="flex:1;font-size:0.74rem;font-weight:600;color:var(--muted);">' + escHtml(card.name) + '</span>' : '<span style="flex:1;"></span>') +
@@ -2172,6 +2236,10 @@
         '<div class="svc-card-body">' +
         '<div class="form-group"><label class="form-label">Service Name <span class="req">*</span></label>' +
         '<input class="form-input" value="' + escHtml(card.name) + '" placeholder="e.g. Wedding Photography Package" oninput="s2UpdateCard(' + card._id + ',\'name\',this.value)"></div>' +
+        '<div class="form-group"><label class="form-label">Category</label>' +
+        '<select class="form-select" onchange="s2UpdateCard(' + card._id + ',\'category\',this.value)">' +
+        '<option value="">— Select a category —</option>' + catOptions +
+        '</select></div>' +
         '<div class="form-row">' +
         '<div class="form-group"><label class="form-label">Price Type</label>' +
         '<select class="form-select" onchange="s2UpdateCard(' + card._id + ',\'priceType\',this.value)">' + ptOptions + '</select></div>' +
