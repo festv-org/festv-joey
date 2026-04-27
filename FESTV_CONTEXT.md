@@ -104,7 +104,7 @@ All pages are in `/backend/public/`. They use vanilla JS with `fetch()` calls to
 | `accounttype.html` | Registration — choose Planner or Vendor, select vendor type, fill basic details (name, email, phone, city, password). No document uploads here — those are collected in vendorsetup Step 3. Submit button is gold, redirects to vendorsetup.html on success. |
 | `vendorsetup.html` | Vendor onboarding — **3 steps total:** Step 1: business profile + primary/secondary vendor type. Step 2: services, pricing, and menu (PDF import or manual). Step 3: review & confirm + verification doc uploads + submit for approval. |
 | `vendordashboard.html` | Vendor's main dashboard — Booked Events, Incoming Requests, Analytics, Messages, Services & Pricing, Portfolio. Shows a pending approval banner if `verificationStatus` is not `VERIFIED`. |
-| `vendorprofile.html` | Public vendor profile — hero, About+Contact strip, services, menu, reviews. Also doubles as the request-sending page when `fromEvent=1` is in the URL |
+| `vendorprofile.html` | Public vendor profile — hero, About+Contact strip, services (grouped by category with show-more), menu, reviews. Also doubles as the request-sending page when `fromEvent=1` is in the URL |
 | `plannerdashboard.html` | Planner's main dashboard — Quotes Received, Saved Requests, Messages, Favorites, Quick Actions, Pending/Upcoming/Completed events |
 | `plannerquote.html` | Quote detail page for planners — shows itemized pricing, 15% tax, estimated total, 10% deposit card, Book Vendor & Pay Deposit button |
 | `browsevendors.html` | Search and filter vendors — category pills (enum values), price range, date availability. Cards link to vendorprofile |
@@ -265,7 +265,10 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 - PDF import banner (universal — all vendor types) → `POST /api/v1/pdf-import`
 - Special fields section — adapts per vendor type (capacity, dietary options, style tags, etc.)
 - Multi-type vendors: primary type fields first, secondary type fields below in labeled subsections
-- Services: repeatable cards with quick-add suggestion chips per type. At least 1 required.
+- Services: repeatable cards grouped by category under gold section headers. Quick-add suggestion chips also grouped by category. At least 1 required.
+- Each service card has a Category dropdown (valid values for the vendor's types). Collapsed cards show the category as a small muted label.
+- Category order is canonical per vendor type (see `CATEGORY_ORDER` in vendorsetup.html and `PROFILE_CAT_ORDER` in vendorprofile.html)
+- PDF import returns a `category` field on every extracted service/package; `normalizePdfData` threads it through to service card objects
 - Menu section: only shown if `providerTypes[]` includes `RESTO_VENUE` or `CATERER`
 - Collapsed card state: summary row with edit/delete after filling
 - API: `PUT /api/v1/providers/profile` + `POST /api/v1/providers/services` + `POST /api/v1/providers/menu-items`
@@ -356,7 +359,7 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 - **`database.html`** — Schema ERD (24 nodes, click to highlight relationships) + live Event Feed tab (filter by model, 15s auto-refresh) + **Provider Graph tab** (see below).
 
 ### 🟡 Placeholder / Partial
-- **Vendor setup Step 2** — built and 400 error fixed (all ProviderProfile columns now in production DB, confirmed live on festv.org). Functional but untested end-to-end with a real vendor account.
+- **Vendor setup Step 2** — built, 400 error fixed, and significantly polished this session. Category grouping on both suggestion chips and service cards. PDF import now returns structured `category` field per service. Expanded card has a Category dropdown; collapsed card shows category label. Functional but not yet verified end-to-end with a real vendor account on production.
 - **Admin dashboard** — `admindashboard.html` exists but vendor approval flow not yet wired. Admin cannot yet flip `verificationStatus` to `VERIFIED`. This is the next critical thing to build.
 - **Messages** — card UI exists on both dashboards, not wired to real conversations
 - **Analytics** — card placeholder on vendor dashboard, no real data
@@ -415,3 +418,4 @@ Backend (`/backend/.env` or Render dashboard):
 15. **`getMyProfile` returns null not 404** — for new vendors with no profile yet, `GET /api/v1/providers/profile/me` returns `{ success: true, data: { providerProfile: null } }`. vendorsetup.html handles this by rendering an empty form.
 16. **`database.html` Provider Graph tab** — Loads data from three admin endpoints in parallel (`/admin/users`, `/admin/providers`, `/admin/event-requests`). Only vendor types with at least one vendor are rendered as dotted group boxes — empty types are hidden. Planner nodes include clients extracted from event-requests that may not be in the `/admin/users` response. Click a node to highlight its connections and open the detail panel; click again to deselect. Vendor detail has two sub-graph tabs: **Services** (fan of service cards) and **History** (bookings + quotes). Planner detail has **History** only.
 17. **`/admin/*` routes return all providers regardless of verificationStatus** — including UNVERIFIED and REJECTED. The Provider Graph shows a status dot (green/amber/gray) on each vendor node to indicate this. The public `/providers/search` endpoint still returns ALL providers and needs the VERIFIED-only filter applied before launch.
+18. **Service categories are canonical per vendor type** — valid sets defined in `CATEGORY_ORDER` (vendorsetup.html) and `PROFILE_CAT_ORDER` (vendorprofile.html), and in the `EXTRACTION_PROMPTS` in `pdfImportController.ts`. They must stay in sync. Order: RESTO_VENUE → Venue Packages / Bar & Beverages / Food & Menu / Add-ons & Extras; CATERER → Bar & Beverages / Food & Menu / Add-ons & Extras; ENTERTAINMENT → Performance Packages / Equipment & Production / Add-ons & Extras; PHOTO_VIDEO → Coverage Packages / Production & Extras / Prints & Albums; FLORIST_DECOR → Design & Arrangements / Add-ons & Extras.

@@ -14,12 +14,18 @@ Build Vendors, get to the point where we can book an event completely via etrans
 		-[x] photographer (PHOTO_VIDEO solo, hourly), caterer (CATERER company, per-person + 3 pricing tiers + 5 menu items + cuisines/themes), bartender (CATERER solo, hybrid + 4 cocktails), DJ (ENTERTAINMENT solo, hourly) all defined
 		-[x] picsum.photos with stable seeds for banners, logos, portfolio (deterministic — same image every run)
 		-[ ] deploy + verify vendor dashboard loads cleanly for all 4 provider test accounts (no 404s on profile/me, bookings/provider, event-requests/available/for-providers) — caterease-db needs ENABLE_TEST_ACCOUNTS=true + seed run
+	-[ ] end-to-end vendorsetup Step 1→2→3→submit verification with a real account on production (location autofill from accounttype.html still outstanding)
 		-[ ] note: RESTO_VENUE and FLORIST_DECOR enums not yet covered — add 6th + 7th test account if useful
 	-[ ] clean up ghost migration row in caterease-db: DELETE FROM _prisma_migrations WHERE migration_name = '20260423_consolidate_provider_types' AND applied_steps_count = 0; (cosmetic only, not blocking)
 
  bigger:
 	-[ ] 0auth google/fb sign-in options
 	-[x] pdf reader (Jess AI PDF import — live in vendor setup)
+		-[x] PDF import: all 5 vendor extraction prompts include canonical `category` field per service
+		-[x] PDF import: normalizePdfData threads category through to every service card object
+		-[x] vendorsetup Step 2: services + suggestion chips grouped by category under gold headers
+		-[x] vendorsetup Step 2: expanded service card has Category dropdown; collapsed card shows category label
+		-[x] vendorprofile: services grouped by category with show-more (>4 per group) + fixed SVG checkmark icon
 	-[ ] admin dashboard vendor approval flow — flip verificationStatus to VERIFIED (highest priority before launch)
 	-[ ] stripe integration, e-transfer auto request for security?
 	-[ ] step by step analyzing backend (Flow diagrams and TablePlus)
