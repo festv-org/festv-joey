@@ -375,10 +375,10 @@ router.get('/users', async (req: AuthenticatedRequest, res: Response) => {
     const db = prismaModule.default;
 
     const users = await db.user.findMany({
-      where: { role: 'CLIENT' },
       select: {
         id: true, firstName: true, lastName: true, email: true,
         avatarUrl: true, city: true, state: true, createdAt: true, status: true,
+        role: true, roles: true,
       },
       orderBy: { createdAt: 'desc' },
     });

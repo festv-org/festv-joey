@@ -947,6 +947,10 @@
   };
 
   function buildGData(apiClients, apiProviders, apiRequests) {
+    // Users who own a provider profile belong in the right (vendor) column, not left
+    var providerUserIds = {};
+    apiProviders.forEach(function(p) { if (p.user && p.user.id) providerUserIds[p.user.id] = true; });
+
     var clientMap = {};
     apiClients.forEach(function(c) { clientMap[c.id] = c; });
     apiRequests.forEach(function(r) {
@@ -973,7 +977,9 @@
       });
     });
 
-    gdata = { clients: apiClients, providers: apiProviders, connections: connections, rawRequests: apiRequests };
+    // CLIENT role only in the planner column; PROVIDER/ADMIN users without profiles are excluded
+    var planners = apiClients.filter(function(c) { return !providerUserIds[c.id] && c.role === 'CLIENT'; });
+    gdata = { clients: planners, providers: apiProviders, connections: connections, rawRequests: apiRequests };
   }
 
   // ── Layout ──────────────────────────────────────────────────
@@ -1040,9 +1046,10 @@
       var pv = gLayout.providers.find(function(p){ return p.id===conn.providerId; });
       if (!cl || !pv) return;
       var live = !gsel || conn.clientId===gsel.id || conn.providerId===gsel.id;
-      var isBook = conn.type==='booking' && BOOKING_STATUSES.indexOf(conn.status)>=0;
-      var color = isBook ? '#3A8A55' : '#C4A06A';
-      var dash  = isBook ? '' : 'stroke-dasharray="7 4"';
+      var isConfirmedBook = conn.type==='booking' && ['CONFIRMED','DEPOSIT_PAID','IN_PROGRESS','COMPLETED'].indexOf(conn.status)>=0;
+      var isPendingBook   = conn.type==='booking' && conn.status==='PENDING_DEPOSIT';
+      var color = isConfirmedBook ? '#3A8A55' : (isPendingBook ? '#3B6FB8' : '#C4A06A');
+      var dash  = (isConfirmedBook || isPendingBook) ? '' : 'stroke-dasharray="7 4"';
       var mx = (cl.rx + pv.lx)/2;
       h += '<path d="M '+cl.rx+' '+cl.cy+' C '+mx+' '+cl.cy+' '+mx+' '+pv.cy+' '+pv.lx+' '+pv.cy+'" '
          + 'stroke="'+color+'" stroke-width="'+(live?2:1.2)+'" fill="none" '+dash+' opacity="'+(live?0.8:0.07)+'"/>';
@@ -1101,6 +1108,7 @@
     // Legend
     document.getElementById('graphLegend').innerHTML =
       '<span class="legend-pill"><span style="display:inline-block;width:22px;height:2px;background:#3A8A55;vertical-align:middle;border-radius:1px;margin-right:2px;"></span>Confirmed Booking</span>' +
+      '<span class="legend-pill"><span style="display:inline-block;width:22px;height:2px;background:#3B6FB8;vertical-align:middle;border-radius:1px;margin-right:2px;"></span>Pending Deposit</span>' +
       '<span class="legend-pill"><span style="display:inline-block;width:22px;height:0;border-top:2px dashed #C4A06A;vertical-align:middle;margin-right:2px;"></span>Pending Quote</span>' +
       '<span class="legend-pill"><span class="legend-dot" style="background:#3A8A55;border-radius:50%;"></span>Verified</span>' +
       '<span class="legend-pill"><span class="legend-dot" style="background:#C4A06A;border-radius:50%;"></span>Pending Approval</span>' +
@@ -1284,9 +1292,11 @@
 
     items.forEach(function(req, i) {
       var iy=startY+i*(IH+IVG), iCY=iy+IH/2, cpX=(250+IX)/2;
-      var hasBook = req.booking && BOOKING_STATUSES.indexOf(req.booking.status)>=0;
-      var lColor = hasBook?'#3A8A55':'#C4A06A';
-      var sColor = hasBook?'#3A8A55':(req.booking?'#C4A06A':'#7A7068');
+      var isConfirmedBook = req.booking && ['CONFIRMED','DEPOSIT_PAID','IN_PROGRESS','COMPLETED'].indexOf(req.booking.status)>=0;
+      var isPendingBook   = req.booking && req.booking.status==='PENDING_DEPOSIT';
+      var hasBook = isConfirmedBook || isPendingBook;
+      var lColor = isConfirmedBook ? '#3A8A55' : (isPendingBook ? '#3B6FB8' : '#C4A06A');
+      var sColor = lColor;
       var statusStr = req.booking?req.booking.status:(req.status||'SUBMITTED');
       var provName  = req.booking&&req.booking.provider ? req.booking.provider.businessName
                       : (req.quotes&&req.quotes.length ? req.quotes.length+' quote(s) received' : 'Awaiting quotes');

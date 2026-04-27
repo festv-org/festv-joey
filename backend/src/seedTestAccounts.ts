@@ -26,6 +26,10 @@ import {
   VerificationStatus,
   PriceType,
   MediaType,
+  EventType,
+  EventRequestStatus,
+  QuoteStatus,
+  BookingStatus,
 } from '@prisma/client';
 import { config } from './config/index.js';
 
@@ -203,6 +207,12 @@ interface ProviderProfileData {
   menuItems?: MenuItemData[];
   cuisineTypes?: string[];
   eventThemes?: string[];
+  tagline?: string;
+  languages?: string[];
+  yearsInBusiness?: number;
+  websiteUrl?: string;
+  instagramHandle?: string;
+  travelOutsideRegion?: boolean;
 }
 
 // Provider profile data keyed by test account email.
@@ -230,6 +240,12 @@ const PROVIDER_PROFILES: Record<string, ProviderProfileData> = {
     minGuestCount: 1,
     maxGuestCount: 500,
     verificationStatus: VerificationStatus.VERIFIED,
+    tagline: 'Editorial wedding & event photography — candid, modern, timeless',
+    languages: ['English', 'French'],
+    yearsInBusiness: 8,
+    instagramHandle: 'alexphoto.mtl',
+    websiteUrl: 'https://alexphotostudio.ca',
+    travelOutsideRegion: true,
     services: [
       {
         name: 'Half-day Wedding Coverage',
@@ -306,6 +322,12 @@ const PROVIDER_PROFILES: Record<string, ProviderProfileData> = {
     minGuestCount: 20,
     maxGuestCount: 300,
     verificationStatus: VerificationStatus.VERIFIED,
+    tagline: 'Refined French-Canadian catering for life\'s finest moments',
+    languages: ['French', 'English'],
+    yearsInBusiness: 12,
+    instagramHandle: 'marieskitchen.mtl',
+    websiteUrl: 'https://marieskitchen.ca',
+    travelOutsideRegion: false,
     services: [
       {
         name: 'Wedding Reception Catering',
@@ -447,6 +469,11 @@ const PROVIDER_PROFILES: Record<string, ProviderProfileData> = {
     minGuestCount: 20,
     maxGuestCount: 200,
     verificationStatus: VerificationStatus.VERIFIED,
+    tagline: 'Custom cocktail menus crafted for your event',
+    languages: ['English', 'French', 'Spanish'],
+    yearsInBusiness: 6,
+    instagramHandle: 'sammixbar',
+    travelOutsideRegion: true,
     services: [
       {
         name: 'Open Bar (4 hours)',
@@ -542,6 +569,12 @@ const PROVIDER_PROFILES: Record<string, ProviderProfileData> = {
     minGuestCount: 1,
     maxGuestCount: 500,
     verificationStatus: VerificationStatus.VERIFIED,
+    tagline: 'Premium wedding & event DJ — Montreal and beyond',
+    languages: ['English', 'French'],
+    yearsInBusiness: 10,
+    instagramHandle: 'jordanbeats.dj',
+    websiteUrl: 'https://jordanbeats.ca',
+    travelOutsideRegion: true,
     services: [
       {
         name: 'Wedding DJ Package (5hr)',
@@ -624,10 +657,6 @@ async function seedProviderProfile(
     select: { id: true },
   });
 
-  if (existing) {
-    return { profileId: existing.id, created: false };
-  }
-
   // Upsert lookup-table rows (CuisineType, EventTheme are shared across providers)
   const cuisineConnect: { id: string }[] = [];
   if (data.cuisineTypes && data.cuisineTypes.length > 0) {
@@ -651,6 +680,78 @@ async function seedProviderProfile(
       });
       themeConnect.push({ id: theme.id });
     }
+  }
+
+  if (existing) {
+    // Refresh core profile fields on every seed run — fixes stale/null data from old runs
+    await prisma.providerProfile.update({
+      where: { id: existing.id },
+      data: {
+        businessName: data.businessName,
+        businessDescription: data.businessDescription,
+        bannerImageUrl: data.bannerImageUrl,
+        logoUrl: data.logoUrl,
+        isSoloWorker: data.isSoloWorker,
+        verificationStatus: data.verificationStatus,
+        verifiedAt: data.verificationStatus === VerificationStatus.VERIFIED ? new Date() : null,
+        serviceRadius: data.serviceRadius,
+        serviceAreas: data.serviceAreas,
+        pricePerPerson: data.pricePerPerson,
+        hourlyRate: data.hourlyRate,
+        minimumHours: data.minimumHours,
+        fixedFee: data.fixedFee,
+        minimumBudget: data.minimumBudget,
+        maximumBudget: data.maximumBudget,
+        depositPercentage: data.depositPercentage,
+        minGuestCount: data.minGuestCount,
+        maxGuestCount: data.maxGuestCount,
+        tagline: data.tagline ?? null,
+        languages: data.languages ?? [],
+        yearsInBusiness: data.yearsInBusiness ?? null,
+        websiteUrl: data.websiteUrl ?? null,
+        instagramHandle: data.instagramHandle ?? null,
+        travelOutsideRegion: data.travelOutsideRegion ?? false,
+        cuisineTypes: cuisineConnect.length > 0 ? { set: cuisineConnect } : undefined,
+        eventThemes: themeConnect.length > 0 ? { set: themeConnect } : undefined,
+      },
+    });
+
+    // Create services if somehow missing
+    const svcCount = await prisma.service.count({ where: { providerId: existing.id } });
+    if (svcCount === 0) {
+      for (const s of data.services) {
+        await prisma.service.create({
+          data: {
+            providerId: existing.id,
+            name: s.name, description: s.description, providerType: s.providerType,
+            priceType: s.priceType, basePrice: s.basePrice,
+            pricePerPerson: s.pricePerPerson ?? null, pricePerHour: s.pricePerHour ?? null,
+            minGuests: s.minGuests ?? null, maxGuests: s.maxGuests ?? null,
+            minHours: s.minHours ?? null, maxHours: s.maxHours ?? null,
+            features: s.features, includes: s.includes, excludes: s.excludes ?? [],
+          },
+        });
+      }
+    }
+
+    // Create menu items if somehow missing
+    if (data.menuItems && data.menuItems.length > 0) {
+      const menuCount = await prisma.menuItem.count({ where: { providerId: existing.id } });
+      if (menuCount === 0) {
+        for (const [i, m] of data.menuItems.entries()) {
+          await prisma.menuItem.create({
+            data: {
+              providerId: existing.id,
+              name: m.name, description: m.description, category: m.category,
+              price: m.price, dietaryInfo: m.dietaryInfo ?? [],
+              allergens: m.allergens ?? [], isAvailable: true, displayOrder: i,
+            },
+          });
+        }
+      }
+    }
+
+    return { profileId: existing.id, created: false };
   }
 
   // Create profile + all nested children in a single write
@@ -677,6 +778,12 @@ async function seedProviderProfile(
       depositPercentage: data.depositPercentage,
       minGuestCount: data.minGuestCount,
       maxGuestCount: data.maxGuestCount,
+      tagline: data.tagline ?? null,
+      languages: data.languages ?? [],
+      yearsInBusiness: data.yearsInBusiness ?? null,
+      websiteUrl: data.websiteUrl ?? null,
+      instagramHandle: data.instagramHandle ?? null,
+      travelOutsideRegion: data.travelOutsideRegion ?? false,
       services: {
         create: data.services.map((s) => ({
           name: s.name,
@@ -747,6 +854,168 @@ async function seedProviderProfile(
   });
 
   return { profileId: profile.id, created: true };
+}
+
+/**
+ * Seed mock event requests, quotes, and bookings between Alice (planner) and
+ * the 4 test vendors so the Provider Graph has visible connections.
+ * Idempotent — skips if any [mock] requests already exist for Alice.
+ */
+async function seedMockConnections(prisma: PrismaClient, aliceId: string): Promise<void> {
+  const existing = await prisma.eventRequest.count({
+    where: { clientId: aliceId, title: { startsWith: '[mock]' } },
+  });
+  if (existing > 0) return;
+
+  // Look up test vendor profiles
+  const profiles = await prisma.providerProfile.findMany({
+    where: {
+      user: { email: { in: [
+        'test-photographer@festv.app',
+        'test-caterer@festv.app',
+        'test-bartender@festv.app',
+        'test-dj@festv.app',
+      ] } },
+    },
+    select: { id: true, user: { select: { email: true } } },
+  });
+
+  const byEmail: Record<string, string> = {};
+  profiles.forEach(p => { if (p.user?.email) byEmail[p.user.email] = p.id; });
+
+  const photog   = byEmail['test-photographer@festv.app'];
+  const caterer  = byEmail['test-caterer@festv.app'];
+  const bartender = byEmail['test-bartender@festv.app'];
+  const dj       = byEmail['test-dj@festv.app'];
+
+  if (!photog || !caterer || !bartender || !dj) {
+    console.warn('  ⚠️  Could not find all vendor profiles — skipping mock connections');
+    return;
+  }
+
+  const dep = (total: number) => Math.round(total * 1.15 * 0.10 * 100) / 100;
+
+  // ── 1. Leblanc-Dupont Wedding → Photographer → COMPLETED ──────────────
+  const r1 = await prisma.eventRequest.create({
+    data: {
+      clientId: aliceId, title: '[mock] Leblanc-Dupont Wedding',
+      eventType: EventType.WEDDING, guestCount: 80,
+      budgetMin: 1500, budgetMax: 3000,
+      eventDate: new Date('2026-03-08'), eventStartTime: '16:00', eventEndTime: '23:00',
+      venueCity: 'Montreal', venueState: 'QC', status: EventRequestStatus.COMPLETED,
+      targetedProviderProfileId: photog,
+    },
+    select: { id: true },
+  });
+  const q1 = await prisma.quote.create({
+    data: {
+      eventRequestId: r1.id, providerId: photog, status: QuoteStatus.ACCEPTED,
+      subtotal: 2100, taxRate: 0.15, taxAmount: 315, serviceFee: 0,
+      gratuity: 0, discount: 0, totalAmount: 2415, depositRequired: dep(2100),
+      validUntil: new Date('2026-02-01'), sentAt: new Date('2025-12-10'),
+      respondedAt: new Date('2025-12-14'),
+    },
+    select: { id: true },
+  });
+  await prisma.booking.create({
+    data: {
+      eventRequestId: r1.id, quoteId: q1.id, clientId: aliceId, providerId: photog,
+      status: BookingStatus.COMPLETED, totalAmount: 2415,
+      depositAmount: dep(2100), depositPaidAt: new Date('2025-12-16'),
+      balanceAmount: 2415 - dep(2100), balancePaidAt: new Date('2026-03-07'),
+      eventDate: new Date('2026-03-08'), eventStartTime: '16:00', eventEndTime: '23:00',
+      guestCount: 80, completedAt: new Date('2026-03-09'),
+    },
+  });
+
+  // ── 2. Martin Anniversary Dinner → Caterer → CONFIRMED ────────────────
+  const r2 = await prisma.eventRequest.create({
+    data: {
+      clientId: aliceId, title: '[mock] Martin Anniversary Dinner',
+      eventType: EventType.ANNIVERSARY, guestCount: 35,
+      budgetMin: 2000, budgetMax: 5000,
+      eventDate: new Date('2026-06-28'), eventStartTime: '18:30', eventEndTime: '22:30',
+      venueCity: 'Montreal', venueState: 'QC', status: EventRequestStatus.BOOKED,
+      targetedProviderProfileId: caterer,
+    },
+    select: { id: true },
+  });
+  const r2total = 35 * 75;
+  const q2 = await prisma.quote.create({
+    data: {
+      eventRequestId: r2.id, providerId: caterer, status: QuoteStatus.ACCEPTED,
+      subtotal: r2total, taxRate: 0.15, taxAmount: r2total * 0.15, serviceFee: 0,
+      gratuity: 0, discount: 0, totalAmount: r2total * 1.15, depositRequired: dep(r2total),
+      validUntil: new Date('2026-05-15'), sentAt: new Date('2026-04-10'),
+      respondedAt: new Date('2026-04-13'),
+    },
+    select: { id: true },
+  });
+  await prisma.booking.create({
+    data: {
+      eventRequestId: r2.id, quoteId: q2.id, clientId: aliceId, providerId: caterer,
+      status: BookingStatus.CONFIRMED, totalAmount: r2total * 1.15,
+      depositAmount: dep(r2total), depositPaidAt: new Date('2026-04-15'),
+      balanceAmount: r2total * 1.15 - dep(r2total),
+      eventDate: new Date('2026-06-28'), eventStartTime: '18:30', eventEndTime: '22:30',
+      guestCount: 35,
+    },
+  });
+
+  // ── 3. Sunshine Birthday Party → DJ → PENDING_DEPOSIT (accepted, awaiting deposit) ──
+  const r3 = await prisma.eventRequest.create({
+    data: {
+      clientId: aliceId, title: '[mock] Sunshine Birthday Party',
+      eventType: EventType.BIRTHDAY, guestCount: 65,
+      budgetMin: 1000, budgetMax: 2500,
+      eventDate: new Date('2026-07-12'), eventStartTime: '19:00', eventEndTime: '01:00',
+      venueCity: 'Laval', venueState: 'QC', status: EventRequestStatus.BOOKED,
+      targetedProviderProfileId: dj,
+    },
+    select: { id: true },
+  });
+  const q3 = await prisma.quote.create({
+    data: {
+      eventRequestId: r3.id, providerId: dj, status: QuoteStatus.ACCEPTED,
+      subtotal: 1150, taxRate: 0.15, taxAmount: 172.5, serviceFee: 0,
+      gratuity: 0, discount: 0, totalAmount: 1322.5, depositRequired: dep(1150),
+      validUntil: new Date('2026-05-30'), sentAt: new Date('2026-04-20'),
+      respondedAt: new Date('2026-04-25'),
+    },
+    select: { id: true },
+  });
+  await prisma.booking.create({
+    data: {
+      eventRequestId: r3.id, quoteId: q3.id, clientId: aliceId, providerId: dj,
+      status: BookingStatus.PENDING_DEPOSIT, totalAmount: 1322.5,
+      depositAmount: dep(1150), balanceAmount: 1322.5 - dep(1150),
+      eventDate: new Date('2026-07-12'), eventStartTime: '19:00', eventEndTime: '01:00',
+      guestCount: 65,
+    },
+  });
+
+  // ── 4. Q3 Company Mixer → Bartender → SENT quote ──────────────────────
+  const r4 = await prisma.eventRequest.create({
+    data: {
+      clientId: aliceId, title: '[mock] Q3 Company Mixer',
+      eventType: EventType.CORPORATE, guestCount: 50,
+      budgetMin: 800, budgetMax: 2000,
+      eventDate: new Date('2026-08-21'), eventStartTime: '17:00', eventEndTime: '21:00',
+      venueCity: 'Montreal', venueState: 'QC', status: EventRequestStatus.QUOTED,
+      targetedProviderProfileId: bartender,
+    },
+    select: { id: true },
+  });
+  await prisma.quote.create({
+    data: {
+      eventRequestId: r4.id, providerId: bartender, status: QuoteStatus.SENT,
+      subtotal: 800, taxRate: 0.15, taxAmount: 120, serviceFee: 0,
+      gratuity: 0, discount: 0, totalAmount: 920, depositRequired: dep(800),
+      validUntil: new Date('2026-06-01'), sentAt: new Date('2026-04-22'),
+    },
+  });
+
+  console.log('  ✅ Mock connections seeded (4 events: 2 confirmed bookings + 1 pending deposit + 1 quote)');
 }
 
 /**
@@ -838,6 +1107,15 @@ export async function seedTestAccounts(prisma: PrismaClient): Promise<SeedResult
       profileCreated,
       profileSkipped,
     });
+  }
+
+  // Seed mock event requests + bookings so the Provider Graph has live connections.
+  const aliceUser = await prisma.user.findUnique({
+    where: { email: 'test-client@festv.app' },
+    select: { id: true },
+  });
+  if (aliceUser) {
+    await seedMockConnections(prisma, aliceUser.id);
   }
 
   return results;
