@@ -39,8 +39,9 @@ router.post('/availability', authenticate, requireProvider, asyncHandler(provide
 // ─── Parameterized routes LAST ───
 
 // Public provider pages
-router.get('/:id', optionalAuth, asyncHandler(providerController.getProviderById));
-router.get('/:id/availability', asyncHandler(providerController.getAvailability));
+router.get('/:id/packages',       asyncHandler(providerController.getProviderPackages));
+router.get('/:id',                optionalAuth, asyncHandler(providerController.getProviderById));
+router.get('/:id/availability',   asyncHandler(providerController.getAvailability));
 router.get('/:providerId/menu-items', asyncHandler(providerController.getMenuItems));
 
 export default router;

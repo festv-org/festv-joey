@@ -252,113 +252,196 @@ export const getProviderById = asyncHandler(async (req: AuthenticatedRequest, re
   });
 });
 
-// Search providers
+// Search providers — package-aware
 export const searchProviders = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const params = providerSearchSchema.parse(req.query);
-  const currentUserId = req.user?.id;
-  
-  // TODO: restrict to VERIFIED only in production
-  const where: any = {};
-  
-  // Filter by provider types
-  if (params.providerTypes && params.providerTypes.length > 0) {
-    where.providerTypes = { hasSome: params.providerTypes };
-  }
-  
-  // Filter by rating
-  if (params.minRating) {
-    where.averageRating = { gte: params.minRating };
-  }
-  
-  // Filter by guest count
-  if (params.guestCount) {
-    where.AND = [
-      ...(where.AND || []),
-      { minGuestCount: { lte: params.guestCount } },
-      { maxGuestCount: { gte: params.guestCount } },
+  const {
+    type,
+    eventDate,
+    guestCount:   guestCountStr,
+    eventType,
+    minBudget:    minBudgetStr,
+    maxBudget:    maxBudgetStr,
+    city,
+    page:         pageStr  = '1',
+    limit:        limitStr = '20',
+  } = req.query as Record<string, string>;
+
+  if (!type) throw new AppError('type is required', 400);
+
+  const page       = Math.max(1, parseInt(pageStr)  || 1);
+  const limit      = Math.min(50, parseInt(limitStr) || 20);
+  const skip       = (page - 1) * limit;
+  const guestCount = guestCountStr ? parseInt(guestCountStr)   : undefined;
+  const minBudget  = minBudgetStr  ? parseFloat(minBudgetStr)  : undefined;
+  const maxBudget  = maxBudgetStr  ? parseFloat(maxBudgetStr)  : undefined;
+
+  // ── Steps 3–5: Build package-level sub-filter ────────────────────────────
+  const packageFilter: any = { isActive: true };
+
+  // Step 3 — Guest count
+  if (guestCount !== undefined) {
+    packageFilter.AND = [
+      { OR: [{ minGuests: null }, { minGuests: { lte: guestCount } }] },
+      { OR: [{ maxGuests: null }, { maxGuests: { gte: guestCount } }] },
     ];
   }
-  
-  // Filter by budget
-  if (params.maxBudget) {
-    where.minimumBudget = { lte: params.maxBudget };
+
+  // Step 4 — Event type
+  if (eventType) {
+    packageFilter.eventTypes = { has: eventType };
   }
-  
-  // Filter by location
-  if (params.city) {
-    where.serviceAreas = { has: params.city };
+
+  // Step 5 — Budget (basePrice or minimumSpend within range)
+  if (minBudget !== undefined || maxBudget !== undefined) {
+    const budgetCond: any = {};
+    if (minBudget !== undefined) budgetCond.gte = minBudget;
+    if (maxBudget !== undefined) budgetCond.lte = maxBudget;
+    packageFilter.OR = [
+      { basePrice:    budgetCond },
+      { minimumSpend: budgetCond },
+    ];
   }
-  
-  // Filter by cuisine types
-  if (params.cuisineTypes && params.cuisineTypes.length > 0) {
-    where.cuisineTypes = {
-      some: {
-        name: { in: params.cuisineTypes },
-      },
-    };
+
+  // ── Step 1: Base filter ───────────────────────────────────────────────────
+  const where: any = {
+    verificationStatus: 'VERIFIED',
+    packages: { some: packageFilter },
+    OR: [
+      { primaryType:    type },
+      { providerTypes:  { has: type } },
+    ],
+  };
+
+  // ── Step 2: Date availability filter ─────────────────────────────────────
+  if (eventDate) {
+    const parsedDate = new Date(eventDate);
+    if (!isNaN(parsedDate.getTime())) {
+      const startOfDay = new Date(parsedDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(parsedDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      where.NOT = {
+        OR: [
+          {
+            availabilityBlocks: {
+              some: {
+                startDate: { lte: parsedDate },
+                endDate:   { gte: parsedDate },
+              },
+            },
+          },
+          {
+            bookings: {
+              some: {
+                AND: [
+                  { eventDate: { gte: startOfDay } },
+                  { eventDate: { lte: endOfDay   } },
+                  { status:    { notIn: ['CANCELLED'] } },
+                ],
+              },
+            },
+          },
+        ],
+      };
+    }
   }
-  
-  // Filter by event themes
-  if (params.eventThemes && params.eventThemes.length > 0) {
-    where.eventThemes = {
-      some: {
-        name: { in: params.eventThemes },
-      },
-    };
+
+  // ── Step 6: City filter (case-insensitive via user relation) ──────────────
+  if (city) {
+    where.user = { city: { contains: city, mode: 'insensitive' } };
   }
-  
-  // Sort options
-  const orderBy: any = {};
-  switch (params.sortBy) {
-    case 'rating':
-      orderBy.averageRating = params.sortOrder;
-      break;
-    case 'reviews':
-      orderBy.totalReviews = params.sortOrder;
-      break;
-    case 'price':
-      orderBy.pricePerPerson = params.sortOrder;
-      break;
-    default:
-      orderBy.averageRating = 'desc';
-  }
-  
-  const skip = (params.page - 1) * params.limit;
-  
-  const [providers, total] = await Promise.all([
+
+  // ── Query ─────────────────────────────────────────────────────────────────
+  const [providers, total] = await prisma.$transaction([
     prisma.providerProfile.findMany({
       where,
-      orderBy,
       skip,
-      take: params.limit,
+      take:    limit,
+      orderBy: { averageRating: 'desc' },
       include: {
         user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-            city: true,
-            state: true,
-          },
+          select: { id: true, city: true, state: true },
         },
-        cuisineTypes: true,
-        portfolioItems: {
-          where: { isPublic: true, isFeatured: true },
-          take: 3,
+        packages: {
+          where:   { isActive: true },
+          orderBy: [{ basePrice: 'asc' }, { sortOrder: 'asc' }],
+          select: {
+            id:           true,
+            name:         true,
+            category:     true,
+            pricingModel: true,
+            basePrice:    true,
+            minimumSpend: true,
+            minGuests:    true,
+            maxGuests:    true,
+            included:     true,
+          },
         },
       },
     }),
     prisma.providerProfile.count({ where }),
   ]);
-  
+
+  // ── Step 7: Calculate startingFrom + shape response ──────────────────────
+  const results = providers.map(provider => {
+    const pkgs = provider.packages;
+    let startingFrom: number | null = null;
+    let featuredPackage: any       = null;
+
+    if (pkgs.length > 0) {
+      // Cheapest package is first (sorted by basePrice ASC)
+      const cheapest = pkgs[0];
+
+      startingFrom = cheapest.pricingModel === 'PER_PERSON' && guestCount !== undefined
+        ? cheapest.basePrice * guestCount
+        : cheapest.basePrice;
+
+      if (cheapest.minimumSpend != null && cheapest.minimumSpend > startingFrom) {
+        startingFrom = cheapest.minimumSpend;
+      }
+
+      startingFrom = Math.round(startingFrom * 100) / 100;
+
+      featuredPackage = {
+        id:           cheapest.id,
+        name:         cheapest.name,
+        category:     cheapest.category,
+        pricingModel: cheapest.pricingModel,
+        basePrice:    cheapest.basePrice,
+        minimumSpend: cheapest.minimumSpend,
+        minGuests:    cheapest.minGuests,
+        maxGuests:    cheapest.maxGuests,
+        included:     cheapest.included,
+      };
+    }
+
+    return {
+      id:                 provider.id,
+      businessName:       provider.businessName,
+      primaryType:        provider.primaryType,
+      providerTypes:      provider.providerTypes,
+      tagline:            provider.tagline,
+      city:               provider.user?.city ?? null,
+      averageRating:      provider.averageRating,
+      totalReviews:       provider.totalReviews,
+      logoUrl:            provider.logoUrl,
+      bannerImageUrl:     provider.bannerImageUrl,
+      startingFrom,
+      activePackageCount: pkgs.length,
+      isAvailable:        true,   // passed the NOT filter (or no date was given)
+      featuredPackage,
+    };
+  });
+
   res.json({
     success: true,
-    data: providers,
+    data:    results,
     meta: {
-      page: params.page,
-      limit: params.limit,
+      page,
+      limit,
       total,
-      totalPages: Math.ceil(total / params.limit),
+      totalPages: Math.ceil(total / limit),
     },
   });
 });
@@ -717,6 +800,46 @@ export const deleteMenuItem = asyncHandler(async (req: AuthenticatedRequest, res
 // ============================================
 // STATS
 // ============================================
+
+// Get provider packages grouped by category (public)
+// GET /providers/:id/packages
+export const getProviderPackages = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const { id } = req.params;
+
+  const profile = await prisma.providerProfile.findUnique({
+    where:  { id },
+    select: { id: true },
+  });
+
+  if (!profile) throw new NotFoundError('Provider');
+
+  const packages = await prisma.package.findMany({
+    where:   { providerProfileId: id, isActive: true },
+    include: {
+      seasonalRules:  true,
+      dayOfWeekRules: true,
+      addOns:         true,
+    },
+    orderBy: [
+      { sortOrder: 'asc' },
+      { category:  'asc' },
+    ],
+  });
+
+  // Group by category
+  const grouped: Record<string, typeof packages> = {};
+  for (const pkg of packages) {
+    if (!grouped[pkg.category]) grouped[pkg.category] = [];
+    grouped[pkg.category].push(pkg);
+  }
+
+  const result = Object.entries(grouped).map(([category, pkgs]) => ({
+    category,
+    packages: pkgs,
+  }));
+
+  res.json({ success: true, data: result });
+});
 
 export const getProviderStats = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
