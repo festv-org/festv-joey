@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Send, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -122,10 +123,15 @@ export default function JessWidget() {
   return (
     <>
       {/* ── Chat Panel ──────────────────────────────────────────────────────── */}
-      <div
-        className={`fixed bottom-24 right-4 md:right-6 z-50 w-80 md:w-96 bg-white border border-border rounded-md shadow-xl
-          transition-all duration-300 origin-bottom-right
-          ${isOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+      <AnimatePresence>
+      {isOpen && (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 8 }}
+        transition={{ duration: 0.2 }}
+        style={{ transformOrigin: 'bottom right' }}
+        className="fixed bottom-24 right-4 md:right-6 z-50 w-80 md:w-96 bg-white border border-border rounded-md shadow-xl"
       >
         {/* Header */}
         <div className="bg-dark px-4 py-3 rounded-t-md flex items-center justify-between">
@@ -150,8 +156,11 @@ export default function JessWidget() {
         {/* Messages */}
         <div className="h-80 overflow-y-auto px-4 py-4 flex flex-col gap-3">
           {messages.map((msg, i) => (
-            <div
+            <motion.div
               key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
@@ -163,7 +172,7 @@ export default function JessWidget() {
               >
                 {msg.content}
               </div>
-            </div>
+            </motion.div>
           ))}
 
           {isLoading && (
@@ -196,7 +205,9 @@ export default function JessWidget() {
             <Send size={14} strokeWidth={2} />
           </button>
         </div>
-      </div>
+      </motion.div>
+      )}
+      </AnimatePresence>
 
       {/* ── Floating Button ──────────────────────────────────────────────────── */}
       <button

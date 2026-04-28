@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Calendar, Inbox, Star, Package, Eye, Clock, ChevronRight, User,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -299,7 +300,7 @@ export default function ProviderDashboard() {
               </div>
             ) : (
               <>
-                {requests.map(req => {
+                {requests.map((req, reqIdx) => {
                   const clientName = req.client
                     ? `${req.client.firstName} ${req.client.lastName}`
                     : 'Anonymous';
@@ -310,8 +311,11 @@ export default function ProviderDashboard() {
                       : null;
 
                   return (
-                    <div
+                    <motion.div
                       key={req.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(reqIdx, 4) * 0.07, duration: 0.4 }}
                       className="bg-white border border-border rounded-md p-5 mb-3 hover:border-gold transition-colors duration-150"
                     >
                       {/* Top meta row */}
@@ -374,7 +378,7 @@ export default function ProviderDashboard() {
                           Decline
                         </button>
                       </div>
-                    </div>
+                    </motion.div>
                   );
                 })}
                 <Link
@@ -401,7 +405,7 @@ export default function ProviderDashboard() {
               </div>
             ) : (
               <>
-                {bookings.map(booking => {
+                {bookings.map((booking, bkIdx) => {
                   const dm = booking.eventDate ? dayMonth(booking.eventDate) : null;
                   const clientName = booking.client
                     ? `${booking.client.firstName} ${booking.client.lastName}`
@@ -409,9 +413,14 @@ export default function ProviderDashboard() {
                       ? `${booking.quote.client.firstName} ${booking.quote.client.lastName}`
                       : 'Client';
                   return (
+                    <motion.div
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(bkIdx, 4) * 0.07, duration: 0.4 }}
+                    >
                     <Link
                       to={`/bookings/${booking.id}`}
-                      key={booking.id}
                       className="bg-white border border-border rounded-md p-5 mb-3 flex items-start gap-4 hover:border-gold transition-colors duration-150 block"
                     >
                       {/* Date block */}
@@ -452,6 +461,7 @@ export default function ProviderDashboard() {
 
                       <ChevronRight size={16} className="text-muted flex-shrink-0 mt-1" />
                     </Link>
+                    </motion.div>
                   );
                 })}
                 <Link

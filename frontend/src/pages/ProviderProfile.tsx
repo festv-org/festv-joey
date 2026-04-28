@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Globe, Instagram, ChevronDown, CheckCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { ProviderTypeBadge } from '../components/ProviderTypeBadge';
 import { eventRequestsApi } from '../utils/api';
@@ -346,7 +347,15 @@ function PackageCard({ pkg, isAuthenticated, providerId, providerName }: {
       </button>
 
       {/* Inline estimator */}
+      <AnimatePresence>
       {est.isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="overflow-hidden"
+        >
         <div className="mt-5 border-t border-border pt-5 space-y-4">
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -566,7 +575,9 @@ function PackageCard({ pkg, isAuthenticated, providerId, providerName }: {
             )
           )}
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -724,7 +735,11 @@ export default function ProviderProfile() {
         />
 
         {/* Content — bottom of hero */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+          className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between gap-6"
+        >
           <div className="flex items-end gap-5 min-w-0">
             {/* Avatar */}
             {provider.logoUrl ? (
@@ -801,7 +816,7 @@ export default function ProviderProfile() {
           >
             Request This Vendor
           </button>
-        </div>
+        </motion.div>
       </div>
 
       {/* ── SECTION 3: PACKAGES ─────────────────────────────────────────────── */}
@@ -819,14 +834,21 @@ export default function ProviderProfile() {
                 <h3 className="font-serif text-xl text-dark border-b border-border pb-3 mb-6 mt-10 first:mt-0">
                   {group.category}
                 </h3>
-                {group.packages.map(pkg => (
-                  <PackageCard
+                {group.packages.map((pkg, pkgIdx) => (
+                  <motion.div
                     key={pkg.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: pkgIdx * 0.08 }}
+                  >
+                  <PackageCard
                     pkg={pkg}
                     isAuthenticated={isAuthenticated}
                     providerId={id!}
                     providerName={provider.businessName}
                   />
+                  </motion.div>
                 ))}
               </div>
             ))

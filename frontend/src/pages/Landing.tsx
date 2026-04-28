@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { UtensilsCrossed, Wine, Music, Camera, Flower2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // ── Vendor type pills & cards ────────────────────────────────────────────────
 const vendorTypes = [
@@ -88,22 +89,38 @@ export default function Landing() {
         <div className="w-full max-w-4xl mx-auto text-center" style={{ paddingTop: '20vh' }}>
 
           {/* Eyebrow */}
-          <p className="font-sans text-xs tracking-widest uppercase text-gold mb-6">
+          <motion.p
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="font-sans text-xs tracking-widest uppercase text-gold mb-6"
+          >
             The Luxury Event Planning Marketplace
-          </p>
+          </motion.p>
 
           {/* Headline */}
-          <h1 className="font-serif font-light text-6xl md:text-8xl text-dark leading-none">
+          <motion.h1
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.05 }}
+            className="font-serif font-light text-6xl md:text-8xl text-dark leading-none"
+          >
             Every great event<br />starts here.
-          </h1>
+          </motion.h1>
 
           {/* Subheadline */}
-          <p className="font-sans text-base md:text-lg text-muted max-w-lg mx-auto mt-6 leading-relaxed">
+          <motion.p
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut', delay: 0.15 }}
+            className="font-sans text-base md:text-lg text-muted max-w-lg mx-auto mt-6 leading-relaxed"
+          >
             Browse curated vendors, see real package pricing, and book with confidence — all in one place.
-          </p>
+          </motion.p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.25 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10"
+          >
             <Link
               to="/providers"
               className="bg-gold text-dark font-sans text-xs tracking-widest uppercase px-8 py-4 hover:bg-gold-dark transition-colors duration-200"
@@ -116,10 +133,14 @@ export default function Landing() {
             >
               List Your Business
             </Link>
-          </div>
+          </motion.div>
 
           {/* Vendor type pills */}
-          <div className="flex flex-wrap gap-3 justify-center mt-8">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.4 }}
+            className="flex flex-wrap gap-3 justify-center mt-8"
+          >
             {vendorTypes.map((v) => (
               <Link
                 key={v.type}
@@ -129,10 +150,14 @@ export default function Landing() {
                 {v.label}
               </Link>
             ))}
-          </div>
+          </motion.div>
 
           {/* Gold rule */}
-          <div className="mt-12 w-16 border-t border-gold mx-auto" />
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-12 w-16 border-t border-gold mx-auto"
+          />
         </div>
       </section>
 
@@ -140,17 +165,25 @@ export default function Landing() {
       <section className="bg-white py-24">
         <div className="max-w-5xl mx-auto px-6">
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.5 }}
+          >
           <p className="font-sans text-xs tracking-widest uppercase text-gold text-center mb-4">
             Why FESTV
           </p>
           <h2 className="font-serif text-4xl text-dark text-center mb-16">
             A smarter way to plan
           </h2>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
 
             {/* 01 */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.5, delay: 0 }}
+            >
               <span className="font-serif text-5xl font-light" style={{ color: 'rgba(196,160,106,0.3)' }}>
                 01
               </span>
@@ -159,10 +192,13 @@ export default function Landing() {
                 Every vendor defines their packages with structured pricing rules. See real numbers before you
                 ever reach out — no "contact for pricing."
               </p>
-            </div>
+            </motion.div>
 
             {/* 02 */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <span className="font-serif text-5xl font-light" style={{ color: 'rgba(196,160,106,0.3)' }}>
                 02
               </span>
@@ -171,10 +207,13 @@ export default function Landing() {
                 Every vendor on FESTV is reviewed and approved before going live. You're browsing a curated
                 network, not a directory.
               </p>
-            </div>
+            </motion.div>
 
             {/* 03 */}
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <span className="font-serif text-5xl font-light" style={{ color: 'rgba(196,160,106,0.3)' }}>
                 03
               </span>
@@ -183,7 +222,7 @@ export default function Landing() {
                 Request, receive a quote, pay your deposit. The whole process is structured and transparent
                 from start to finish.
               </p>
-            </div>
+            </motion.div>
 
           </div>
         </div>
@@ -193,12 +232,17 @@ export default function Landing() {
       <section className="bg-bg py-24">
         <div className="max-w-4xl mx-auto px-6">
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.5 }}
+          >
           <p className="font-sans text-xs tracking-widest uppercase text-gold text-center mb-4">
             How It Works
           </p>
           <h2 className="font-serif text-4xl text-dark text-center mb-10">
             Simple for everyone
           </h2>
+          </motion.div>
 
           {/* Tab toggle */}
           <div className="flex items-center justify-center gap-8 mb-16">
@@ -247,25 +291,35 @@ export default function Landing() {
       <section className="bg-white py-24">
         <div className="max-w-6xl mx-auto px-6">
 
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }} transition={{ duration: 0.5 }}
+          >
           <p className="font-sans text-xs tracking-widest uppercase text-gold text-center mb-4">
             Explore Vendors
           </p>
           <h2 className="font-serif text-4xl text-dark text-center mb-16">
             Find the right vendor for your event
           </h2>
+          </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {vendorTypes.map((v) => (
-              <Link
+            {vendorTypes.map((v, i) => (
+              <motion.div
                 key={v.type}
-                to={`/providers?type=${v.type}`}
-                className="bg-bg border border-border rounded-2xl p-6 flex flex-col hover:border-gold hover:shadow-sm transition-all duration-200 group"
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.07 }}
               >
-                <v.Icon size={28} strokeWidth={1.5} className="text-gold" />
-                <span className="font-serif text-lg text-dark mt-4 leading-snug">{v.label}</span>
-                <span className="text-muted text-xs mt-2 leading-relaxed flex-1">{v.desc}</span>
-                <span className="text-gold text-xs mt-4 font-sans group-hover:underline">Browse →</span>
-              </Link>
+                <Link
+                  to={`/providers?type=${v.type}`}
+                  className="bg-bg border border-border rounded-2xl p-6 flex flex-col hover:border-gold hover:shadow-sm transition-all duration-200 group"
+                >
+                  <v.Icon size={28} strokeWidth={1.5} className="text-gold" />
+                  <span className="font-serif text-lg text-dark mt-4 leading-snug">{v.label}</span>
+                  <span className="text-muted text-xs mt-2 leading-relaxed flex-1">{v.desc}</span>
+                  <span className="text-gold text-xs mt-4 font-sans group-hover:underline">Browse →</span>
+                </Link>
+              </motion.div>
             ))}
           </div>
 
@@ -274,7 +328,11 @@ export default function Landing() {
 
       {/* ── SECTION 5: VENDOR CTA BANNER ────────────────────────────────────── */}
       <section className="bg-dark py-20">
-        <div className="text-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }} transition={{ duration: 0.5 }}
+          className="text-center px-6"
+        >
           <h2 className="font-serif text-4xl text-white">Are you a vendor?</h2>
           <p className="text-muted text-base mt-4 max-w-lg mx-auto leading-relaxed">
             Join FESTV and start receiving booking requests from planners looking for exactly what you offer.
@@ -285,7 +343,7 @@ export default function Landing() {
           >
             List Your Business
           </Link>
-        </div>
+        </motion.div>
       </section>
 
     </div>

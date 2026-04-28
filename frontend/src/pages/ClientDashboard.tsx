@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { format, differenceInDays, parseISO } from 'date-fns';
 import {
   Search,
@@ -281,7 +282,7 @@ export default function ClientDashboard() {
                 <p className="font-sans text-xs text-muted">No quotes waiting for a response.</p>
               </div>
             ) : (
-              quotes.map((quote) => {
+              quotes.map((quote, i) => {
                 const daysLeft = quote.expiresAt
                   ? differenceInDays(parseISO(quote.expiresAt), new Date())
                   : null;
@@ -290,8 +291,13 @@ export default function ClientDashboard() {
                 const busy = isAccepting || isDeclining;
 
                 return (
-                  <div
+                  <motion.div
                     key={quote.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i, 4) * 0.07, duration: 0.4 }}
+                  >
+                  <div
                     className="bg-white border border-gold/30 rounded-md p-5 mb-3"
                   >
                     <div className="flex items-start justify-between gap-4 mb-4">
@@ -354,6 +360,7 @@ export default function ClientDashboard() {
                       </button>
                     </div>
                   </div>
+                  </motion.div>
                 );
               })
             )}
@@ -394,14 +401,19 @@ export default function ClientDashboard() {
                 </Link>
               </div>
             ) : (
-              requests.map((req) => {
+              requests.map((req, i) => {
                 const badge = REQUEST_STATUS[req.status] ?? {
                   label: req.status,
                   cls: 'bg-muted/10 text-muted border border-muted/20',
                 };
                 return (
-                  <div
+                  <motion.div
                     key={req.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i, 4) * 0.07, duration: 0.4 }}
+                  >
+                  <div
                     className="bg-white border border-border rounded-md p-5 mb-3"
                   >
                     <div className="flex items-start justify-between gap-4">
@@ -456,6 +468,7 @@ export default function ClientDashboard() {
                       </div>
                     </div>
                   </div>
+                  </motion.div>
                 );
               })
             )}
@@ -481,7 +494,7 @@ export default function ClientDashboard() {
                 </p>
               </div>
             ) : (
-              upcomingBookings.map((booking) => {
+              upcomingBookings.map((booking, i) => {
                 const badge = BOOKING_STATUS[booking.status] ?? {
                   label: booking.status.replace(/_/g, ' '),
                   cls: 'bg-muted/10 text-muted border border-muted/20',
@@ -489,8 +502,13 @@ export default function ClientDashboard() {
                 const date = booking.eventDate ? parseISO(booking.eventDate) : null;
 
                 return (
-                  <Link
+                  <motion.div
                     key={booking.id}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i, 4) * 0.07, duration: 0.4 }}
+                  >
+                  <Link
                     to={`/bookings/${booking.id}`}
                     className="bg-white border border-border rounded-md p-5 mb-3 flex items-start gap-4 hover:border-gold/30 transition-colors group"
                   >
@@ -532,6 +550,7 @@ export default function ClientDashboard() {
 
                     <ChevronRight size={16} className="text-muted flex-shrink-0 mt-1 group-hover:text-gold-dark transition-colors" />
                   </Link>
+                  </motion.div>
                 );
               })
             )}

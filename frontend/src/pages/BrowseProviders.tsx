@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ProviderTypeBadge, providerTypeConfig } from '../components/ProviderTypeBadge';
 
 // ── Currency formatter ────────────────────────────────────────────────────────
@@ -211,7 +212,11 @@ export default function BrowseProviders() {
     <div className="flex min-h-screen">
 
       {/* ── SIDEBAR ───────────────────────────────────────────────────────── */}
-      <aside className="hidden md:flex flex-col w-72 flex-shrink-0 bg-white border-r border-border sticky top-16 h-[calc(100vh-64px)] overflow-y-auto">
+      <motion.aside
+        initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+        className="hidden md:flex flex-col w-72 flex-shrink-0 bg-white border-r border-border sticky top-16 h-[calc(100vh-64px)] overflow-y-auto"
+      >
         <div className="p-6 flex-1">
 
           {/* Header */}
@@ -327,7 +332,7 @@ export default function BrowseProviders() {
           </button>
 
         </div>
-      </aside>
+      </motion.aside>
 
       {/* ── RESULTS AREA ──────────────────────────────────────────────────── */}
       <main className="flex-1 bg-bg px-8 py-8 min-w-0">
@@ -376,9 +381,18 @@ export default function BrowseProviders() {
         {/* Vendor cards grid */}
         {!isLoading && providers.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {providers.map(p => (
-              <VendorCard key={p.id} provider={p} />
-            ))}
+            <AnimatePresence>
+              {providers.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(i, 5) * 0.07, duration: 0.4 }}
+                >
+                  <VendorCard provider={p} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
 
