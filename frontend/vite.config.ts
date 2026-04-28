@@ -20,7 +20,8 @@ export default defineConfig(({ mode }) => {
     },
     publicDir: 'public',
     build: {
-      outDir: 'dist',
+      outDir: '../backend/public/react-dist',
+      emptyOutDir: true,
       rollupOptions: {
         output: {
           manualChunks: undefined,

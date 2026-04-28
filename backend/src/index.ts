@@ -70,7 +70,18 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
-// Serve FESTV frontend (no-cache on HTML so changes appear immediately)
+// Serve React build (primary frontend)
+app.use(express.static(path.join(__dirname, '../public/react-dist'), {
+  setHeaders(res, filePath) {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
+
+// Serve legacy HTML assets (images, CSS, etc. from old public/)
 app.use(express.static(path.join(process.cwd(), 'public'), {
   setHeaders(res, filePath) {
     if (filePath.endsWith('.html')) {
@@ -80,14 +91,21 @@ app.use(express.static(path.join(process.cwd(), 'public'), {
     }
   }
 }));
-app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join(process.cwd(), 'public', 'festv-index.html'));
-});
 
 // API routes
 app.use('/api/v1', routes);
 
-// 404 handler
+// SPA catch-all — serve React index.html for any non-API route so
+// client-side navigation (React Router) works on hard reload / direct URL
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
+  if (req.path.startsWith('/api')) {
+    next(new NotFoundError(`Route ${req.method} ${req.path} not found`));
+  } else {
+    res.sendFile(path.join(__dirname, '../public/react-dist/index.html'));
+  }
+});
+
+// 404 handler (API routes that fell through above)
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(new NotFoundError(`Route ${req.method} ${req.path} not found`));
 });

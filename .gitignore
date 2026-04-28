@@ -15,6 +15,7 @@ frontend/dist/
 frontend/build/
 backend/dist/
 backend/build/
+backend/public/react-dist/
 
 # Logs
 *.log

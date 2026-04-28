@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "npx prisma migrate deploy && npx prisma generate",
+    "build": "cd ../frontend && npm install && npm run build && cd ../backend && npx prisma migrate deploy && npx prisma generate",
     "start": "tsx src/index.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
