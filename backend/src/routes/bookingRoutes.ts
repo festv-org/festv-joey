@@ -1,24 +1,50 @@
+/**
+ * Booking Routes
+ *
+ * Static segments registered before /:id to prevent Express capture.
+ *
+ * Auth matrix:
+ *   GET   /me/client        → getMyBookingsAsClient        (CLIENT)
+ *   GET   /me/vendor        → getMyBookingsAsVendor        (PROVIDER)
+ *   GET   /upcoming         → getUpcomingBookings          (PROVIDER)
+ *   GET   /stats            → getBookingStats              (PROVIDER)
+ *   GET   /:id              → getBookingById               (CLIENT or VENDOR who owns it)
+ *   PATCH /:id/deposit-paid → markDepositPaid              (PROVIDER)
+ *   PATCH /:id/confirm      → confirmBooking               (PROVIDER)
+ *   PATCH /:id/complete     → completeBooking              (PROVIDER)
+ *   PATCH /:id/cancel       → cancelBooking                (CLIENT or PROVIDER)
+ *   PATCH /:id/approve      → approveOutOfParametersBooking (PROVIDER)
+ */
+
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
-import { authenticate, requireClient, requireProvider } from '../middleware/auth';
-import * as bookingController from '../controllers/bookingController';
+import { authenticate, requireClient, requireProvider } from '../middleware/auth.js';
+import {
+  getBookingById,
+  getMyBookingsAsClient,
+  getMyBookingsAsVendor,
+  markDepositPaid,
+  confirmBooking,
+  completeBooking,
+  cancelBooking,
+  approveOutOfParametersBooking,
+  getUpcomingBookings,
+  getBookingStats,
+} from '../controllers/bookingController.js';
 
 const router = Router();
 
-// Client routes
-router.get('/client', authenticate, requireClient, asyncHandler(bookingController.getClientBookings));
-router.post('/:id/pay-deposit', authenticate, requireClient, asyncHandler(bookingController.payDeposit));
-router.post('/:id/pay-balance', authenticate, requireClient, asyncHandler(bookingController.payBalance));
+// ── Static segments (must precede /:id) ──────────────────────────────────────
+router.get('/me/client',  authenticate, requireClient,   getMyBookingsAsClient);
+router.get('/me/vendor',  authenticate, requireProvider, getMyBookingsAsVendor);
+router.get('/upcoming',   authenticate, requireProvider, getUpcomingBookings);
+router.get('/stats',      authenticate, requireProvider, getBookingStats);
 
-// Provider routes
-router.get('/provider', authenticate, requireProvider, asyncHandler(bookingController.getProviderBookings));
-router.post('/:id/confirm', authenticate, requireProvider, asyncHandler(bookingController.confirmBooking));
-router.post('/:id/start', authenticate, requireProvider, asyncHandler(bookingController.startBooking));
-router.post('/:id/complete', authenticate, requireProvider, asyncHandler(bookingController.completeBooking));
-
-// Shared routes
-router.get('/upcoming', authenticate, asyncHandler(bookingController.getUpcomingBookings));
-router.get('/:id', authenticate, asyncHandler(bookingController.getBooking));
-router.post('/:id/cancel', authenticate, asyncHandler(bookingController.cancelBooking));
+// ── Single resource ───────────────────────────────────────────────────────────
+router.get('/:id',              authenticate,             getBookingById);
+router.patch('/:id/deposit-paid', authenticate, requireProvider, markDepositPaid);
+router.patch('/:id/confirm',    authenticate, requireProvider, confirmBooking);
+router.patch('/:id/complete',   authenticate, requireProvider, completeBooking);
+router.patch('/:id/cancel',     authenticate,             cancelBooking);
+router.patch('/:id/approve',    authenticate, requireProvider, approveOutOfParametersBooking);
 
 export default router;

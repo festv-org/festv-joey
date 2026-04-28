@@ -1,677 +1,425 @@
+/**
+ * Booking Controller
+ *
+ * Bookings are created by acceptQuote (quoteController) — this controller
+ * handles everything that happens after a booking exists:
+ *   deposit confirmation, booking confirmation, completion, cancellation,
+ *   out-of-parameters approval, and read endpoints.
+ *
+ * Status machine (BookingStatus):
+ *   PENDING_DEPOSIT  → CONFIRMED     (markDepositPaid — skips DEPOSIT_PAID since Stripe not wired)
+ *   PENDING_REVIEW   → PENDING_DEPOSIT (approveOutOfParametersBooking)
+ *   PENDING_REVIEW   → CANCELLED
+ *   DEPOSIT_PAID     → CONFIRMED     (confirmBooking)
+ *   DEPOSIT_PAID     → CANCELLED
+ *   CONFIRMED        → IN_PROGRESS   (future)
+ *   CONFIRMED        → COMPLETED
+ *   IN_PROGRESS      → COMPLETED
+ */
+
 import { Response } from 'express';
 import prisma from '../config/database.js';
 import { AuthenticatedRequest } from '../types/index.js';
-import { asyncHandler, NotFoundError, ForbiddenError, AppError } from '../middleware/errorHandler.js';
+import { asyncHandler, AppError, NotFoundError, ForbiddenError } from '../middleware/errorHandler.js';
 
-// Get client's bookings
-export const getClientBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const clientId = req.user!.id;
-  const { status, page = 1, limit = 10 } = req.query;
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const where: any = { clientId };
+/** Resolve the caller's ProviderProfile (or a pinned one via ?profileId=). */
+async function getProviderProfile(userId: string, profileId?: string) {
+  const where: any = { userId };
+  if (profileId) where.id = profileId;
+  const profile = await prisma.providerProfile.findFirst({ where });
+  if (!profile) throw new AppError('Provider profile not found', 404);
+  return profile;
+}
 
-  if (status) {
-    where.status = status;
-  }
+/** Standard full include for single-resource GET endpoints. */
+const BOOKING_INCLUDE_FULL = {
+  client: {
+    select: { id: true, firstName: true, lastName: true, avatarUrl: true, email: true },
+  },
+  providerProfile: {
+    select: { id: true, userId: true, businessName: true, primaryType: true, logoUrl: true },
+  },
+  package: {
+    select: { id: true, name: true, category: true, included: true, pricingModel: true },
+  },
+  quote: {
+    select: { id: true, addOns: true, adjustments: true, vendorMessage: true, version: true },
+  },
+} as const;
 
-  const skip = (Number(page) - 1) * Number(limit);
+/** Fire a notification. */
+async function notify(
+  userId: string,
+  type: string,
+  title: string,
+  message: string,
+  data?: object,
+) {
+  await prisma.notification.create({
+    data: { userId, type: type as any, title, message, data: data ?? {} },
+  });
+}
 
-  const [bookings, total] = await Promise.all([
+function dateLabel(d: Date): string {
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function usd(n: number): string {
+  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. getBookingById
+// GET /bookings/:id
+// Auth: authenticate (client or vendor who owns it)
+// ─────────────────────────────────────────────────────────────────────────────
+export const getBookingById = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const booking = await prisma.booking.findUnique({
+    where:   { id: req.params.id },
+    include: BOOKING_INCLUDE_FULL,
+  });
+  if (!booking) throw new NotFoundError('Booking');
+
+  const userId   = req.user!.id;
+  const isClient = booking.clientId === userId;
+  const isVendor = !!(await prisma.providerProfile.findFirst({
+    where: { id: booking.providerProfileId, userId },
+  }));
+
+  if (!isClient && !isVendor) throw new ForbiddenError('You do not have access to this booking');
+
+  res.json({ success: true, data: booking });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 2. getMyBookingsAsClient
+// GET /bookings/me/client
+// Auth: requireClient
+// ─────────────────────────────────────────────────────────────────────────────
+export const getMyBookingsAsClient = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const page   = Math.max(1, parseInt(req.query.page  as string) || 1);
+  const limit  = Math.min(50, parseInt(req.query.limit as string) || 20);
+  const skip   = (page - 1) * limit;
+  const status = (req.query.status as string | undefined)?.toUpperCase();
+
+  const where: any = { clientId: req.user!.id };
+  if (status) where.status = status;
+
+  const [bookings, total] = await prisma.$transaction([
     prisma.booking.findMany({
       where,
+      include: {
+        providerProfile: { select: { id: true, businessName: true, primaryType: true, logoUrl: true } },
+        package:         { select: { id: true, name: true, category: true } },
+      },
       orderBy: { eventDate: 'asc' },
       skip,
-      take: Number(limit),
-      include: {
-        providerProfile: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
-                avatarUrl: true,
-                phoneNumber: true,
-                email: true,
-              },
-            },
-          },
-        },
-        // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-        review: {
-          select: { id: true, overallRating: true },
-        },
-      },
+      take:  limit,
     }),
     prisma.booking.count({ where }),
   ]);
 
   res.json({
     success: true,
-    data: bookings,
-    meta: {
-      page: Number(page),
-      limit: Number(limit),
-      total,
-      totalPages: Math.ceil(total / Number(limit)),
-    },
+    data:    bookings,
+    meta:    { page, limit, total, totalPages: Math.ceil(total / limit) },
   });
 });
 
-// Get provider's bookings
-export const getProviderBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { status, page = 1, limit = 10 } = req.query;
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. getMyBookingsAsVendor
+// GET /bookings/me/vendor
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
+export const getMyBookingsAsVendor = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const profile = await getProviderProfile(req.user!.id, req.query.profileId as string);
 
-  const profile = await prisma.providerProfile.findFirst({
-    where: { userId },
-  });
-
-  if (!profile) {
-    throw new NotFoundError('Provider profile');
-  }
+  const page   = Math.max(1, parseInt(req.query.page  as string) || 1);
+  const limit  = Math.min(50, parseInt(req.query.limit as string) || 20);
+  const skip   = (page - 1) * limit;
+  const status = (req.query.status as string | undefined)?.toUpperCase();
 
   const where: any = { providerProfileId: profile.id };
+  if (status) where.status = status;
 
-  if (status) {
-    where.status = status;
-  }
-
-  const skip = (Number(page) - 1) * Number(limit);
-
-  const [bookings, total] = await Promise.all([
+  const [bookings, total] = await prisma.$transaction([
     prisma.booking.findMany({
       where,
+      include: {
+        client:  { select: { id: true, firstName: true, lastName: true, city: true, avatarUrl: true } },
+        package: { select: { id: true, name: true, category: true } },
+      },
       orderBy: { eventDate: 'asc' },
       skip,
-      take: Number(limit),
-      include: {
-        client: {
-          select: {
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
-            phoneNumber: true,
-            email: true,
-          },
-        },
-        // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-        quote: true, // Quote no longer has items; JSON add-ons only
-        review: {
-          select: { id: true, overallRating: true },
-        },
-      },
+      take:  limit,
     }),
     prisma.booking.count({ where }),
   ]);
 
   res.json({
     success: true,
-    data: bookings,
-    meta: {
-      page: Number(page),
-      limit: Number(limit),
-      total,
-      totalPages: Math.ceil(total / Number(limit)),
-    },
+    data:    bookings,
+    meta:    { page, limit, total, totalPages: Math.ceil(total / limit) },
   });
 });
 
-// Get single booking
-export const getBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const userRole = req.user!.role;
-  const { id } = req.params;
+// ─────────────────────────────────────────────────────────────────────────────
+// 4. markDepositPaid
+// PATCH /bookings/:id/deposit-paid
+// Auth: requireProvider
+// Note: goes straight to CONFIRMED — Stripe not yet wired
+// ─────────────────────────────────────────────────────────────────────────────
+export const markDepositPaid = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const profile  = await getProviderProfile(req.user!.id, req.query.profileId as string);
+  const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+  if (!existing) throw new NotFoundError('Booking');
+  if (existing.providerProfileId !== profile.id) throw new ForbiddenError('You do not own this booking');
+  if (!['PENDING_DEPOSIT', 'PENDING_REVIEW'].includes(existing.status)) {
+    throw new AppError(`Cannot mark deposit paid for a booking with status ${existing.status}`, 400);
+  }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    include: {
-      client: {
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          avatarUrl: true,
-          phoneNumber: true,
-          email: true,
-          address: true,
-          city: true,
-          state: true,
-          zipCode: true,
-        },
-      },
-      providerProfile: {
-        include: {
-          user: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              avatarUrl: true,
-              phoneNumber: true,
-              email: true,
-            },
-          },
-        },
-      },
-      // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-      quote: true, // Quote no longer has items; JSON add-ons only
-      payments: true,
-      review: true,
-    },
+  const booking = await prisma.booking.update({
+    where:   { id: req.params.id },
+    data:    { status: 'CONFIRMED', depositPaidAt: new Date() },
+    include: BOOKING_INCLUDE_FULL,
   });
 
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
+  await notify(
+    booking.client.id,
+    'PAYMENT_RECEIVED',
+    'Deposit confirmed',
+    `Your deposit of ${usd(booking.depositAmount)} has been confirmed by ${profile.businessName}. Your booking is confirmed!`,
+    { bookingId: booking.id },
+  );
 
-  // Check access
-  if (userRole === 'CLIENT' && booking.clientId !== userId) {
-    throw new ForbiddenError('Not authorized to view this booking');
-  }
-
-  if (userRole === 'PROVIDER') {
-    const profile = await prisma.providerProfile.findFirst({
-      where: { userId },
-    });
-    if (booking.providerProfileId !== profile?.id) {
-      throw new ForbiddenError('Not authorized to view this booking');
-    }
-  }
-
-  res.json({
-    success: true,
-    data: booking,
-  });
+  res.json({ success: true, data: booking });
 });
 
-// Process deposit payment (simulated)
-export const payDeposit = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { id } = req.params;
-  const { paymentMethodId, cardLast4, cardBrand } = req.body;
-
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    include: {
-      providerProfile: true,
-      // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-    },
-  });
-
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
-
-  if (booking.clientId !== userId) {
-    throw new ForbiddenError('Not authorized to make payment for this booking');
-  }
-
-  if (booking.status !== 'PENDING_DEPOSIT') {
-    throw new AppError('Deposit has already been paid or booking is in invalid state', 400);
-  }
-
-  // In production, integrate with Stripe here
-  // For now, simulate successful payment
-
-  const result = await prisma.$transaction(async (tx) => {
-    // Create payment record
-    const payment = await tx.payment.create({
-      data: {
-        bookingId: id,
-        type: 'DEPOSIT',
-        status: 'COMPLETED',
-        amount: booking.depositAmount,
-        stripePaymentId: `sim_${Date.now()}`,
-        cardLast4,
-        cardBrand,
-        completedAt: new Date(),
-      },
-    });
-
-    // Update booking status
-    const updatedBooking = await tx.booking.update({
-      where: { id },
-      data: {
-        status: 'DEPOSIT_PAID',
-        depositPaidAt: new Date(),
-      },
-    });
-
-    return { booking: updatedBooking, payment };
-  });
-
-  // Notify provider
-  await prisma.notification.create({
-    data: {
-      userId: booking.providerProfile.userId,
-      type: 'PAYMENT_RECEIVED',
-      title: 'Deposit Received',
-      message: `Deposit of $${booking.depositAmount.toFixed(2)} received for your upcoming event`, // TODO: rewire to new schema
-      data: { bookingId: id, paymentId: result.payment.id },
-    },
-  });
-
-  res.json({
-    success: true,
-    data: result,
-    message: 'Deposit paid successfully',
-  });
-});
-
-// Pay remaining balance
-export const payBalance = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { id } = req.params;
-  const { cardLast4, cardBrand } = req.body;
-
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    include: {
-      providerProfile: true,
-      // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-    },
-  });
-
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
-
-  if (booking.clientId !== userId) {
-    throw new ForbiddenError('Not authorized to make payment for this booking');
-  }
-
-  if (!['DEPOSIT_PAID', 'CONFIRMED'].includes(booking.status)) {
-    throw new AppError('Cannot pay balance in current booking state', 400);
-  }
-
-  // TODO: rewire to new schema — balanceAmount removed; compute from total - depositAmount
-  const balanceAmount = booking.total - booking.depositAmount;
-
-  const result = await prisma.$transaction(async (tx) => {
-    // Create payment record
-    const payment = await tx.payment.create({
-      data: {
-        bookingId: id,
-        type: 'BALANCE',
-        status: 'COMPLETED',
-        amount: balanceAmount,
-        stripePaymentId: `sim_${Date.now()}`,
-        cardLast4,
-        cardBrand,
-        completedAt: new Date(),
-      },
-    });
-
-    // Update booking status
-    const updatedBooking = await tx.booking.update({
-      where: { id },
-      data: {
-        status: 'CONFIRMED',
-        // TODO: rewire to new schema — balancePaidAt removed from Booking
-      },
-    });
-
-    return { booking: updatedBooking, payment };
-  });
-
-  // Notify provider
-  await prisma.notification.create({
-    data: {
-      userId: booking.providerProfile.userId,
-      type: 'PAYMENT_RECEIVED',
-      title: 'Full Payment Received',
-      message: `Final payment of $${balanceAmount.toFixed(2)} received for your upcoming event`, // TODO: rewire to new schema
-      data: { bookingId: id },
-    },
-  });
-
-  res.json({
-    success: true,
-    data: result,
-    message: 'Balance paid successfully',
-  });
-});
-
-// Provider confirms booking
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. confirmBooking
+// PATCH /bookings/:id/confirm
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
 export const confirmBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { id } = req.params;
-
-  const profile = await prisma.providerProfile.findFirst({
-    where: { userId },
-  });
-
-  if (!profile) {
-    throw new NotFoundError('Provider profile');
+  const profile  = await getProviderProfile(req.user!.id, req.query.profileId as string);
+  const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+  if (!existing) throw new NotFoundError('Booking');
+  if (existing.providerProfileId !== profile.id) throw new ForbiddenError('You do not own this booking');
+  if (existing.status !== 'DEPOSIT_PAID') {
+    throw new AppError(`Cannot confirm a booking with status ${existing.status}. Expected DEPOSIT_PAID`, 400);
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    // TODO: rewire to new schema — Booking no longer has an eventRequest relation
+  const booking = await prisma.booking.update({
+    where:   { id: req.params.id },
+    data:    { status: 'CONFIRMED' },
+    include: BOOKING_INCLUDE_FULL,
   });
 
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
+  await notify(
+    booking.client.id,
+    'BOOKING_CONFIRMED',
+    'Booking confirmed',
+    `${profile.businessName} has confirmed your booking for ${booking.eventType.toLowerCase().replace(/_/g, ' ')} on ${dateLabel(booking.eventDate)}`,
+    { bookingId: booking.id },
+  );
 
-  if (booking.providerProfileId !== profile.id) {
-    throw new ForbiddenError('Not authorized to confirm this booking');
-  }
-
-  if (booking.status !== 'DEPOSIT_PAID') {
-    throw new AppError('Cannot confirm booking in current state', 400);
-  }
-
-  const updatedBooking = await prisma.booking.update({
-    where: { id },
-    data: { status: 'CONFIRMED' },
-  });
-
-  // Notify client
-  await prisma.notification.create({
-    data: {
-      userId: booking.clientId,
-      type: 'BOOKING_CONFIRMED',
-      title: 'Booking Confirmed!',
-      message: `Your booking has been confirmed by the provider.`, // TODO: rewire to new schema
-      data: { bookingId: id },
-    },
-  });
-
-  res.json({
-    success: true,
-    data: updatedBooking,
-    message: 'Booking confirmed successfully',
-  });
+  res.json({ success: true, data: booking });
 });
 
-// Mark booking as in progress
-export const startBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { id } = req.params;
-
-  const profile = await prisma.providerProfile.findFirst({
-    where: { userId },
-  });
-
-  if (!profile) {
-    throw new NotFoundError('Provider profile');
-  }
-
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-  });
-
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
-
-  if (booking.providerProfileId !== profile.id) {
-    throw new ForbiddenError('Not authorized to update this booking');
-  }
-
-  if (booking.status !== 'CONFIRMED') {
-    throw new AppError('Cannot start booking in current state', 400);
-  }
-
-  const updatedBooking = await prisma.booking.update({
-    where: { id },
-    data: { status: 'IN_PROGRESS' },
-  });
-
-  res.json({
-    success: true,
-    data: updatedBooking,
-    message: 'Booking marked as in progress',
-  });
-});
-
-// Complete booking
+// ─────────────────────────────────────────────────────────────────────────────
+// 6. completeBooking
+// PATCH /bookings/:id/complete
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
 export const completeBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const { id } = req.params;
-
-  const profile = await prisma.providerProfile.findFirst({
-    where: { userId },
-  });
-
-  if (!profile) {
-    throw new NotFoundError('Provider profile');
+  const profile  = await getProviderProfile(req.user!.id, req.query.profileId as string);
+  const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+  if (!existing) throw new NotFoundError('Booking');
+  if (existing.providerProfileId !== profile.id) throw new ForbiddenError('You do not own this booking');
+  if (!['CONFIRMED', 'IN_PROGRESS'].includes(existing.status)) {
+    throw new AppError(`Cannot complete a booking with status ${existing.status}`, 400);
   }
 
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    // TODO: rewire to new schema — Booking no longer has an eventRequest relation
+  const booking = await prisma.booking.update({
+    where:   { id: req.params.id },
+    data:    { status: 'COMPLETED' },
+    include: BOOKING_INCLUDE_FULL,
   });
 
-  if (!booking) {
-    throw new NotFoundError('Booking');
-  }
+  await notify(
+    booking.client.id,
+    'SYSTEM',
+    'Event completed',
+    `Your event with ${profile.businessName} is marked as complete. We'd love to hear how it went — leave a review!`,
+    { bookingId: booking.id },
+  );
 
-  if (booking.providerProfileId !== profile.id) {
-    throw new ForbiddenError('Not authorized to complete this booking');
-  }
-
-  if (booking.status !== 'IN_PROGRESS') {
-    throw new AppError('Cannot complete booking in current state', 400);
-  }
-
-  const result = await prisma.$transaction(async (tx) => {
-    const updatedBooking = await tx.booking.update({
-      where: { id },
-      data: {
-        status: 'COMPLETED',
-        // TODO: rewire to new schema — completedAt removed from Booking
-      },
-    });
-
-    // TODO: rewire to new schema — booking.eventRequestId removed; update EventRequest separately if needed
-    // await tx.eventRequest.update({
-    //   where: { id: booking.eventRequestId },
-    //   data: { status: 'COMPLETED' },
-    // });
-
-    // Update provider stats
-    await tx.providerProfile.update({
-      where: { id: profile.id },
-      data: {
-        completedBookings: { increment: 1 },
-      },
-    });
-
-    return updatedBooking;
-  });
-
-  // Notify client to leave review
-  await prisma.notification.create({
-    data: {
-      userId: booking.clientId,
-      type: 'BOOKING_CONFIRMED',
-      title: 'Event Completed!',
-      message: `Your event is complete. Please leave a review for the provider!`, // TODO: rewire to new schema
-      data: { bookingId: id },
-    },
-  });
-
-  res.json({
-    success: true,
-    data: result,
-    message: 'Booking completed successfully',
-  });
+  res.json({ success: true, data: booking });
 });
 
-// Cancel booking
+// ─────────────────────────────────────────────────────────────────────────────
+// 7. cancelBooking
+// PATCH /bookings/:id/cancel
+// Auth: authenticate (client or vendor)
+// Body: { reason? }
+// ─────────────────────────────────────────────────────────────────────────────
 export const cancelBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const userRole = req.user!.role;
-  const { id } = req.params;
-  const { reason } = req.body;
-
   const booking = await prisma.booking.findUnique({
-    where: { id },
+    where:   { id: req.params.id },
     include: {
-      providerProfile: true,
-      // TODO: rewire to new schema — Booking no longer has an eventRequest relation
-      payments: true,
+      client:          { select: { id: true, firstName: true, lastName: true } },
+      providerProfile: { select: { id: true, userId: true, businessName: true } },
     },
   });
+  if (!booking) throw new NotFoundError('Booking');
 
-  if (!booking) {
-    throw new NotFoundError('Booking');
+  const userId   = req.user!.id;
+  const isClient = booking.clientId === userId;
+  const isVendor = booking.providerProfile.userId === userId;
+
+  if (!isClient && !isVendor) throw new ForbiddenError('You do not have access to this booking');
+
+  const CANCELLABLE = ['PENDING_DEPOSIT', 'PENDING_REVIEW', 'DEPOSIT_PAID'];
+  if (!CANCELLABLE.includes(booking.status)) {
+    throw new AppError(
+      `Cannot cancel a booking with status ${booking.status}. Cancellation is only allowed for: ${CANCELLABLE.join(', ')}`,
+      400,
+    );
   }
 
-  // Check authorization
-  let cancelledBy = '';
-  if (userRole === 'CLIENT') {
-    if (booking.clientId !== userId) {
-      throw new ForbiddenError('Not authorized to cancel this booking');
-    }
-    cancelledBy = 'CLIENT';
-  } else if (userRole === 'PROVIDER') {
-    if (booking.providerProfile.userId !== userId) {
-      throw new ForbiddenError('Not authorized to cancel this booking');
-    }
-    cancelledBy = 'PROVIDER';
-  }
+  const updated = await prisma.booking.update({
+    where:   { id: req.params.id },
+    data:    { status: 'CANCELLED' },
+    include: BOOKING_INCLUDE_FULL,
+  });
 
-  if (['COMPLETED', 'CANCELLED', 'REFUNDED'].includes(booking.status)) {
-    throw new AppError('Cannot cancel booking in current state', 400);
-  }
+  const dl         = dateLabel(booking.eventDate);
+  const eventLabel = booking.eventType.toLowerCase().replace(/_/g, ' ');
+  const vendorName = booking.providerProfile.businessName;
+  const clientName = `${booking.client.firstName} ${booking.client.lastName}`.trim();
 
-  // Calculate refund (simplified logic - in production would be more complex)
-  let refundAmount = 0;
-  const totalPaid = booking.payments
-    .filter(p => p.status === 'COMPLETED' && p.type !== 'REFUND')
-    .reduce((sum, p) => sum + p.amount, 0);
-
-  const daysUntilEvent = Math.ceil((booking.eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-  if (cancelledBy === 'PROVIDER') {
-    // Full refund if provider cancels
-    refundAmount = totalPaid;
-  } else if (daysUntilEvent > 14) {
-    // Full refund if more than 14 days out
-    refundAmount = totalPaid;
-  } else if (daysUntilEvent > 7) {
-    // 50% refund if 7-14 days out
-    refundAmount = totalPaid * 0.5;
+  if (isVendor) {
+    await notify(
+      booking.client.id,
+      'BOOKING_CANCELLED',
+      'Booking cancelled',
+      `${vendorName} cancelled your booking for ${eventLabel} on ${dl}`,
+      { bookingId: booking.id },
+    );
   } else {
-    // No refund if less than 7 days out
-    refundAmount = 0;
+    await notify(
+      booking.providerProfile.userId,
+      'BOOKING_CANCELLED',
+      'Booking cancelled',
+      `${clientName} cancelled their booking for ${eventLabel} on ${dl}`,
+      { bookingId: booking.id },
+    );
   }
 
-  const result = await prisma.$transaction(async (tx) => {
-    const updatedBooking = await tx.booking.update({
-      where: { id },
-      data: {
-        status: refundAmount > 0 ? 'REFUNDED' : 'CANCELLED',
-        // TODO: rewire to new schema — cancelledAt, cancelledBy, cancellationReason, refundAmount removed from Booking
-      },
-    });
-
-    // Create refund payment record if applicable
-    if (refundAmount > 0) {
-      await tx.payment.create({
-        data: {
-          bookingId: id,
-          type: 'REFUND',
-          status: 'COMPLETED',
-          amount: -refundAmount,
-          stripePaymentId: `refund_${Date.now()}`,
-          completedAt: new Date(),
-        },
-      });
-    }
-
-    // TODO: rewire to new schema — booking.eventRequestId removed; update EventRequest separately if needed
-    // await tx.eventRequest.update({
-    //   where: { id: booking.eventRequestId },
-    //   data: { status: 'CANCELLED' },
-    // });
-
-    // Update provider stats
-    await tx.providerProfile.update({
-      where: { id: booking.providerProfileId },
-      data: {
-        totalBookings: { decrement: 1 },
-      },
-    });
-
-    return updatedBooking;
-  });
-
-  // Notify the other party
-  const notifyUserId = cancelledBy === 'CLIENT' ? booking.providerProfile.userId : booking.clientId;
-  await prisma.notification.create({
-    data: {
-      userId: notifyUserId,
-      type: 'BOOKING_CANCELLED',
-      title: 'Booking Cancelled',
-      message: `A booking has been cancelled${reason ? ': ' + reason : ''}`, // TODO: rewire to new schema
-      data: { bookingId: id, refundAmount },
-    },
-  });
-
-  res.json({
-    success: true,
-    data: result,
-    message: refundAmount > 0
-      ? `Booking cancelled. Refund of $${refundAmount.toFixed(2)} will be processed.`
-      : 'Booking cancelled.',
-  });
+  res.json({ success: true, data: updated });
 });
 
-// Get upcoming bookings (for dashboard)
-export const getUpcomingBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const userId = req.user!.id;
-  const userRole = req.user!.role;
-
-  let where: any = {
-    eventDate: { gte: new Date() },
-    status: { in: ['DEPOSIT_PAID', 'CONFIRMED', 'IN_PROGRESS'] },
-  };
-
-  if (userRole === 'CLIENT') {
-    where.clientId = userId;
-  } else if (userRole === 'PROVIDER') {
-    const profile = await prisma.providerProfile.findFirst({
-      where: { userId },
-    });
-    if (!profile) {
-      throw new NotFoundError('Provider profile');
-    }
-    where.providerProfileId = profile.id;
+// ─────────────────────────────────────────────────────────────────────────────
+// 8. approveOutOfParametersBooking
+// PATCH /bookings/:id/approve
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
+export const approveOutOfParametersBooking = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const profile  = await getProviderProfile(req.user!.id, req.query.profileId as string);
+  const existing = await prisma.booking.findUnique({ where: { id: req.params.id } });
+  if (!existing) throw new NotFoundError('Booking');
+  if (existing.providerProfileId !== profile.id) throw new ForbiddenError('You do not own this booking');
+  if (existing.status !== 'PENDING_REVIEW') {
+    throw new AppError(`Cannot approve a booking with status ${existing.status}. Expected PENDING_REVIEW`, 400);
   }
+
+  const booking = await prisma.booking.update({
+    where:   { id: req.params.id },
+    data:    { status: 'PENDING_DEPOSIT' },
+    include: BOOKING_INCLUDE_FULL,
+  });
+
+  await notify(
+    booking.client.id,
+    'BOOKING_CONFIRMED',
+    'Booking approved',
+    `${profile.businessName} approved your out-of-parameters request. Please pay the deposit of ${usd(booking.depositAmount)} to confirm.`,
+    { bookingId: booking.id },
+  );
+
+  res.json({ success: true, data: booking });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 9. getUpcomingBookings
+// GET /bookings/upcoming
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
+export const getUpcomingBookings = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const profile = await getProviderProfile(req.user!.id, req.query.profileId as string);
 
   const bookings = await prisma.booking.findMany({
-    where,
-    orderBy: { eventDate: 'asc' },
-    take: 5,
-    include: {
-      client: {
-        select: {
-          firstName: true,
-          lastName: true,
-          avatarUrl: true,
-        },
-      },
-      providerProfile: {
-        include: {
-          user: {
-            select: {
-              firstName: true,
-              lastName: true,
-              avatarUrl: true,
-            },
-          },
-        },
-      },
-      // TODO: rewire to new schema — Booking no longer has an eventRequest relation
+    where: {
+      providerProfileId: profile.id,
+      status:    { in: ['CONFIRMED', 'DEPOSIT_PAID'] },
+      eventDate: { gte: new Date() },
     },
+    include: {
+      client:  { select: { id: true, firstName: true, lastName: true } },
+      package: { select: { id: true, name: true } },
+    },
+    orderBy: { eventDate: 'asc' },
+    take:    10,
   });
+
+  res.json({ success: true, data: bookings });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 10. getBookingStats
+// GET /bookings/stats
+// Auth: requireProvider
+// ─────────────────────────────────────────────────────────────────────────────
+export const getBookingStats = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  const profile = await getProviderProfile(req.user!.id, req.query.profileId as string);
+  const pid     = profile.id;
+  const now     = new Date();
+
+  const [
+    totalBookings,
+    confirmedBookings,
+    completedBookings,
+    pendingDeposit,
+    pendingReview,
+    upcomingCount,
+    revenueAgg,
+  ] = await prisma.$transaction([
+    prisma.booking.count({ where: { providerProfileId: pid } }),
+    prisma.booking.count({ where: { providerProfileId: pid, status: { in: ['CONFIRMED', 'DEPOSIT_PAID'] } } }),
+    prisma.booking.count({ where: { providerProfileId: pid, status: 'COMPLETED' } }),
+    prisma.booking.count({ where: { providerProfileId: pid, status: 'PENDING_DEPOSIT' } }),
+    prisma.booking.count({ where: { providerProfileId: pid, status: 'PENDING_REVIEW' } }),
+    prisma.booking.count({ where: { providerProfileId: pid, status: 'CONFIRMED', eventDate: { gte: now } } }),
+    prisma.booking.aggregate({
+      where: { providerProfileId: pid, status: 'COMPLETED' },
+      _sum:  { total: true },
+    }),
+  ]);
 
   res.json({
     success: true,
-    data: bookings,
+    data: {
+      totalBookings,
+      confirmedBookings,
+      completedBookings,
+      pendingDeposit,
+      pendingReview,
+      totalRevenue: revenueAgg._sum.total ?? 0,
+      upcomingCount,
+    },
   });
 });
