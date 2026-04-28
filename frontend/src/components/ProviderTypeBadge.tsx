@@ -16,36 +16,36 @@ export const providerTypeConfig = [
     value: 'RESTO_VENUE',
     label: 'Restaurant / Venue',
     icon: UtensilsCrossed,
-    color:     'bg-blue-50 text-blue-700 border-blue-200',
-    darkColor: 'bg-blue-100 text-blue-800 border-blue-300',
+    color:     'bg-gold/10 text-gold-dark border-gold/30',
+    darkColor: 'bg-gold/10 text-gold-dark border-gold/30',
   },
   {
     value: 'CATERER',
     label: 'Caterer',
     icon: ChefHat,
-    color:     'bg-emerald-50 text-emerald-700 border-emerald-200',
-    darkColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    color:     'bg-green/10 text-green border-green/30',
+    darkColor: 'bg-green/10 text-green border-green/30',
   },
   {
     value: 'ENTERTAINMENT',
     label: 'Entertainment',
     icon: Music2,
-    color:     'bg-purple-50 text-purple-700 border-purple-200',
-    darkColor: 'bg-purple-100 text-purple-800 border-purple-300',
+    color:     'bg-charcoal/10 text-charcoal border-charcoal/30',
+    darkColor: 'bg-charcoal/10 text-charcoal border-charcoal/30',
   },
   {
     value: 'PHOTO_VIDEO',
     label: 'Photo & Video',
     icon: Camera,
-    color:     'bg-amber-50 text-amber-700 border-amber-200',
-    darkColor: 'bg-amber-100 text-amber-800 border-amber-300',
+    color:     'bg-gold-light/10 text-gold-dark border-gold-light/30',
+    darkColor: 'bg-gold-light/10 text-gold-dark border-gold-light/30',
   },
   {
     value: 'FLORIST_DECOR',
     label: 'Florist & Decor',
     icon: Flower2,
-    color:     'bg-pink-50 text-pink-700 border-pink-200',
-    darkColor: 'bg-pink-100 text-pink-800 border-pink-300',
+    color:     'bg-muted/10 text-muted border-muted/30',
+    darkColor: 'bg-muted/10 text-muted border-muted/30',
   },
 ];
 
@@ -68,7 +68,7 @@ export function ProviderTypeBadge({
     return (
       <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full border"
         style={{ background: '#F5F3EF', color: '#7A7068', borderColor: 'rgba(0,0,0,0.09)' }}>
-        {showIcon && <HelpCircle className="w-3 h-3" />}
+        {showIcon && <HelpCircle size={12} strokeWidth={1.5} />}
         {type}
       </span>
     );
@@ -77,10 +77,10 @@ export function ProviderTypeBadge({
   const Icon = config.icon;
 
   const sizeClasses = {
-    xs: { text: 'text-xs', padding: 'px-2 py-0.5', icon: 'w-3 h-3' },
-    sm: { text: 'text-xs', padding: 'px-2 py-1',   icon: 'w-3 h-3' },
-    md: { text: 'text-sm', padding: 'px-3 py-1.5', icon: 'w-4 h-4' },
-    lg: { text: 'text-base', padding: 'px-4 py-2', icon: 'w-5 h-5' },
+    xs: { text: 'text-xs', padding: 'px-3 py-1' },
+    sm: { text: 'text-xs', padding: 'px-3 py-1' },
+    md: { text: 'text-xs', padding: 'px-3 py-1' },
+    lg: { text: 'text-xs', padding: 'px-3 py-1' },
   };
 
   const currentSize = sizeClasses[size];
@@ -88,9 +88,9 @@ export function ProviderTypeBadge({
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 ${currentSize.padding} ${currentSize.text} ${colorClass} border rounded-full font-medium transition-colors`}
+      className={`inline-flex items-center gap-1.5 font-sans font-semibold ${currentSize.padding} ${currentSize.text} ${colorClass} border rounded-full transition-colors`}
     >
-      {showIcon && <Icon className={currentSize.icon} />}
+      {showIcon && <Icon size={12} strokeWidth={1.5} />}
       <span>{config.label}</span>
     </span>
   );
