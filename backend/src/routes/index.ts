@@ -13,6 +13,7 @@ import notificationRoutes from './notificationRoutes';
 import pdfImportRoutes from './pdfImportRoutes';
 import jessRoutes from './jessRoutes';
 import favoriteRoutes from './favoriteRoutes';
+import packageRoutes, { addonRouter, availabilityRouter } from './packageRoutes';
 
 const router = Router();
 
@@ -30,5 +31,8 @@ router.use('/notifications', notificationRoutes);
 router.use('/pdf-import', pdfImportRoutes);
 router.use('/jess', jessRoutes);
 router.use('/favorites', favoriteRoutes);
+router.use('/packages', packageRoutes);
+router.use('/addons', addonRouter);
+router.use('/availability', availabilityRouter);
 
 export default router;
