@@ -31,14 +31,25 @@ Build Vendors, get to the point where we can book an event completely via etrans
 	-[ ] step by step analyzing backend (Flow diagrams and TablePlus)
 	-[ ] wire vendor portfolio uploads to Cloudinary
 	-[ ] connect friends/guestlist page to API
-	-[ ] wire admin dashboard to admin routes (POST /admin/providers/:id/verify + /reject already exist)
+	-[ ] wire admin dashboard to admin routes (POST /admin/providers/:id/verify + /reject already exist; rejection no longer crashes — rejectionReason fix applied)
+	-[ ] add rejectionReason String? field to ProviderProfile schema + migration (currently returned in response JSON only)
 	-[ ] build menu item isAvailable toggle in vendor dashboard
 	-[ ] make menu items selectable in planner request flow
 	-[ ] mobile responsiveness pass on all pages
-	-[ ] flip vendor search to VERIFIED only before launch (currently returns ALL providers)
+	-[x] flip vendor search to VERIFIED only before launch — searchProviders now filters verificationStatus=VERIFIED + requires active Package (commit 4c36388)
 
 
 ## Completed
+	-[x] bookingController.ts rewritten for new schema — getBookingById, getMyBookingsAsClient/Vendor, markDepositPaid, confirmBooking, completeBooking, cancelBooking, approveOutOfParametersBooking, getUpcomingBookings, getBookingStats (commit 85b1823)
+	-[x] bookingRoutes.ts updated — static segments before /:id, PATCH verbs for all mutations
+	-[x] searchProviders rewritten — 8-step package-aware filter (VERIFIED-only, date availability via AvailabilityBlock+Booking, guestCount, eventType, budget, city ILIKE); returns startingFrom, featuredPackage, activePackageCount per provider card (commit 4c36388)
+	-[x] GET /providers/:id/packages — new public endpoint, active packages grouped by category, includes seasonalRules+dayOfWeekRules+addOns (commit 4c36388)
+	-[x] Fix: updateEquipment missing from providerController (route was wired to undefined — TypeError crash)
+	-[x] Fix: rejectionReason on ProviderProfile Prisma update — field doesn't exist in schema; removed from DB write, preserved in response JSON
+	-[x] Fix: EventRequest.booking include in adminRoutes — relation doesn't exist; replaced with providerProfile include
+	-[x] Fix: ProviderProfile.reviews in _count selects — relation doesn't exist; replaced with packages count + use totalReviews field directly
+	-[x] Fix: pricingLevels nested create in seedTestAccounts — PricingLevel model removed; block deleted (commit a94388f)
+
 	-[x] Jess AI widget — live with full personality (Montreal, Ristorante Beatrice, 12 yrs, dogs Ralph/Vera/Lola)
 	-[x] Jess model upgraded to claude-haiku-4-5
 	-[x] Browse vendors wired to real API — no more static mock data

@@ -125,10 +125,13 @@ All pages are in `/backend/public/`. They use vanilla JS with `fetch()` calls to
 |--------|-----------|-------|
 | `/auth` | authController | register, login, refresh, forgot/reset password, me, add-role, switch-role |
 | `/users` | userController | profile GET/PUT |
-| `/providers` | providerController | profile CRUD, services CRUD, menu-items CRUD, search, availability |
-| `/event-requests` | eventRequestController | client creates requests, vendor views them |
-| `/quotes` | quoteController | vendor creates quotes, client accepts/declines |
-| `/bookings` | bookingController | booking lifecycle, deposit tracking |
+| `/providers` | providerController | profile CRUD, menu-items CRUD, equipment CRUD, search (package-aware, VERIFIED-only), availability. `GET /providers/:id/packages` returns active packages grouped by category |
+| `/packages` | packageController | full Package CRUD + seasonal/DOW pricing rules + add-ons + availability blocks + public `/packages/estimate` endpoint |
+| `/addons` | packageController (addonRouter) | AddOn CRUD — create, update, delete, list by provider |
+| `/availability` | packageController (availabilityRouter) | AvailabilityBlock CRUD + `GET /availability/check` (public) |
+| `/event-requests` | eventRequestController | client creates requests (vendor-direct, package-pinned); vendor views incoming; status machine PENDING→QUOTE_SENT→ACCEPTED/DECLINED/EXPIRED |
+| `/quotes` | quoteController | auto-generate from pricing engine, manual quote, accept (creates Booking), reject, revise (immutable version history) |
+| `/bookings` | bookingController | full lifecycle: getBookingById, getMyBookings(Client/Vendor), markDepositPaid, confirmBooking, completeBooking, cancelBooking, approveOutOfParameters, getUpcomingBookings, getBookingStats |
 | `/favorites` | favoriteController | save/unsave vendors |
 | `/reviews` | reviewController | post and fetch reviews |
 | `/portfolio` | portfolioController | vendor photo/video portfolio |
@@ -326,7 +329,7 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 4. Booking is created with status `PENDING_DEPOSIT`
 5. Deposit payment → `DEPOSIT_PAID` → `CONFIRMED` (Stripe not yet wired)
 
-**Vendor search:** Currently returns ALL providers (not VERIFIED only). Flip `verificationStatus` filter before launch.
+**Vendor search:** `GET /providers/search` now filters to `verificationStatus: VERIFIED` only and requires at least one active Package. Query params: `type` (required, ProviderType), `eventDate`, `guestCount`, `eventType`, `minBudget`, `maxBudget`, `city`, `page`, `limit`. Date availability is checked via `AvailabilityBlock` and non-CANCELLED `Booking` records using Prisma `NOT { OR [...] }`. Each result includes `startingFrom` (cheapest package price, adjusted for PER_PERSON × guestCount and minimumSpend floor), `activePackageCount`, `isAvailable`, and `featuredPackage`.
 
 **Multi-type vendors:** A vendor can have one `primaryType` and multiple entries in `providerTypes[]`. The `providerTypes[]` array always includes `primaryType`. Step 2 of vendorsetup renders fields and service suggestions for all types in `providerTypes[]`, with primary type first. Menu section appears if `providerTypes[]` includes `RESTO_VENUE` or `CATERER`.
 
@@ -359,8 +362,9 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 - **`database.html`** — Schema ERD (24 nodes, click to highlight relationships) + live Event Feed tab (filter by model, 15s auto-refresh) + **Provider Graph tab** (see below).
 
 ### 🟡 Placeholder / Partial
-- **Vendor setup Step 2** — built, 400 error fixed, and significantly polished this session. Category grouping on both suggestion chips and service cards. PDF import now returns structured `category` field per service. Expanded card has a Category dropdown; collapsed card shows category label. Functional but not yet verified end-to-end with a real vendor account on production.
-- **Admin dashboard** — `admindashboard.html` exists but vendor approval flow not yet wired. Admin cannot yet flip `verificationStatus` to `VERIFIED`. This is the next critical thing to build.
+- **Vendor setup Step 2** — built, 400 error fixed, and significantly polished. Category grouping on both suggestion chips and service cards. PDF import now returns structured `category` field per service. Expanded card has a Category dropdown; collapsed card shows category label. Functional but not yet verified end-to-end with a real vendor account on production.
+- **Admin dashboard** — `admindashboard.html` exists but vendor approval flow not yet wired in the UI. Backend routes `POST /admin/providers/:id/verify` and `/reject` exist and work (rejection no longer crashes — `rejectionReason` fix applied). Admin cannot yet flip `verificationStatus` from the UI. This is the next critical thing to build.
+- **Service stubs** — `POST/PUT/DELETE /providers/services` return `{ message: 'Coming soon' }`. Service model was deprecated in favour of Package; these routes are safe no-ops until the frontend vendorsetup Step 2 is rewired to `/packages`.
 - **Messages** — card UI exists on both dashboards, not wired to real conversations
 - **Analytics** — card placeholder on vendor dashboard, no real data
 - **Portfolio** — card UI exists with placeholder Unsplash images, Cloudinary not set up
@@ -370,7 +374,9 @@ Vendors can complete all 3 steps while `PENDING_VERIFICATION`. Nothing goes live
 - **`database.html` Provider Graph tab** — built and wired to live DB (planners left, vendors right grouped by type, color-coded connections). Client flow graph and Settings tabs not yet ported. Provider Graph uses `/admin/users`, `/admin/providers`, `/admin/event-requests` — untested against a full production dataset.
 
 ### ❌ Not started
-- Admin dashboard vendor approval flow (flip verificationStatus to VERIFIED)
+- Admin dashboard vendor approval flow UI (flip verificationStatus to VERIFIED from admindashboard.html — backend routes exist)
+- `rejectionReason` DB storage — field not yet in schema; reason currently returned in response JSON only
+- Rewire vendorsetup Step 2 to use `/packages` instead of deprecated `/providers/services`
 - Cloudinary image uploads
 - Stripe deposit payment
 - SMS verification (Twilio keys exist in old .env)
@@ -417,5 +423,7 @@ Backend (`/backend/.env` or Render dashboard):
 14. **`providerTypes[]` always includes `primaryType`** — never send one without the other. Step 2 of vendorsetup reads `providerTypes[]` to determine which fields and menu sections to show.
 15. **`getMyProfile` returns null not 404** — for new vendors with no profile yet, `GET /api/v1/providers/profile/me` returns `{ success: true, data: { providerProfile: null } }`. vendorsetup.html handles this by rendering an empty form.
 16. **`database.html` Provider Graph tab** — Loads data from three admin endpoints in parallel (`/admin/users`, `/admin/providers`, `/admin/event-requests`). Only vendor types with at least one vendor are rendered as dotted group boxes — empty types are hidden. Planner nodes include clients extracted from event-requests that may not be in the `/admin/users` response. Click a node to highlight its connections and open the detail panel; click again to deselect. Vendor detail has two sub-graph tabs: **Services** (fan of service cards) and **History** (bookings + quotes). Planner detail has **History** only.
-17. **`/admin/*` routes return all providers regardless of verificationStatus** — including UNVERIFIED and REJECTED. The Provider Graph shows a status dot (green/amber/gray) on each vendor node to indicate this. The public `/providers/search` endpoint still returns ALL providers and needs the VERIFIED-only filter applied before launch.
-18. **Service categories are canonical per vendor type** — valid sets defined in `CATEGORY_ORDER` (vendorsetup.html) and `PROFILE_CAT_ORDER` (vendorprofile.html), and in the `EXTRACTION_PROMPTS` in `pdfImportController.ts`. They must stay in sync. Order: RESTO_VENUE → Venue Packages / Bar & Beverages / Food & Menu / Add-ons & Extras; CATERER → Bar & Beverages / Food & Menu / Add-ons & Extras; ENTERTAINMENT → Performance Packages / Equipment & Production / Add-ons & Extras; PHOTO_VIDEO → Coverage Packages / Production & Extras / Prints & Albums; FLORIST_DECOR → Design & Arrangements / Add-ons & Extras.
+17. **`/admin/*` routes return all providers regardless of verificationStatus** — including UNVERIFIED and REJECTED. The Provider Graph shows a status dot (green/amber/gray) on each vendor node to indicate this. The public `/providers/search` endpoint now returns VERIFIED-only providers with at least one active Package (this filter was applied in commit `4c36388`).
+18. **`EventRequest` has no direct `booking` relation** — bookings flow through the Quote (`Quote → Booking`). To get the booking for an event request, you must traverse `eventRequest.quotes[0].booking`. Using `include: { booking: ... }` on `eventRequest` will throw a Prisma error.
+19. **`ProviderProfile` has no `reviews` relation** — reviews are linked to `Booking` (via `bookingId`) and `User` (via `ReviewAuthor`/`ReviewSubject`). Use `profile.totalReviews` (plain Int) for counts; never use `_count: { select: { reviews: true } }` on a ProviderProfile query.
+20. **Service categories are canonical per vendor type** — valid sets defined in `CATEGORY_ORDER` (vendorsetup.html) and `PROFILE_CAT_ORDER` (vendorprofile.html), and in the `EXTRACTION_PROMPTS` in `pdfImportController.ts`. They must stay in sync. Order: RESTO_VENUE → Venue Packages / Bar & Beverages / Food & Menu / Add-ons & Extras; CATERER → Bar & Beverages / Food & Menu / Add-ons & Extras; ENTERTAINMENT → Performance Packages / Equipment & Production / Add-ons & Extras; PHOTO_VIDEO → Coverage Packages / Production & Extras / Prints & Albums; FLORIST_DECOR → Design & Arrangements / Add-ons & Extras.
