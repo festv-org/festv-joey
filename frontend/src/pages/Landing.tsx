@@ -1,35 +1,36 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { UtensilsCrossed, Wine, Music, Camera, Flower2 } from 'lucide-react';
 
 // ── Vendor type pills & cards ────────────────────────────────────────────────
 const vendorTypes = [
   {
     label: 'Restaurant / Venue',
-    emoji: '🍽️',
+    Icon: UtensilsCrossed,
     type: 'RESTO_VENUE',
     desc: 'Private dining rooms, full venue buyouts, and unforgettable spaces.',
   },
   {
     label: 'Caterer',
-    emoji: '🥂',
+    Icon: Wine,
     type: 'CATERER',
     desc: 'From plated dinners to grazing tables, catering for every occasion.',
   },
   {
     label: 'Entertainment',
-    emoji: '🎵',
+    Icon: Music,
     type: 'ENTERTAINMENT',
     desc: 'DJs, live bands, MCs, and production for any event.',
   },
   {
     label: 'Photo & Video',
-    emoji: '📸',
+    Icon: Camera,
     type: 'PHOTO_VIDEO',
     desc: 'Photography and videography to capture every moment.',
   },
   {
     label: 'Florist & Decor',
-    emoji: '💐',
+    Icon: Flower2,
     type: 'FLORIST_DECOR',
     desc: 'Floral design and event styling that sets the scene.',
   },
@@ -203,20 +204,20 @@ export default function Landing() {
           <div className="flex items-center justify-center gap-8 mb-16">
             <button
               onClick={() => setActiveTab('planner')}
-              className={`font-sans text-sm pb-2 transition-colors duration-200 ${
+              className={`font-sans text-sm tracking-wide transition-all duration-200 focus:outline-none outline-none pb-2 border-b-2 ${
                 activeTab === 'planner'
-                  ? 'border-b-2 border-gold text-gold'
-                  : 'text-muted hover:text-charcoal'
+                  ? 'text-gold border-gold font-medium'
+                  : 'text-muted hover:text-charcoal border-transparent'
               }`}
             >
               I'm planning an event
             </button>
             <button
               onClick={() => setActiveTab('vendor')}
-              className={`font-sans text-sm pb-2 transition-colors duration-200 ${
+              className={`font-sans text-sm tracking-wide transition-all duration-200 focus:outline-none outline-none pb-2 border-b-2 ${
                 activeTab === 'vendor'
-                  ? 'border-b-2 border-gold text-gold'
-                  : 'text-muted hover:text-charcoal'
+                  ? 'text-gold border-gold font-medium'
+                  : 'text-muted hover:text-charcoal border-transparent'
               }`}
             >
               I'm a vendor
@@ -226,18 +227,15 @@ export default function Landing() {
           {/* Steps */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-0 relative">
             {/* Connecting line — desktop only */}
-            <div
-              className="hidden md:block absolute top-5 left-[12.5%] right-[12.5%] h-px bg-gold/20"
-              style={{ zIndex: 0 }}
-            />
+            <div className="hidden md:block absolute top-4 left-1/2 w-full h-px bg-gold/30 -z-10" />
 
             {steps.map((step, i) => (
               <div key={step.title} className="relative z-10 flex flex-col items-center text-center px-4 mb-10 md:mb-0">
-                <span className="font-serif text-3xl text-gold font-light mb-3 bg-bg px-2">
+                <span className="font-serif text-4xl text-gold/40 font-light mb-3 bg-bg px-2">
                   {i + 1}
                 </span>
-                <h4 className="font-sans font-medium text-sm text-dark mb-2">{step.title}</h4>
-                <p className="text-muted text-sm leading-relaxed">{step.desc}</p>
+                <h4 className="font-sans font-medium text-sm text-dark mt-3">{step.title}</h4>
+                <p className="font-sans text-xs text-muted mt-2 leading-relaxed">{step.desc}</p>
               </div>
             ))}
           </div>
@@ -263,7 +261,7 @@ export default function Landing() {
                 to={`/providers?type=${v.type}`}
                 className="bg-bg border border-border rounded-2xl p-6 flex flex-col hover:border-gold hover:shadow-sm transition-all duration-200 group"
               >
-                <span className="text-3xl">{v.emoji}</span>
+                <v.Icon size={28} strokeWidth={1.5} className="text-gold" />
                 <span className="font-serif text-lg text-dark mt-4 leading-snug">{v.label}</span>
                 <span className="text-muted text-xs mt-2 leading-relaxed flex-1">{v.desc}</span>
                 <span className="text-gold text-xs mt-4 font-sans group-hover:underline">Browse →</span>
@@ -283,7 +281,7 @@ export default function Landing() {
           </p>
           <Link
             to="/register?role=PROVIDER"
-            className="border border-gold text-gold font-sans text-xs tracking-widest uppercase px-8 py-4 hover:bg-gold hover:text-dark transition-colors duration-200 mt-8 inline-block"
+            className="mt-8 inline-block border border-gold text-gold px-12 py-4 text-xs tracking-widest uppercase font-sans hover:bg-gold hover:text-dark transition-all duration-200"
           >
             List Your Business
           </Link>
