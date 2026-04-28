@@ -1105,26 +1105,30 @@ export default function VendorSetup() {
     })
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.data?.providerProfile) {
-          const p = data.data.providerProfile;
+        // Support both response shapes: { data: { providerProfile } } and { data: <profile> }
+        const p = data.data?.providerProfile ?? (data.data && !data.data.providerProfile ? data.data : null);
+        if (data.success && p) {
           setProfileExists(true);
           setState(prev => ({
             ...prev,
-            businessName: p.businessName ?? prev.businessName,
-            phone: p.phone ?? prev.phone,
-            contactEmail: p.contactEmail ?? prev.contactEmail,
-            website: p.websiteUrl ?? prev.website,
-            instagram: p.instagramHandle ?? prev.instagram,
-            city: p.user?.city ?? prev.city,
-            province: p.user?.state ?? prev.province,
-            country: p.user?.country ?? prev.country,
+            businessName:  p.businessName        || prev.businessName,
+            phone:         p.phone               || prev.phone,
+            contactEmail:  p.contactEmail        || prev.contactEmail,
+            website:       p.websiteUrl          || prev.website,
+            instagram:     p.instagramHandle     || prev.instagram,
+            city:          p.user?.city          || p.city          || prev.city,
+            province:      p.user?.state         || p.state         || p.province || prev.province,
+            country:       p.user?.country       || p.country       || prev.country,
             serviceRadius: p.serviceRadius != null ? String(p.serviceRadius) : prev.serviceRadius,
-            about: p.businessDescription ?? prev.about,
-            languages: p.languages ?? prev.languages,
-            minBudget: p.minBudget != null ? String(p.minBudget) : prev.minBudget,
-            maxBudget: p.maxBudget != null ? String(p.maxBudget) : prev.maxBudget,
-            primaryType: p.primaryType ?? prev.primaryType,
-            secondaryTypes: (p.providerTypes ?? []).filter((t: string) => t !== p.primaryType),
+            about:         p.businessDescription || prev.about,
+            languages:     Array.isArray(p.languages) && p.languages.length > 0 ? p.languages : prev.languages,
+            minBudget:     p.minBudget != null ? String(p.minBudget) : prev.minBudget,
+            maxBudget:     p.maxBudget != null ? String(p.maxBudget) : prev.maxBudget,
+            // Vendor type — use || so an empty string also falls back
+            primaryType:   p.primaryType || prev.primaryType,
+            secondaryTypes: Array.isArray(p.providerTypes) && p.providerTypes.length > 0
+              ? p.providerTypes.filter((t: string) => t !== p.primaryType)
+              : prev.secondaryTypes,
           }));
         }
       })
@@ -1434,7 +1438,7 @@ export default function VendorSetup() {
                 className={`flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all focus:outline-none
                   ${active ? 'border-gold bg-gold/5' : 'border-border bg-white hover:border-gold/50'}`}
               >
-                <vt.Icon size={20} className={active ? 'text-gold mt-0.5 flex-shrink-0' : 'text-muted mt-0.5 flex-shrink-0'} />
+                <vt.Icon size={20} strokeWidth={1.5} className="text-gold mt-0.5 flex-shrink-0" />
                 <div>
                   <p className={`font-sans text-sm font-bold ${active ? 'text-dark' : 'text-charcoal'}`}>{vt.label}</p>
                   <p className="font-sans text-xs text-muted mt-0.5 leading-snug">{vt.desc}</p>
