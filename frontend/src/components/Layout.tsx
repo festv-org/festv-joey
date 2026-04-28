@@ -1,22 +1,20 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { 
-  Menu, 
-  X, 
-  ChefHat, 
-  User, 
-  LogOut, 
+import {
+  Menu,
+  X,
+  User,
+  LogOut,
   LayoutDashboard,
   Search,
   PlusCircle,
-  RefreshCw,
   Briefcase,
   Users,
-  UtensilsCrossed,
   CalendarCheck,
   FileText,
-  Wallet,
-  CheckCircle
+  CheckCircle,
+  Package,
+  CalendarX2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { canAccessPlanner } from '../pages/Planner';
@@ -49,82 +47,96 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-stone-100">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#F5F3EF' }}>
+
+      {/* ── Header ────────────────────────────────────────────────────────── */}
+      <header className="bg-white sticky top-0 z-50 border-b border-border">
         <nav className="section-padding">
           <div className="flex items-center justify-between h-16">
+
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-500 to-brand-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:shadow-xl group-hover:shadow-brand-500/30 transition-shadow">
-                <ChefHat className="w-6 h-6 text-white" />
-              </div>
-              <span className="font-display font-bold text-xl text-stone-800">
-                F<span className="text-brand-500">êtes</span>
+            <Link to="/" className="flex items-center">
+              <span className="font-serif text-2xl tracking-widest text-dark">
+                FEST<span className="text-gold">V</span>
               </span>
             </Link>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center gap-6">
-              <Link to="/providers" className="btn-ghost">
-                <Search className="w-4 h-4 mr-2" />
-                Browse Providers
+              <Link
+                to="/providers"
+                className="flex items-center gap-1.5 text-xs font-sans font-medium uppercase tracking-widest text-charcoal hover:text-gold transition-colors duration-200"
+              >
+                <Search className="w-3.5 h-3.5" />
+                Browse Vendors
               </Link>
-              
+
               {isAuthenticated ? (
                 <>
                   {user?.role === 'CLIENT' && (
-                    <Link to="/create-request" className="btn-ghost">
-                      <PlusCircle className="w-4 h-4 mr-2" />
-                      Create Request
+                    <Link
+                      to="/create-request"
+                      className="flex items-center gap-1.5 text-xs font-sans font-medium uppercase tracking-widest text-charcoal hover:text-gold transition-colors duration-200"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      New Request
                     </Link>
                   )}
-                  
+
                   {canAccessPlanner(user?.email) && (
                     <>
-                      <Link to="/planner" className="btn-ghost text-brand-600">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                      <Link
+                        to="/planner"
+                        className="text-xs font-sans font-medium uppercase tracking-widest text-gold hover:text-gold-dark transition-colors duration-200"
+                      >
                         Planner
                       </Link>
-                      <Link to="/database" className="btn-ghost text-brand-600">
-                        <Search className="w-4 h-4 mr-2" />
+                      <Link
+                        to="/database"
+                        className="text-xs font-sans font-medium uppercase tracking-widest text-gold hover:text-gold-dark transition-colors duration-200"
+                      >
                         Database
                       </Link>
                     </>
                   )}
-                  
+
+                  {/* User dropdown */}
                   <div className="relative">
                     <button
                       onClick={() => setUserMenuOpen(!userMenuOpen)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-full bg-stone-100 hover:bg-stone-200 transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-full transition-colors"
+                      style={{ backgroundColor: 'rgba(196,160,106,0.08)' }}
                     >
                       <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
                         {user?.avatarUrl ? (
                           <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
+                          <div className="w-full h-full bg-gold flex items-center justify-center">
+                            <span className="text-dark font-semibold text-sm font-sans">
                               {user?.firstName?.[0]}{user?.lastName?.[0]}
                             </span>
                           </div>
                         )}
                       </div>
-                      <span className="font-medium text-stone-700">
+                      <span className="font-sans font-medium text-sm text-charcoal">
                         {user?.firstName}
                       </span>
                     </button>
 
                     {userMenuOpen && (
                       <>
-                        <div 
-                          className="fixed inset-0 z-10" 
-                          onClick={() => setUserMenuOpen(false)}
-                        />
-                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-stone-100 py-2 z-20 animate-slide-up">
-                          <div className="px-4 py-2 border-b border-stone-100">
-                            <p className="font-medium text-stone-800">{user?.firstName} {user?.lastName}</p>
-                            <p className="text-sm text-stone-500">{user?.email}</p>
-                            <p className="text-xs text-brand-600 mt-1 flex items-center gap-1">
+                        <div className="fixed inset-0 z-10" onClick={() => setUserMenuOpen(false)} />
+                        <div
+                          className="absolute right-0 mt-2 w-60 bg-white rounded-2xl py-2 z-20 animate-slide-up"
+                          style={{ border: '1px solid rgba(0,0,0,0.09)', boxShadow: '0 8px 32px rgba(0,0,0,0.10)' }}
+                        >
+                          {/* User info */}
+                          <div className="px-4 py-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                            <p className="font-sans font-semibold text-sm text-dark">
+                              {user?.firstName} {user?.lastName}
+                            </p>
+                            <p className="font-sans text-xs text-muted mt-0.5">{user?.email}</p>
+                            <p className="font-sans text-xs text-gold mt-1 flex items-center gap-1">
                               {user?.role === 'PROVIDER' ? (
                                 <><Briefcase className="w-3 h-3" /> Provider Mode</>
                               ) : (
@@ -132,73 +144,82 @@ export default function Layout() {
                               )}
                             </p>
                           </div>
-                          
-                          {/* Role Switcher */}
+
+                          {/* Role switcher */}
                           {user?.roles && user.roles.length > 1 ? (
-                            <div className="px-2 py-2 border-b border-stone-100">
-                              <p className="px-2 text-xs font-medium text-stone-400 uppercase mb-2">Switch Mode</p>
+                            <div className="px-2 py-2" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+                              <p className="px-2 text-xs font-sans font-medium text-muted uppercase tracking-widest mb-2">
+                                Switch Mode
+                              </p>
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => handleSwitchRole('CLIENT')}
                                   disabled={isSwitching || user.role === 'CLIENT'}
-                                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    user.role === 'CLIENT'
-                                      ? 'bg-brand-100 text-brand-700'
-                                      : 'hover:bg-stone-100 text-stone-600'
-                                  }`}
+                                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors"
+                                  style={user.role === 'CLIENT'
+                                    ? { backgroundColor: 'rgba(196,160,106,0.12)', color: '#9C7A45' }
+                                    : { color: '#7A7068' }}
                                 >
-                                  <Users className="w-4 h-4" />
-                                  Client
+                                  <Users className="w-3.5 h-3.5" />Client
                                 </button>
                                 <button
                                   onClick={() => handleSwitchRole('PROVIDER')}
                                   disabled={isSwitching || user.role === 'PROVIDER'}
-                                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                    user.role === 'PROVIDER'
-                                      ? 'bg-brand-100 text-brand-700'
-                                      : 'hover:bg-stone-100 text-stone-600'
-                                  }`}
+                                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-sans font-medium transition-colors"
+                                  style={user.role === 'PROVIDER'
+                                    ? { backgroundColor: 'rgba(196,160,106,0.12)', color: '#9C7A45' }
+                                    : { color: '#7A7068' }}
                                 >
-                                  <Briefcase className="w-4 h-4" />
-                                  Provider
+                                  <Briefcase className="w-3.5 h-3.5" />Provider
                                 </button>
                               </div>
                             </div>
                           ) : !user?.roles?.includes('PROVIDER') ? (
-                            <div className="px-2 py-2 border-b border-stone-100">
+                            <div className="px-2 py-2" style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
                               <Link
                                 to="/become-provider"
                                 onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-2 px-2 py-2 text-brand-600 hover:bg-brand-50 rounded-lg transition-colors text-sm font-medium"
+                                className="flex items-center gap-2 px-2 py-2 rounded-lg text-sm font-sans font-medium text-gold transition-colors hover:bg-gold/5"
                               >
                                 <Briefcase className="w-4 h-4" />
-                                Become a Provider
+                                Become a Vendor
                               </Link>
                             </div>
                           ) : null}
-                          
+
+                          {/* Dashboard */}
                           <Link
                             to={user?.role === 'PROVIDER' ? '/provider/dashboard' : '/dashboard'}
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                           >
                             <LayoutDashboard className="w-4 h-4" />
                             Dashboard
                           </Link>
+
+                          {/* Provider links */}
                           {user?.role === 'PROVIDER' && (
                             <>
                               <Link
-                                to="/provider/menu"
+                                to="/vendor/packages"
                                 onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                               >
-                                <UtensilsCrossed className="w-4 h-4" />
-                                My Menu / Services
+                                <Package className="w-4 h-4" />
+                                Packages
+                              </Link>
+                              <Link
+                                to="/vendor/availability"
+                                onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
+                              >
+                                <CalendarX2 className="w-4 h-4" />
+                                Availability
                               </Link>
                               <Link
                                 to="/provider/bookings"
                                 onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                               >
                                 <CalendarCheck className="w-4 h-4" />
                                 Bookings
@@ -206,63 +227,79 @@ export default function Layout() {
                               <Link
                                 to="/provider/quotes"
                                 onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                               >
                                 <FileText className="w-4 h-4" />
                                 Quotes
                               </Link>
+                            </>
+                          )}
+
+                          {/* Client links */}
+                          {user?.role === 'CLIENT' && (
+                            <>
                               <Link
-                                to="/provider/earnings"
+                                to="/event-requests"
                                 onClick={() => setUserMenuOpen(false)}
-                                className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                               >
-                                <Wallet className="w-4 h-4" />
-                                Earnings
+                                <FileText className="w-4 h-4" />
+                                My Requests
+                              </Link>
+                              <Link
+                                to="/bookings"
+                                onClick={() => setUserMenuOpen(false)}
+                                className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
+                              >
+                                <CalendarCheck className="w-4 h-4" />
+                                My Bookings
                               </Link>
                             </>
                           )}
+
                           <Link
                             to="/profile"
                             onClick={() => setUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2.5 text-stone-700 hover:bg-stone-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                           >
                             <User className="w-4 h-4" />
                             My Profile
                           </Link>
-                          
-                          {/* Account Verification Status */}
+
+                          {/* Verification status */}
                           {user?.emailVerified === false ? (
                             <Link
                               to="/account/verify"
                               onClick={() => setUserMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2.5 text-amber-600 hover:bg-amber-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-amber-600 hover:bg-amber-50 transition-colors"
                             >
                               <CheckCircle className="w-4 h-4" />
                               Verify Account
                             </Link>
                           ) : (
-                            <div className="flex items-center gap-3 px-4 py-2.5 text-green-600">
+                            <div className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans" style={{ color: '#3A8A55' }}>
                               <CheckCircle className="w-4 h-4" />
                               Verified ✓
                             </div>
                           )}
-                          
-                          {/* Admin Link */}
+
+                          {/* Admin links */}
                           {canAccessPlanner(user?.email) && (
                             <Link
                               to="/admin/providers"
                               onClick={() => setUserMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2.5 text-brand-600 hover:bg-brand-50 transition-colors"
+                              className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans text-gold hover:bg-gold/5 transition-colors"
                             >
                               <CheckCircle className="w-4 h-4" />
-                              Admin: Verify Providers
+                              Admin: Verify Vendors
                             </Link>
                           )}
-                          
-                          <hr className="my-2 border-stone-100" />
+
+                          <hr style={{ borderColor: 'rgba(0,0,0,0.06)', margin: '4px 0' }} />
                           <button
                             onClick={handleLogout}
-                            className="flex items-center gap-3 px-4 py-2.5 text-red-600 hover:bg-red-50 transition-colors w-full"
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-sans w-full transition-colors hover:bg-red-50"
+                            style={{ color: '#B84040' }}
                           >
                             <LogOut className="w-4 h-4" />
                             Sign Out
@@ -274,101 +311,134 @@ export default function Layout() {
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="btn-ghost">Sign In</Link>
-                  <Link to="/register" className="btn-primary">Get Started</Link>
+                  <Link
+                    to="/login"
+                    className="text-xs font-sans font-medium uppercase tracking-widest text-charcoal hover:text-gold transition-colors duration-200"
+                  >
+                    Sign In
+                  </Link>
+                  <Link to="/register" className="btn-primary text-xs uppercase tracking-widest">
+                    Get Started
+                  </Link>
                 </>
               )}
             </div>
 
             {/* Mobile menu button */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-stone-100 transition-colors"
+              className="md:hidden p-2 rounded-lg transition-colors hover:bg-gold/5"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6 text-stone-700" />
-              ) : (
-                <Menu className="w-6 h-6 text-stone-700" />
-              )}
+              {mobileMenuOpen
+                ? <X className="w-6 h-6 text-charcoal" />
+                : <Menu className="w-6 h-6 text-charcoal" />}
             </button>
           </div>
 
-          {/* Mobile Navigation */}
+          {/* ── Mobile Navigation ──────────────────────────────────────────── */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-stone-100 animate-slide-up">
-              <div className="flex flex-col gap-2">
-                <Link 
-                  to="/providers" 
-                  className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors"
+            <div
+              className="md:hidden py-4 animate-slide-up"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
+            >
+              <div className="flex flex-col gap-1">
+                <Link
+                  to="/providers"
+                  className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Browse Providers
+                  Browse Vendors
                 </Link>
+
                 {isAuthenticated ? (
                   <>
-                    <Link 
+                    <Link
                       to={user?.role === 'PROVIDER' ? '/provider/dashboard' : '/dashboard'}
-                      className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors"
+                      className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Dashboard
                     </Link>
+
+                    {/* Provider mobile links */}
                     {user?.role === 'PROVIDER' && (
                       <>
-                        <Link 
-                          to="/provider/menu"
-                          className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
+                        <Link
+                          to="/vendor/packages"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <UtensilsCrossed className="w-4 h-4" />
-                          My Menu / Services
+                          <Package className="w-4 h-4" />
+                          Packages
                         </Link>
-                        <Link 
+                        <Link
+                          to="/vendor/availability"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <CalendarX2 className="w-4 h-4" />
+                          Availability
+                        </Link>
+                        <Link
                           to="/provider/bookings"
-                          className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <CalendarCheck className="w-4 h-4" />
                           Bookings
                         </Link>
-                        <Link 
+                        <Link
                           to="/provider/quotes"
-                          className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <FileText className="w-4 h-4" />
                           Quotes
                         </Link>
-                        <Link 
-                          to="/provider/earnings"
-                          className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-2"
+                      </>
+                    )}
+
+                    {/* Client mobile links */}
+                    {user?.role === 'CLIENT' && (
+                      <>
+                        <Link
+                          to="/create-request"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <Wallet className="w-4 h-4" />
-                          Earnings
+                          <PlusCircle className="w-4 h-4" />
+                          New Request
+                        </Link>
+                        <Link
+                          to="/event-requests"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <FileText className="w-4 h-4" />
+                          My Requests
+                        </Link>
+                        <Link
+                          to="/bookings"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <CalendarCheck className="w-4 h-4" />
+                          My Bookings
                         </Link>
                       </>
                     )}
-                    {user?.role === 'CLIENT' && (
-                      <Link 
-                        to="/create-request"
-                        className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Create Request
-                      </Link>
-                    )}
-                    <Link 
+
+                    <Link
                       to="/profile"
-                      className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors flex items-center gap-3"
+                      className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors flex items-center gap-3"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
                         {user?.avatarUrl ? (
                           <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center">
-                            <span className="text-white font-semibold text-xs">
+                          <div className="w-full h-full bg-gold flex items-center justify-center">
+                            <span className="text-dark font-semibold text-xs font-sans">
                               {user?.firstName?.[0]}{user?.lastName?.[0]}
                             </span>
                           </div>
@@ -376,117 +446,114 @@ export default function Layout() {
                       </div>
                       My Profile
                     </Link>
-                    
-                    {/* Account Verification Status */}
+
+                    {/* Verification status */}
                     {user?.emailVerified === false ? (
-                      <Link 
+                      <Link
                         to="/account/verify"
-                        className="px-4 py-3 rounded-lg hover:bg-amber-50 text-amber-600 transition-colors flex items-center gap-2"
+                        className="px-4 py-3 rounded-lg text-sm font-sans text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <CheckCircle className="w-4 h-4" />
                         Verify Account
                       </Link>
                     ) : (
-                      <div className="px-4 py-3 text-green-600 flex items-center gap-2">
+                      <div className="px-4 py-3 flex items-center gap-2 text-sm font-sans" style={{ color: '#3A8A55' }}>
                         <CheckCircle className="w-4 h-4" />
                         Verified ✓
                       </div>
                     )}
-                    
-                    {/* Role Switch / Become Provider */}
+
+                    {/* Role switch / become provider */}
                     {user?.roles && user.roles.length > 1 ? (
                       <div className="px-4 py-2">
-                        <p className="text-xs font-medium text-stone-400 uppercase mb-2">Switch Mode</p>
+                        <p className="text-xs font-sans font-medium text-muted uppercase tracking-widest mb-2">
+                          Switch Mode
+                        </p>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => {
-                              handleSwitchRole('CLIENT');
-                              setMobileMenuOpen(false);
-                            }}
+                            onClick={() => { handleSwitchRole('CLIENT'); setMobileMenuOpen(false); }}
                             disabled={user.role === 'CLIENT'}
-                            className={`flex-1 py-2 rounded-lg text-sm font-medium ${
-                              user.role === 'CLIENT'
-                                ? 'bg-brand-100 text-brand-700'
-                                : 'bg-stone-100 text-stone-600'
-                            }`}
+                            className="flex-1 py-2 rounded-lg text-sm font-sans font-medium transition-colors"
+                            style={user.role === 'CLIENT'
+                              ? { backgroundColor: 'rgba(196,160,106,0.12)', color: '#9C7A45' }
+                              : { backgroundColor: 'rgba(0,0,0,0.04)', color: '#7A7068' }}
                           >
                             Client
                           </button>
                           <button
-                            onClick={() => {
-                              handleSwitchRole('PROVIDER');
-                              setMobileMenuOpen(false);
-                            }}
+                            onClick={() => { handleSwitchRole('PROVIDER'); setMobileMenuOpen(false); }}
                             disabled={user.role === 'PROVIDER'}
-                            className={`flex-1 py-2 rounded-lg text-sm font-medium ${
-                              user.role === 'PROVIDER'
-                                ? 'bg-brand-100 text-brand-700'
-                                : 'bg-stone-100 text-stone-600'
-                            }`}
+                            className="flex-1 py-2 rounded-lg text-sm font-sans font-medium transition-colors"
+                            style={user.role === 'PROVIDER'
+                              ? { backgroundColor: 'rgba(196,160,106,0.12)', color: '#9C7A45' }
+                              : { backgroundColor: 'rgba(0,0,0,0.04)', color: '#7A7068' }}
                           >
                             Provider
                           </button>
                         </div>
                       </div>
                     ) : !user?.roles?.includes('PROVIDER') ? (
-                      <Link 
+                      <Link
                         to="/become-provider"
-                        className="px-4 py-3 rounded-lg hover:bg-brand-50 text-brand-600 transition-colors flex items-center gap-2"
+                        className="px-4 py-3 rounded-lg text-sm font-sans text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <Briefcase className="w-4 h-4" />
-                        Become a Provider
+                        Become a Vendor
                       </Link>
                     ) : null}
-                    
+
+                    {/* Dev/admin links */}
                     {canAccessPlanner(user?.email) && (
                       <>
-                        <Link 
+                        <Link
                           to="/planner"
-                          className="px-4 py-3 rounded-lg hover:bg-brand-50 text-brand-600 transition-colors flex items-center gap-2"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <LayoutDashboard className="w-4 h-4" />
                           Planner
                         </Link>
-                        <Link 
+                        <Link
                           to="/database"
-                          className="px-4 py-3 rounded-lg hover:bg-brand-50 text-brand-600 transition-colors flex items-center gap-2"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <Search className="w-4 h-4" />
                           Database
                         </Link>
-                        <Link 
+                        <Link
                           to="/admin/providers"
-                          className="px-4 py-3 rounded-lg hover:bg-brand-50 text-brand-600 transition-colors flex items-center gap-2"
+                          className="px-4 py-3 rounded-lg text-sm font-sans text-gold hover:bg-gold/5 transition-colors flex items-center gap-2"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <CheckCircle className="w-4 h-4" />
-                          Admin: Verify Providers
+                          Admin: Verify Vendors
                         </Link>
                       </>
                     )}
+
                     <button
                       onClick={handleLogout}
-                      className="px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 text-left transition-colors"
+                      className="px-4 py-3 rounded-lg text-sm font-sans text-left transition-colors hover:bg-red-50"
+                      style={{ color: '#B84040' }}
                     >
                       Sign Out
                     </button>
                   </>
                 ) : (
                   <>
-                    <Link 
+                    <Link
                       to="/login"
-                      className="px-4 py-3 rounded-lg hover:bg-stone-100 transition-colors"
+                      className="px-4 py-3 rounded-lg text-sm font-sans text-charcoal hover:text-gold hover:bg-gold/5 transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
-                    <Link 
+                    <Link
                       to="/register"
-                      className="btn-primary mx-4"
+                      className="btn-primary mx-4 text-xs uppercase tracking-widest"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Get Started
@@ -499,54 +566,107 @@ export default function Layout() {
         </nav>
       </header>
 
-      {/* Main Content */}
+      {/* ── Main Content ──────────────────────────────────────────────────── */}
       <main className="flex-1">
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-stone-900 text-stone-400 py-12">
+      {/* ── Footer ────────────────────────────────────────────────────────── */}
+      <footer className="bg-dark text-white py-16">
         <div className="section-padding">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+            {/* Brand */}
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
-                  <ChefHat className="w-5 h-5 text-white" />
-                </div>
-                <span className="font-display font-bold text-lg text-white">Fêtes</span>
-              </div>
-              <p className="text-sm">
-                The easiest way to find and book catering and event services for your special occasions.
+              <span className="font-serif text-2xl tracking-widest text-white block mb-3">
+                FEST<span className="text-gold">V</span>
+              </span>
+              <p className="text-sm font-sans text-muted leading-relaxed">
+                The luxury event planning marketplace.
               </p>
             </div>
+
+            {/* For Clients */}
             <div>
-              <h4 className="font-semibold text-white mb-4">For Clients</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/providers" className="hover:text-white transition-colors">Find Providers</Link></li>
-                <li><Link to="/create-request" className="hover:text-white transition-colors">Create Request</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+              <h4 className="font-sans font-semibold text-xs uppercase tracking-widest text-white mb-4">
+                For Clients
+              </h4>
+              <ul className="space-y-2 text-sm font-sans">
+                <li>
+                  <Link to="/providers" className="text-muted hover:text-gold transition-colors">
+                    Find Vendors
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/create-request" className="text-muted hover:text-gold transition-colors">
+                    Create Request
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/how-it-works" className="text-muted hover:text-gold transition-colors">
+                    How It Works
+                  </Link>
+                </li>
               </ul>
             </div>
+
+            {/* For Vendors */}
             <div>
-              <h4 className="font-semibold text-white mb-4">For Providers</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/register?role=provider" className="hover:text-white transition-colors">Join as Provider</Link></li>
-                <li><Link to="/provider-resources" className="hover:text-white transition-colors">Resources</Link></li>
-                <li><Link to="/success-stories" className="hover:text-white transition-colors">Success Stories</Link></li>
+              <h4 className="font-sans font-semibold text-xs uppercase tracking-widest text-white mb-4">
+                For Vendors
+              </h4>
+              <ul className="space-y-2 text-sm font-sans">
+                <li>
+                  <Link to="/register?role=provider" className="text-muted hover:text-gold transition-colors">
+                    Join as Vendor
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/vendor/setup" className="text-muted hover:text-gold transition-colors">
+                    Setup Your Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/success-stories" className="text-muted hover:text-gold transition-colors">
+                    Success Stories
+                  </Link>
+                </li>
               </ul>
             </div>
+
+            {/* Company */}
             <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <h4 className="font-sans font-semibold text-xs uppercase tracking-widest text-white mb-4">
+                Company
+              </h4>
+              <ul className="space-y-2 text-sm font-sans">
+                <li>
+                  <Link to="/about" className="text-muted hover:text-gold transition-colors">
+                    About Us
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/contact" className="text-muted hover:text-gold transition-colors">
+                    Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacy" className="text-muted hover:text-gold transition-colors">
+                    Privacy Policy
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/terms" className="text-muted hover:text-gold transition-colors">
+                    Terms of Service
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-stone-800 mt-8 pt-8 text-center text-sm">
-            <p>&copy; {new Date().getFullYear()} Fêtes. All rights reserved.</p>
+
+          <div className="mt-12 pt-8 text-center text-sm font-sans text-muted"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <p>© 2026 FESTV. All rights reserved.</p>
           </div>
         </div>
       </footer>
