@@ -113,7 +113,7 @@ interface PackageGroup {
 
 interface Review {
   id: string;
-  rating: number;
+  overallRating: number;
   title?: string | null;
   content?: string | null;
   createdAt: string;
@@ -488,7 +488,7 @@ export default function ProviderProfile() {
 
         if (reviewsRes) {
           const reviewsData = await reviewsRes.json().catch(() => null);
-          if (reviewsData?.success) setReviews(reviewsData.data ?? []);
+          if (reviewsData?.success) setReviews(reviewsData.data?.reviews ?? []);
         }
       } catch (err) {
         console.error('[ProviderProfile] fetch error:', err);
@@ -792,7 +792,7 @@ export default function ProviderProfile() {
                           })}
                         </p>
                       </div>
-                      <Stars rating={review.rating} />
+                      <Stars rating={review.overallRating} />
                     </div>
                     {review.title && (
                       <p className="font-sans text-sm font-medium text-dark mb-1">{review.title}</p>
