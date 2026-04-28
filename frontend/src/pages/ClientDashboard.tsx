@@ -1,348 +1,646 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  PlusCircle, 
-  Calendar, 
-  Clock, 
-  DollarSign, 
-  Users,
-  ChevronRight,
-  FileText,
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { format, differenceInDays, parseISO } from 'date-fns';
+import {
+  Search,
+  Calendar,
+  BookOpen,
   CheckCircle,
-  AlertCircle,
-  Star,
-  Briefcase
+  Inbox,
+  Heart,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { EventRequest, Booking } from '../types';
-import { eventRequestsApi, bookingsApi } from '../utils/api';
-import { format } from 'date-fns';
+import { eventRequestsApi, quotesApi, bookingsApi, apiFetch } from '../utils/api';
+import { ProviderTypeBadge } from '../components/ProviderTypeBadge';
+
+// ─── Formatters ───────────────────────────────────────────────────────────────
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ProviderInfo {
+  id: string;
+  businessName: string;
+  primaryType?: string;
+  city?: string;
+  province?: string;
+}
+
+interface PackageInfo {
+  id: string;
+  name: string;
+  category?: string;
+}
+
+interface EventRequestItem {
+  id: string;
+  eventType: string;
+  eventDate: string;
+  guestCount: number;
+  status: 'PENDING' | 'QUOTE_SENT' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED';
+  calculatedEstimate?: number;
+  providerProfile?: ProviderInfo;
+  package?: PackageInfo;
+  quotes?: { id: string }[];
+}
+
+interface QuoteItem {
+  id: string;
+  eventType: string;
+  eventDate: string;
+  guestCount: number;
+  total: number;
+  depositAmount: number;
+  expiresAt?: string;
+  status: string;
+  providerProfile?: ProviderInfo;
+  package?: PackageInfo;
+  booking?: { id: string };
+}
+
+interface BookingItem {
+  id: string;
+  eventType: string;
+  eventDate: string;
+  guestCount: number;
+  total: number;
+  status: 'PENDING_DEPOSIT' | 'DEPOSIT_PAID' | 'CONFIRMED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'REFUNDED' | 'DISPUTED' | 'PENDING_REVIEW';
+  providerProfile?: ProviderInfo;
+  package?: PackageInfo;
+}
+
+interface FavoriteItem {
+  id: string;
+  provider?: ProviderInfo;
+  providerProfile?: ProviderInfo;
+}
+
+// ─── Status badge configs ─────────────────────────────────────────────────────
+
+const REQUEST_STATUS: Record<string, { label: string; cls: string }> = {
+  PENDING:    { label: 'Pending',     cls: 'bg-gold/10 text-gold-dark border border-gold/30' },
+  QUOTE_SENT: { label: 'Quote Sent',  cls: 'bg-green/10 text-green border border-green/30' },
+  ACCEPTED:   { label: 'Accepted',    cls: 'bg-charcoal/10 text-charcoal border border-charcoal/20' },
+  DECLINED:   { label: 'Declined',    cls: 'bg-red/10 text-red border border-red/30' },
+  EXPIRED:    { label: 'Expired',     cls: 'bg-muted/10 text-muted border border-muted/20' },
+};
+
+const BOOKING_STATUS: Record<string, { label: string; cls: string }> = {
+  PENDING_DEPOSIT: { label: 'Deposit Pending', cls: 'bg-gold/10 text-gold-dark border border-gold/30' },
+  DEPOSIT_PAID:    { label: 'Deposit Paid',    cls: 'bg-charcoal/10 text-charcoal border border-charcoal/20' },
+  CONFIRMED:       { label: 'Confirmed',       cls: 'bg-green/10 text-green border border-green/30' },
+  IN_PROGRESS:     { label: 'In Progress',     cls: 'bg-green/10 text-green border border-green/30' },
+  COMPLETED:       { label: 'Completed',       cls: 'bg-charcoal/10 text-charcoal border border-charcoal/20' },
+  CANCELLED:       { label: 'Cancelled',       cls: 'bg-red/10 text-red border border-red/30' },
+  PENDING_REVIEW:  { label: 'Pending Review',  cls: 'bg-gold/10 text-gold-dark border border-gold/30' },
+};
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white border border-border rounded-md p-5 mb-3 animate-pulse">
+      <div className="flex items-start gap-4">
+        <div className="w-14 h-14 bg-bg rounded-md flex-shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-bg rounded w-1/2" />
+          <div className="h-3 bg-bg rounded w-1/3" />
+          <div className="h-3 bg-bg rounded w-1/4" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ClientDashboard() {
   const { user, token } = useAuth();
-  const [eventRequests, setEventRequests] = useState<EventRequest[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  const [requests, setRequests] = useState<EventRequestItem[]>([]);
+  const [quotes, setQuotes] = useState<QuoteItem[]>([]);
+  const [bookings, setBookings] = useState<BookingItem[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [acceptingIds, setAcceptingIds] = useState<Set<string>>(new Set());
+  const [decliningIds, setDecliningIds] = useState<Set<string>>(new Set());
+
+  const quotesRef = useRef<HTMLDivElement>(null);
+  const requestsRef = useRef<HTMLDivElement>(null);
+  const bookingsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loadData = async () => {
-      if (!token) return;
-      
-      try {
-        // Fetch event requests
-        try {
-          const requestsRes = await eventRequestsApi.getMyRequests(token);
-          console.log('Event requests response:', requestsRes);
-          if ((requestsRes as any).success) {
-            // Backend returns array directly in data, not data.eventRequests
-            const requests = (requestsRes as any).data || [];
-            setEventRequests(Array.isArray(requests) ? requests : []);
-          }
-        } catch (err) {
-          console.log('No event requests found:', err);
-          setEventRequests([]);
-        }
-        
-        // Fetch bookings
-        try {
-          const bookingsRes = await bookingsApi.getClientBookings(token);
-          console.log('Bookings response:', bookingsRes);
-          if ((bookingsRes as any).success) {
-            // Backend returns array directly in data, not data.bookings
-            const bookingsList = (bookingsRes as any).data || [];
-            setBookings(Array.isArray(bookingsList) ? bookingsList : []);
-          }
-        } catch (err) {
-          console.log('No bookings found:', err);
-          setBookings([]);
-        }
-      } catch (error) {
-        console.error('Failed to load dashboard data:', error);
-      } finally {
-        setIsLoading(false);
+    if (!token) return;
+
+    const load = async () => {
+      const [reqRes, bkRes, qtRes, favRes] = await Promise.allSettled([
+        eventRequestsApi.getMyRequestsAsClient(token),
+        bookingsApi.getMyBookingsAsClient(token),
+        quotesApi.getMyQuotesAsClient(token),
+        apiFetch('/favorites', { token }),
+      ]);
+
+      if (reqRes.status === 'fulfilled') {
+        const d = reqRes.value as any;
+        const arr = d?.data ?? d?.eventRequests ?? [];
+        setRequests(Array.isArray(arr) ? arr : []);
       }
+
+      if (bkRes.status === 'fulfilled') {
+        const d = bkRes.value as any;
+        const arr = d?.data ?? d?.bookings ?? [];
+        setBookings(Array.isArray(arr) ? arr : []);
+      }
+
+      if (qtRes.status === 'fulfilled') {
+        const d = qtRes.value as any;
+        const arr: QuoteItem[] = d?.data ?? d?.quotes ?? [];
+        // Only show quotes awaiting response
+        setQuotes(
+          (Array.isArray(arr) ? arr : []).filter(
+            (q) => q.status === 'SENT' || q.status === 'PENDING'
+          )
+        );
+      }
+
+      if (favRes.status === 'fulfilled') {
+        const d = favRes.value as any;
+        const arr = d?.data ?? d?.favorites ?? [];
+        setFavorites(Array.isArray(arr) ? arr : []);
+      }
+
+      setLoading(false);
     };
 
-    loadData();
+    load();
   }, [token]);
 
-  const activeRequests = eventRequests.filter(r => r.status === 'SUBMITTED');
-  const upcomingBookings = bookings.filter(b => 
-    ['CONFIRMED', 'DEPOSIT_PAID'].includes(b.status)
+  // ── Accept quote ────────────────────────────────────────────────────────────
+  const handleAccept = async (quoteId: string) => {
+    if (!token) return;
+    setAcceptingIds((s) => new Set(s).add(quoteId));
+    try {
+      const res = await quotesApi.accept(quoteId, token);
+      const data = res as any;
+      const bookingId = data?.data?.id ?? data?.booking?.id ?? data?.id;
+      setQuotes((prev) => prev.filter((q) => q.id !== quoteId));
+      if (bookingId) navigate(`/bookings/${bookingId}`);
+    } catch {
+      // silently fail — quote stays in list
+    } finally {
+      setAcceptingIds((s) => {
+        const next = new Set(s);
+        next.delete(quoteId);
+        return next;
+      });
+    }
+  };
+
+  // ── Decline quote ───────────────────────────────────────────────────────────
+  const handleDecline = async (quoteId: string) => {
+    if (!token) return;
+    setDecliningIds((s) => new Set(s).add(quoteId));
+    try {
+      await quotesApi.reject(quoteId, token);
+      setQuotes((prev) => prev.filter((q) => q.id !== quoteId));
+    } catch {
+      // silently fail
+    } finally {
+      setDecliningIds((s) => {
+        const next = new Set(s);
+        next.delete(quoteId);
+        return next;
+      });
+    }
+  };
+
+  const scrollTo = (ref: React.RefObject<HTMLDivElement | null>) => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const upcomingBookings = bookings.filter((b) =>
+    ['PENDING_DEPOSIT', 'DEPOSIT_PAID', 'CONFIRMED', 'IN_PROGRESS', 'PENDING_REVIEW'].includes(b.status)
   );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-brand-500 border-t-transparent" />
-      </div>
-    );
-  }
+  const providerOf = (item: FavoriteItem): ProviderInfo | undefined =>
+    item.provider ?? item.providerProfile;
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div className="py-8">
-      <div className="section-padding">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-stone-900">
-              Welcome back, {user?.firstName}!
-            </h1>
-            <p className="text-stone-600 mt-1">
-              Manage your event requests and bookings
+    <div className="min-h-screen bg-bg px-6 md:px-12 py-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-10">
+        <div>
+          <h1 className="font-serif text-3xl text-dark">
+            {greeting()}{user?.firstName ? `, ${user.firstName}` : ''}
+          </h1>
+          <p className="font-sans text-sm text-muted mt-1">
+            {format(new Date(), 'EEEE, MMMM d, yyyy')}
+          </p>
+        </div>
+        <Link
+          to="/providers"
+          className="inline-flex items-center gap-2 bg-gold text-dark font-sans text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-md hover:bg-gold-dark transition-colors"
+        >
+          <Search size={14} strokeWidth={2} />
+          Browse Vendors
+        </Link>
+      </div>
+
+      {/* Two-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* ── LEFT COLUMN ─────────────────────────────────────────────────── */}
+        <div className="lg:col-span-2 space-y-10">
+
+          {/* SECTION 1 — QUOTES AWAITING RESPONSE */}
+          <div ref={quotesRef}>
+            <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-4">
+              Quotes Awaiting Response
             </p>
-          </div>
-          <Link to="/create-request" className="btn-primary">
-            <PlusCircle className="w-5 h-5 mr-2" />
-            New Event Request
-          </Link>
-        </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Link to="/event-requests" className="card p-5 card-hover">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-stone-900">{eventRequests.length}</p>
-                <p className="text-sm text-stone-500">Total Requests</p>
-              </div>
-            </div>
-          </Link>
-          
-          <Link to="/event-requests?status=SUBMITTED" className="card p-5 card-hover">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-stone-900">{activeRequests.length}</p>
-                <p className="text-sm text-stone-500">Awaiting Quotes</p>
-              </div>
-            </div>
-          </Link>
-          
-          <Link to="/bookings?status=upcoming" className="card p-5 card-hover">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-stone-900">{upcomingBookings.length}</p>
-                <p className="text-sm text-stone-500">Upcoming Events</p>
-              </div>
-            </div>
-          </Link>
-          
-          <Link to="/bookings?status=completed" className="card p-5 card-hover">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Star className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-stone-900">
-                  {bookings.filter(b => b.status === 'COMPLETED').length}
-                </p>
-                <p className="text-sm text-stone-500">Completed</p>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Event Requests */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold text-stone-900">
-                Event Requests
-              </h2>
-              <Link to="/event-requests" className="text-brand-600 text-sm font-medium hover:text-brand-700 flex items-center gap-1">
-                View all
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            {eventRequests.length === 0 ? (
-              <div className="card p-8 text-center">
-                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Calendar className="w-8 h-8 text-stone-400" />
-                </div>
-                <h3 className="font-semibold text-stone-900 mb-2">No event requests yet</h3>
-                <p className="text-stone-600 mb-4">
-                  Create your first event request to start receiving quotes from providers.
-                </p>
-                <Link to="/create-request" className="btn-primary">
-                  <PlusCircle className="w-5 h-5 mr-2" />
-                  Create Request
-                </Link>
+            {loading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : quotes.length === 0 ? (
+              <div className="bg-white border border-border rounded-md p-8 flex flex-col items-center gap-3 text-center">
+                <CheckCircle size={32} strokeWidth={1} className="text-muted" />
+                <p className="font-serif text-lg text-muted">You're all caught up</p>
+                <p className="font-sans text-xs text-muted">No quotes waiting for a response.</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {eventRequests.slice(0, 5).map((request) => (
-                  <Link
-                    key={request.id}
-                    to={`/event-requests/${request.id}`}
-                    className="card p-5 card-hover flex items-center gap-4"
+              quotes.map((quote) => {
+                const daysLeft = quote.expiresAt
+                  ? differenceInDays(parseISO(quote.expiresAt), new Date())
+                  : null;
+                const isAccepting = acceptingIds.has(quote.id);
+                const isDeclining = decliningIds.has(quote.id);
+                const busy = isAccepting || isDeclining;
+
+                return (
+                  <div
+                    key={quote.id}
+                    className="bg-white border border-gold/30 rounded-md p-5 mb-3"
                   >
-                    <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-6 h-6 text-brand-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-stone-900 truncate">
-                        {request.title}
-                      </h3>
-                      <div className="flex items-center gap-3 text-sm text-stone-500 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {format(new Date(request.eventDate), 'MMM d, yyyy')}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {request.guestCount} guests
-                        </span>
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-sans text-sm font-semibold text-dark">
+                            {quote.providerProfile?.businessName ?? 'Vendor'}
+                          </span>
+                          {quote.providerProfile?.primaryType && (
+                            <ProviderTypeBadge type={quote.providerProfile.primaryType} size="sm" />
+                          )}
+                        </div>
+                        <p className="font-sans text-xs text-muted">
+                          {quote.eventType?.replace(/_/g, ' ')} ·{' '}
+                          {quote.eventDate
+                            ? format(parseISO(quote.eventDate), 'MMM d, yyyy')
+                            : '—'}
+                        </p>
+                        {quote.package?.name && (
+                          <p className="font-sans text-xs text-muted mt-0.5">
+                            {quote.package.name}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-serif text-2xl text-dark">{fmt(quote.total)}</p>
+                        <p className="font-sans text-xs text-muted">
+                          Deposit: {fmt(quote.depositAmount)}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        request.status === 'SUBMITTED' 
-                          ? 'bg-amber-100 text-amber-700'
-                          : request.status === 'DRAFT'
-                          ? 'bg-stone-100 text-stone-600'
-                          : 'bg-green-100 text-green-700'
-                      }`}>
-                        {request.status}
-                      </span>
-                      {((request as any)._count?.quotes > 0 || (request.quotes && request.quotes.length > 0)) && (
-                        <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium">
-                          {(request as any)._count?.quotes || request.quotes?.length} quotes
-                        </span>
-                      )}
-                      <ChevronRight className="w-5 h-5 text-stone-400" />
+
+                    {daysLeft !== null && (
+                      <p
+                        className={`font-sans text-xs mb-4 ${
+                          daysLeft < 3 ? 'text-red font-semibold' : 'text-muted'
+                        }`}
+                      >
+                        {daysLeft <= 0
+                          ? 'Expired'
+                          : `Expires in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => handleAccept(quote.id)}
+                        disabled={busy}
+                        className="bg-gold text-dark font-sans text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-md hover:bg-gold-dark transition-colors disabled:opacity-50"
+                      >
+                        {isAccepting ? 'Accepting…' : 'Accept & Pay Deposit'}
+                      </button>
+                      <button
+                        onClick={() => handleDecline(quote.id)}
+                        disabled={busy}
+                        className="font-sans text-xs text-muted hover:text-charcoal transition-colors disabled:opacity-50"
+                      >
+                        {isDeclining ? 'Declining…' : 'Decline'}
+                      </button>
                     </div>
-                  </Link>
-                ))}
-              </div>
+                  </div>
+                );
+              })
             )}
           </div>
 
-          {/* Upcoming Bookings */}
-          <div>
+          {/* SECTION 2 — MY REQUESTS */}
+          <div ref={requestsRef}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold text-stone-900">
-                Upcoming Bookings
-              </h2>
-              <Link to="/bookings" className="text-brand-600 text-sm font-medium hover:text-brand-700 flex items-center gap-1">
-                View all
-                <ChevronRight className="w-4 h-4" />
+              <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal">
+                My Requests
+              </p>
+              <Link
+                to="/providers"
+                className="font-sans text-xs text-gold hover:text-gold-dark transition-colors font-semibold"
+              >
+                + New Request
               </Link>
             </div>
 
-            {upcomingBookings.length === 0 ? (
-              <div className="card p-8 text-center">
-                <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <CheckCircle className="w-8 h-8 text-stone-400" />
-                </div>
-                <h3 className="font-semibold text-stone-900 mb-2">No upcoming bookings</h3>
-                <p className="text-stone-600">
+            {loading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : requests.length === 0 ? (
+              <div className="bg-white border border-border rounded-md p-8 flex flex-col items-center gap-3 text-center">
+                <Inbox size={32} strokeWidth={1} className="text-muted" />
+                <p className="font-serif text-lg text-muted">No requests yet</p>
+                <p className="font-sans text-xs text-muted mb-2">
+                  Browse vendors and send your first request.
+                </p>
+                <Link
+                  to="/providers"
+                  className="bg-gold text-dark font-sans text-xs font-bold uppercase tracking-widest px-5 py-2 rounded-md hover:bg-gold-dark transition-colors"
+                >
+                  Browse Vendors
+                </Link>
+              </div>
+            ) : (
+              requests.map((req) => {
+                const badge = REQUEST_STATUS[req.status] ?? {
+                  label: req.status,
+                  cls: 'bg-muted/10 text-muted border border-muted/20',
+                };
+                return (
+                  <div
+                    key={req.id}
+                    className="bg-white border border-border rounded-md p-5 mb-3"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <span
+                            className={`font-sans text-xs px-2.5 py-0.5 rounded-md ${badge.cls}`}
+                          >
+                            {badge.label}
+                          </span>
+                          <span className="font-sans text-xs text-muted">
+                            {req.eventType?.replace(/_/g, ' ')}
+                          </span>
+                          {req.eventDate && (
+                            <span className="font-sans text-xs text-muted">
+                              · {format(parseISO(req.eventDate), 'MMM d, yyyy')}
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="font-sans text-sm text-charcoal">
+                          {req.providerProfile?.businessName ?? 'Vendor TBD'}
+                          {req.package?.name ? ` — ${req.package.name}` : ''}
+                        </p>
+
+                        <p className="font-sans text-xs text-muted mt-0.5">
+                          {req.guestCount} guests
+                        </p>
+
+                        {req.calculatedEstimate != null && (
+                          <p className="font-serif text-lg text-dark mt-1">
+                            {fmt(req.calculatedEstimate)}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                        {req.status === 'QUOTE_SENT' && (req.quotes?.length ?? 0) > 0 && (
+                          <Link
+                            to={`/event-requests/${req.id}`}
+                            className="font-sans text-xs text-gold hover:text-gold-dark font-semibold flex items-center gap-1"
+                          >
+                            View Quote <ChevronRight size={12} />
+                          </Link>
+                        )}
+                        <Link
+                          to={`/event-requests/${req.id}`}
+                          className="font-sans text-xs text-muted hover:text-charcoal transition-colors"
+                        >
+                          Details →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* SECTION 3 — UPCOMING BOOKINGS */}
+          <div ref={bookingsRef}>
+            <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-4">
+              Upcoming Bookings
+            </p>
+
+            {loading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : upcomingBookings.length === 0 ? (
+              <div className="bg-white border border-border rounded-md p-8 flex flex-col items-center gap-3 text-center">
+                <BookOpen size={32} strokeWidth={1} className="text-muted" />
+                <p className="font-serif text-lg text-muted">No upcoming bookings</p>
+                <p className="font-sans text-xs text-muted">
                   Accept a quote to create your first booking.
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {upcomingBookings.slice(0, 5).map((booking) => (
+              upcomingBookings.map((booking) => {
+                const badge = BOOKING_STATUS[booking.status] ?? {
+                  label: booking.status.replace(/_/g, ' '),
+                  cls: 'bg-muted/10 text-muted border border-muted/20',
+                };
+                const date = booking.eventDate ? parseISO(booking.eventDate) : null;
+
+                return (
                   <Link
                     key={booking.id}
                     to={`/bookings/${booking.id}`}
-                    className="card p-5 card-hover flex items-center gap-4"
+                    className="bg-white border border-border rounded-md p-5 mb-3 flex items-start gap-4 hover:border-gold/30 transition-colors group"
                   >
-                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-stone-900 truncate">
-                        {booking.eventRequest?.title || 'Event Booking'}
-                      </h3>
-                      <div className="flex items-center gap-3 text-sm text-stone-500 mt-1">
-                        <span>{booking.provider?.businessName}</span>
-                        <span className="flex items-center gap-1">
-                          <DollarSign className="w-4 h-4" />
-                          ${booking.totalAmount?.toLocaleString()}
+                    {/* Date block */}
+                    {date && (
+                      <div className="bg-gold/10 rounded-md p-3 w-14 flex-shrink-0 text-center">
+                        <p className="font-serif text-2xl text-gold-dark leading-none">
+                          {format(date, 'd')}
+                        </p>
+                        <p className="font-sans text-xs uppercase text-gold-dark tracking-widest mt-0.5">
+                          {format(date, 'MMM')}
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-sans text-sm font-semibold text-dark group-hover:text-gold-dark transition-colors">
+                          {booking.providerProfile?.businessName ?? 'Vendor'}
+                        </span>
+                        {booking.providerProfile?.primaryType && (
+                          <ProviderTypeBadge type={booking.providerProfile.primaryType} size="sm" />
+                        )}
+                      </div>
+                      <p className="font-sans text-xs text-muted">
+                        {booking.eventType?.replace(/_/g, ' ')}
+                        {booking.package?.name ? ` · ${booking.package.name}` : ''}
+                        {` · ${booking.guestCount} guests`}
+                      </p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <span className={`font-sans text-xs px-2.5 py-0.5 rounded-md ${badge.cls}`}>
+                          {badge.label}
+                        </span>
+                        <span className="font-serif text-lg text-dark">
+                          {fmt(booking.total)}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        booking.status === 'CONFIRMED'
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {booking.status.replace('_', ' ')}
-                      </span>
-                      <ChevronRight className="w-5 h-5 text-stone-400" />
-                    </div>
+
+                    <ChevronRight size={16} className="text-muted flex-shrink-0 mt-1 group-hover:text-gold-dark transition-colors" />
                   </Link>
-                ))}
-              </div>
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-8">
-          <h2 className="font-display text-xl font-semibold text-stone-900 mb-4">
-            Quick Actions
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link to="/create-request" className="card p-5 card-hover group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center group-hover:bg-brand-200 transition-colors">
-                  <PlusCircle className="w-6 h-6 text-brand-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-stone-900">Create Request</h3>
-                  <p className="text-sm text-stone-500">Start planning a new event</p>
-                </div>
-              </div>
-            </Link>
-            
-            <Link to="/providers" className="card p-5 card-hover group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                  <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-stone-900">Browse Providers</h3>
-                  <p className="text-sm text-stone-500">Explore caterers & services</p>
-                </div>
-              </div>
-            </Link>
-            
-            <Link to="/favorites" className="card p-5 card-hover group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center group-hover:bg-pink-200 transition-colors">
-                  <Star className="w-6 h-6 text-pink-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-stone-900">Favorites</h3>
-                  <p className="text-sm text-stone-500">View saved providers</p>
-                </div>
-              </div>
-            </Link>
-            
-            {!user?.roles?.includes('PROVIDER') && (
-              <Link to="/become-provider" className="card p-5 card-hover group border-2 border-dashed border-stone-200 hover:border-brand-300">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors">
-                    <Briefcase className="w-6 h-6 text-amber-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-stone-900">Become a Provider</h3>
-                    <p className="text-sm text-stone-500">Offer your services</p>
-                  </div>
-                </div>
+        {/* ── RIGHT COLUMN ─────────────────────────────────────────────────── */}
+        <div className="lg:col-span-1 space-y-6">
+
+          {/* Quick Actions */}
+          <div className="bg-dark rounded-md p-6">
+            <p className="font-sans text-xs font-bold uppercase tracking-widest text-white/40 mb-4">
+              Quick Actions
+            </p>
+            <div className="divide-y divide-white/10">
+              <Link
+                to="/providers"
+                className="flex items-center justify-between py-3 text-white/60 hover:text-gold-light font-sans text-sm transition-colors group"
+              >
+                <span className="flex items-center gap-2">
+                  <Search size={14} strokeWidth={1.5} />
+                  Browse Vendors
+                </span>
+                <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
+              <button
+                onClick={() => scrollTo(requestsRef)}
+                className="w-full flex items-center justify-between py-3 text-white/60 hover:text-gold-light font-sans text-sm transition-colors group"
+              >
+                <span className="flex items-center gap-2">
+                  <Inbox size={14} strokeWidth={1.5} />
+                  My Requests
+                </span>
+                <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+              <button
+                onClick={() => scrollTo(bookingsRef)}
+                className="w-full flex items-center justify-between py-3 text-white/60 hover:text-gold-light font-sans text-sm transition-colors group"
+              >
+                <span className="flex items-center gap-2">
+                  <Calendar size={14} strokeWidth={1.5} />
+                  My Bookings
+                </span>
+                <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            </div>
+          </div>
+
+          {/* Saved Vendors */}
+          <div className="bg-white border border-border rounded-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal">
+                Saved Vendors
+              </p>
+              <Heart size={14} strokeWidth={1.5} className="text-muted" />
+            </div>
+
+            {loading ? (
+              <div className="space-y-3">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="animate-pulse flex items-center justify-between">
+                    <div className="space-y-1.5 flex-1">
+                      <div className="h-3 bg-bg rounded w-2/3" />
+                      <div className="h-3 bg-bg rounded w-1/3" />
+                    </div>
+                    <div className="h-3 bg-bg rounded w-8" />
+                  </div>
+                ))}
+              </div>
+            ) : favorites.length === 0 ? (
+              <div className="text-center py-4">
+                <p className="font-sans text-xs text-muted">No saved vendors yet</p>
+                <Link
+                  to="/providers"
+                  className="font-sans text-xs text-gold hover:text-gold-dark font-semibold mt-2 inline-block transition-colors"
+                >
+                  Browse Vendors →
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {favorites.slice(0, 3).map((fav) => {
+                  const p = providerOf(fav);
+                  if (!p) return null;
+                  return (
+                    <div key={fav.id} className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="font-sans text-sm text-charcoal">{p.businessName}</p>
+                        {p.primaryType && (
+                          <div className="mt-1">
+                            <ProviderTypeBadge type={p.primaryType} size="sm" />
+                          </div>
+                        )}
+                      </div>
+                      <Link
+                        to={`/providers/${p.id}`}
+                        className="font-sans text-xs text-gold hover:text-gold-dark font-semibold flex-shrink-0 transition-colors"
+                      >
+                        View →
+                      </Link>
+                    </div>
+                  );
+                })}
+                {favorites.length > 3 && (
+                  <p className="font-sans text-xs text-muted pt-1">
+                    +{favorites.length - 3} more saved
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>
