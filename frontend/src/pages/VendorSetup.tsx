@@ -286,37 +286,34 @@ function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void 
 function ProgressBar({ step }: { step: number }) {
   return (
     <div className="mb-10">
-      <div className="flex items-center justify-between">
+      {/* Outer: relative so we can position the connecting line absolutely behind circles */}
+      <div className="relative flex items-start justify-between">
+        {/* Full-width connecting line, vertically centred behind the circles (top: 16px = half of h-8) */}
+        <div className="absolute left-0 right-0 h-px bg-border" style={{ top: 16 }} />
+
         {STEP_LABELS.map((label, i) => {
-          const num = i + 1;
+          const num       = i + 1;
           const completed = step > num;
-          const current = step === num;
+          const current   = step === num;
           return (
-            <div key={num} className="flex flex-col items-center flex-1">
-              <div className="relative flex items-center w-full">
-                {/* Left connector line */}
-                {i > 0 && (
-                  <div className={`flex-1 h-px ${completed || current ? 'bg-gold' : 'bg-border'}`} />
-                )}
-                {/* Circle */}
-                <div
-                  className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all flex-shrink-0
-                    ${completed ? 'bg-gold border-gold' : current ? 'bg-white border-gold' : 'bg-white border-border'}`}
-                >
-                  {completed ? (
-                    <Check size={14} className="text-dark" strokeWidth={2.5} />
-                  ) : (
-                    <span className={`font-sans text-xs font-bold ${current ? 'text-gold' : 'text-muted'}`}>{num}</span>
-                  )}
-                </div>
-                {/* Right connector line */}
-                {i < STEP_LABELS.length - 1 && (
-                  <div className={`flex-1 h-px ${completed ? 'bg-gold' : 'bg-border'}`} />
+            <div key={num} className="relative z-10 flex flex-col items-center" style={{ width: `${100 / STEP_LABELS.length}%` }}>
+              {/* Circle */}
+              <div
+                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all bg-white
+                  ${completed ? 'bg-gold border-gold' : current ? 'border-gold' : 'border-border'}`}
+                style={completed ? { backgroundColor: 'var(--gold, #C4A06A)' } : undefined}
+              >
+                {completed ? (
+                  <Check size={14} className="text-dark" strokeWidth={2.5} />
+                ) : (
+                  <span className={`font-sans text-xs font-bold ${current ? 'text-gold' : 'text-muted'}`}>{num}</span>
                 )}
               </div>
+              {/* Label — hidden on small screens */}
               <span
-                className={`mt-2 font-sans text-xs uppercase tracking-widest hidden sm:block
+                className={`mt-2 font-sans text-xs uppercase tracking-widest text-center leading-tight hidden sm:block
                   ${current ? 'text-gold font-bold' : completed ? 'text-charcoal' : 'text-muted'}`}
+                style={{ maxWidth: '100%', overflowWrap: 'break-word' }}
               >
                 {label}
               </span>
@@ -1086,6 +1083,8 @@ export default function VendorSetup() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [profileExists, setProfileExists] = useState(false);
+  // Tracks whether the user has attempted to Continue on Step 1 — gates validation error colours
+  const [step1Attempted, setStep1Attempted] = useState(false);
 
   const today = new Date();
   const [calMonth, setCalMonth] = useState(today.getMonth());
@@ -1158,6 +1157,7 @@ export default function VendorSetup() {
     setStepError('');
 
     if (step === 1) {
+      setStep1Attempted(true);
       if (!state.businessName.trim()) return setStepError('Business name is required');
       if (!state.primaryType) return setStepError('Please select your primary vendor type');
       if (!state.city.trim()) return setStepError('City is required');
@@ -1462,7 +1462,7 @@ export default function VendorSetup() {
                       : [...state.secondaryTypes, vt.value];
                     patch({ secondaryTypes: next });
                   }}
-                  className={`flex items-center gap-1.5 font-sans text-xs px-3 py-2 rounded-full border transition-all focus:outline-none
+                  className={`flex items-center gap-1.5 font-sans text-xs px-3 py-2 rounded-md border transition-all focus:outline-none
                     ${active ? 'bg-gold/10 border-gold text-gold-dark font-semibold' : 'border-border text-charcoal hover:border-gold'}`}
                 >
                   <vt.Icon size={12} />
@@ -1584,7 +1584,7 @@ export default function VendorSetup() {
           value={state.about}
           onChange={e => patch({ about: e.target.value })}
         />
-        <p className={`font-sans text-xs mt-1 ${state.about.length < 50 ? 'text-red' : 'text-muted'}`}>
+        <p className={`font-sans text-xs mt-1 ${step1Attempted && state.about.length < 50 ? 'text-red' : 'text-muted'}`}>
           {state.about.length} / 50 minimum characters
         </p>
       </div>
@@ -1605,7 +1605,7 @@ export default function VendorSetup() {
                     : [...state.languages, lang];
                   patch({ languages: next });
                 }}
-                className={`font-sans text-xs px-3 py-2 rounded-full border transition-all focus:outline-none
+                className={`font-sans text-xs px-3 py-2 rounded-md border transition-all focus:outline-none
                   ${active ? 'bg-gold/10 border-gold text-gold-dark font-semibold' : 'border-border text-charcoal hover:border-gold'}`}
               >
                 {lang}
