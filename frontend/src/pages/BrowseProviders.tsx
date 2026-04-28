@@ -69,6 +69,9 @@ interface Filters {
   city: string;
 }
 
+// All 5 canonical types — used as the default "no type filter" state
+const ALL_TYPES = providerTypeConfig.map(t => t.value);
+
 const EMPTY_FILTERS: Filters = {
   types: [],
   eventDate: '',
@@ -116,58 +119,57 @@ function SkeletonCard() {
 export default function BrowseProviders() {
   const [searchParams] = useSearchParams();
 
-  // Initialise filters from URL ?type= param
+  // Initialise from URL ?type= param; default to all 5 types when no param
   const urlType = searchParams.get('type');
-  const [filters, setFilters] = useState<Filters>({
-    ...EMPTY_FILTERS,
-    types: urlType ? [urlType] : [],
-  });
+  const defaultTypes = urlType ? [urlType] : ALL_TYPES;
 
-  // Separate "applied" state so sidebar edits don't re-fetch until Apply
-  const [applied, setApplied] = useState<Filters>({
-    ...EMPTY_FILTERS,
-    types: urlType ? [urlType] : [],
-  });
+  const [filters, setFilters] = useState<Filters>({ ...EMPTY_FILTERS, types: defaultTypes });
+  const [applied, setApplied] = useState<Filters>({ ...EMPTY_FILTERS, types: defaultTypes });
 
   const [providers, setProviders] = useState<ProviderCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // ── Fetch on applied change ───────────────────────────────────────────────
+  // The API requires exactly one `type` param per request.
+  // Fetch each selected type in parallel, then merge + dedupe results.
   useEffect(() => {
     const fetchProviders = async () => {
       setIsLoading(true);
-      setError(null);
       try {
-        const params = new URLSearchParams();
+        const typesToFetch = applied.types.length > 0 ? applied.types : ALL_TYPES;
 
-        // Single-type filter if exactly one selected (API supports one type at a time)
-        if (applied.types.length === 1) params.set('type', applied.types[0]);
-        if (applied.eventDate)  params.set('eventDate', applied.eventDate);
-        if (applied.guestCount) params.set('guestCount', applied.guestCount);
-        if (applied.eventType && applied.eventType !== 'Any')
-          params.set('eventType', applied.eventType.toUpperCase().replace(/\s+/g, '_'));
-        if (applied.minBudget)  params.set('minBudget', applied.minBudget);
-        if (applied.maxBudget)  params.set('maxBudget', applied.maxBudget);
-        if (applied.city)       params.set('city', applied.city);
-        params.set('limit', '50');
+        const buildParams = (type: string) => {
+          const p = new URLSearchParams();
+          p.set('type', type);
+          if (applied.eventDate) p.set('eventDate', applied.eventDate);
+          if (applied.guestCount) p.set('guestCount', applied.guestCount);
+          if (applied.eventType && applied.eventType !== 'Any')
+            p.set('eventType', applied.eventType.toUpperCase().replace(/\s+/g, '_'));
+          if (applied.minBudget) p.set('minBudget', applied.minBudget);
+          if (applied.maxBudget) p.set('maxBudget', applied.maxBudget);
+          if (applied.city) p.set('city', applied.city);
+          p.set('limit', '50');
+          return p.toString();
+        };
 
-        const res = await fetch(`${API_BASE}/providers/search?${params.toString()}`);
-        const data = await res.json();
+        const responses = await Promise.all(
+          typesToFetch.map(type =>
+            fetch(`${API_BASE}/providers/search?${buildParams(type)}`)
+              .then(r => r.json())
+              .catch(() => ({ success: false, data: [] }))
+          )
+        );
 
-        if (data.success) {
-          // If multiple types selected, filter client-side
-          const results: ProviderCard[] = data.data ?? [];
-          const filtered =
-            applied.types.length > 1
-              ? results.filter(p => applied.types.includes(p.primaryType))
-              : results;
-          setProviders(filtered);
-        } else {
-          setError(data.error || 'Failed to load vendors');
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Network error');
+        const merged: ProviderCard[] = responses
+          .filter(d => d.success)
+          .flatMap(d => d.data ?? []);
+
+        // Dedupe by id
+        const deduped = Array.from(new Map(merged.map(p => [p.id, p])).values());
+        setProviders(deduped);
+      } catch (err) {
+        console.error('[BrowseProviders] fetch error:', err);
+        setProviders([]);
       } finally {
         setIsLoading(false);
       }
@@ -177,8 +179,12 @@ export default function BrowseProviders() {
   }, [applied]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
+  // "Clear all" resets to all-5-types (the default), not zero types
+  const DEFAULT_FILTERS: Filters = { ...EMPTY_FILTERS, types: ALL_TYPES };
+
+  // A filter is "active" only when it differs from the default state
   const hasFilters =
-    filters.types.length > 0 ||
+    (filters.types.length > 0 && filters.types.length < ALL_TYPES.length) ||
     !!filters.eventDate ||
     !!filters.guestCount ||
     (!!filters.eventType && filters.eventType !== 'Any') ||
@@ -198,8 +204,8 @@ export default function BrowseProviders() {
   const applyFilters = () => setApplied({ ...filters });
 
   const clearAll = () => {
-    setFilters(EMPTY_FILTERS);
-    setApplied(EMPTY_FILTERS);
+    setFilters(DEFAULT_FILTERS);
+    setApplied(DEFAULT_FILTERS);
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -346,13 +352,6 @@ export default function BrowseProviders() {
           </div>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="mb-6 border border-red rounded-xl p-4 bg-white">
-            <p className="font-sans text-sm text-red">{error}</p>
-          </div>
-        )}
-
         {/* Loading skeletons */}
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -361,7 +360,7 @@ export default function BrowseProviders() {
         )}
 
         {/* Empty state */}
-        {!isLoading && !error && providers.length === 0 && (
+        {!isLoading && providers.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <h3 className="font-serif text-xl text-muted">No vendors found</h3>
             <p className="font-sans text-sm text-muted mt-2 max-w-xs">
