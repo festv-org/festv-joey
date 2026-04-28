@@ -1,462 +1,812 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { 
-  Star, 
-  MapPin, 
-  Users, 
-  DollarSign, 
-  Calendar,
-  CheckCircle,
-  MessageSquare,
-  Heart,
-  Share2,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Clock,
-  User
-} from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Star, MapPin, Clock, Globe, Instagram, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { providersApi } from '../utils/api';
-import { ProviderProfile as ProviderProfileType } from '../types';
+import { ProviderTypeBadge } from '../components/ProviderTypeBadge';
 
-// Determine pricing model based on provider type
-const getProviderPricingModel = (primaryType?: string, isSoloWorker?: boolean): 'hourly' | 'perPerson' => {
-  // Caterer and Bartender depend on solo vs company
-  if (primaryType === 'CATERER' || primaryType === 'BARTENDER') {
-    return isSoloWorker ? 'hourly' : 'perPerson';
-  }
-  
-  // Hourly services
-  if (['PHOTOGRAPHER', 'VIDEOGRAPHER', 'DJ', 'MUSICIAN', 'EVENT_PLANNER'].includes(primaryType || '')) {
-    return 'hourly';
-  }
-  
-  // Per-person services: florist, decorator, equipment rental
-  return 'perPerson';
-};
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : '/api/v1';
 
-// Mock provider data
-const mockProvider = {
-  id: '1',
-  businessName: 'Gourmet Delights Catering',
-  businessDescription: `Premium catering services for weddings, corporate events, and special occasions. We specialize in farm-to-table cuisine with locally sourced ingredients.
+const fmt = (n: number) =>
+  new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    maximumFractionDigits: 0,
+  }).format(n);
 
-Our team of professional chefs brings over 20 years of combined experience to every event. We pride ourselves on creating memorable dining experiences that delight your guests and make your special occasion truly unforgettable.
+function Initials({ name, size = 20 }: { name: string; size?: number }) {
+  const parts = name.trim().split(/\s+/);
+  const letters =
+    parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : name.slice(0, 2).toUpperCase();
+  return (
+    <div
+      className="rounded-full flex items-center justify-center flex-shrink-0"
+      style={{
+        width: size,
+        height: size,
+        background: 'rgba(196,160,106,0.12)',
+      }}
+    >
+      <span className="font-serif text-gold" style={{ fontSize: size * 0.3 }}>
+        {letters}
+      </span>
+    </div>
+  );
+}
 
-From intimate gatherings to grand celebrations, we customize every menu to match your vision and exceed your expectations.`,
-  providerTypes: ['CATERER'],
-  primaryType: 'CATERER',
-  isSoloWorker: false,
-  averageRating: 4.9,
-  totalReviews: 128,
-  totalBookings: 245,
-  // Per-person pricing
-  pricePerPerson: 45,
-  minimumBudget: 500,
-  maximumBudget: 50000,
-  depositPercentage: 25,
-  minGuestCount: 20,
-  maxGuestCount: 500,
-  // Hourly pricing (for hourly providers)
-  hourlyRate: null,
-  minimumHours: null,
-  fixedFee: null,
-  // Service area
-  serviceRadius: 50,
-  isVerified: true,
-  responseRate: 98,
-  responseTime: '< 2 hours',
-};
+function Stars({ rating, count }: { rating: number; count?: number }) {
+  return (
+    <span className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map(i => (
+        <Star
+          key={i}
+          size={14}
+          className={i <= Math.round(rating) ? 'text-gold fill-gold' : 'text-border'}
+        />
+      ))}
+      {count !== undefined && (
+        <span className="font-sans text-xs text-muted ml-1">({count})</span>
+      )}
+    </span>
+  );
+}
 
-const mockPortfolio = [
-  { id: '1', type: 'IMAGE', title: 'Wedding Reception Setup', url: null },
-  { id: '2', type: 'IMAGE', title: 'Corporate Gala Buffet', url: null },
-  { id: '3', type: 'IMAGE', title: 'Garden Party Appetizers', url: null },
-  { id: '4', type: 'IMAGE', title: 'Plated Dinner Service', url: null },
-  { id: '5', type: 'VIDEO', title: 'Behind the Scenes', url: null },
-  { id: '6', type: 'IMAGE', title: 'Dessert Display', url: null },
-];
+// ── Types ─────────────────────────────────────────────────────────────────────
+interface Provider {
+  id: string;
+  businessName: string;
+  primaryType: string;
+  providerTypes: string[];
+  tagline?: string | null;
+  businessDescription?: string | null;
+  verificationStatus: string;
+  averageRating: number;
+  totalReviews: number;
+  logoUrl?: string | null;
+  bannerImageUrl?: string | null;
+  languages?: string[];
+  serviceRadius?: number | null;
+  website?: string | null;
+  instagram?: string | null;
+  user: {
+    firstName: string;
+    lastName: string;
+    avatarUrl?: string | null;
+    bannerUrl?: string | null;
+    city?: string | null;
+    state?: string | null;
+  };
+}
 
-const mockReviews = [
-  {
-    id: '1',
-    clientName: 'Sarah M.',
-    rating: 5,
-    title: 'Absolutely phenomenal!',
-    content: 'The food was incredible and the service was impeccable. Our wedding guests are still talking about the appetizers!',
-    date: '2025-01-15',
-    eventType: 'Wedding',
-  },
-  {
-    id: '2',
-    clientName: 'Michael R.',
-    rating: 5,
-    title: 'Best corporate event ever',
-    content: 'Professional, punctual, and the food quality was outstanding. Will definitely use again for our company events.',
-    date: '2025-01-10',
-    eventType: 'Corporate',
-  },
-  {
-    id: '3',
-    clientName: 'Jennifer L.',
-    rating: 4,
-    title: 'Great experience overall',
-    content: 'Loved the variety of options and the attention to dietary restrictions. The team was very accommodating.',
-    date: '2024-12-28',
-    eventType: 'Birthday',
-  },
-];
+interface AddOn {
+  id: string;
+  name: string;
+  price: number;
+  pricingModel: string;
+  description?: string | null;
+}
 
-const mockServices = [
-  {
-    id: '1',
-    name: 'Full-Service Catering',
-    description: 'Complete catering package including setup, service, and cleanup',
-    basePrice: 2500,
-    pricePerPerson: 45,
-  },
-  {
-    id: '2',
-    name: 'Buffet Package',
-    description: 'Self-service buffet with variety of options',
-    basePrice: 1500,
-    pricePerPerson: 35,
-  },
-  {
-    id: '3',
-    name: 'Appetizer & Cocktail Service',
-    description: 'Passed hors d\'oeuvres and drink service',
-    basePrice: 1000,
-    pricePerPerson: 25,
-  },
-];
+interface Package {
+  id: string;
+  name: string;
+  description?: string | null;
+  category: string;
+  pricingModel: 'PER_PERSON' | 'FLAT_RATE' | 'PER_HOUR';
+  basePrice: number;
+  minimumSpend?: number | null;
+  durationHours?: number | null;
+  minGuests?: number | null;
+  maxGuests?: number | null;
+  included: string[];
+  eventTypes: string[];
+  addOns: AddOn[];
+}
 
-export default function ProviderProfile() {
-  const { id } = useParams();
-  const [activeTab, setActiveTab] = useState<'about' | 'portfolio' | 'reviews' | 'services'>('about');
-  const [isFavorite, setIsFavorite] = useState(false);
+interface PackageGroup {
+  category: string;
+  packages: Package[];
+}
 
-  // Determine pricing model
-  const pricingModel = getProviderPricingModel(mockProvider.primaryType, mockProvider.isSoloWorker);
-  const isHourlyProvider = pricingModel === 'hourly';
+interface Review {
+  id: string;
+  rating: number;
+  title?: string | null;
+  content?: string | null;
+  createdAt: string;
+  author?: {
+    firstName?: string;
+    lastName?: string;
+  } | null;
+}
+
+interface EstimateResult {
+  basePrice: number;
+  addOnTotal: number;
+  subtotal: number;
+  tax: number;
+  total: number;
+  depositAmount: number;
+  isOutOfParameters?: boolean;
+}
+
+interface EstimatorState {
+  isOpen: boolean;
+  eventDate: string;
+  guestCount: string;
+  durationHours: string;
+  selectedAddOnIds: string[];
+  result: EstimateResult | null;
+  isCalculating: boolean;
+  error: string | null;
+}
+
+const defaultEstimator = (): EstimatorState => ({
+  isOpen: false,
+  eventDate: '',
+  guestCount: '',
+  durationHours: '',
+  selectedAddOnIds: [],
+  result: null,
+  isCalculating: false,
+  error: null,
+});
+
+// ── Package card with inline estimator ───────────────────────────────────────
+function PackageCard({ pkg, isAuthenticated, providerId }: {
+  pkg: Package;
+  isAuthenticated: boolean;
+  providerId: string;
+}) {
+  const navigate = useNavigate();
+  const [est, setEst] = useState<EstimatorState>(defaultEstimator());
+  const SHOWN_ITEMS = 4;
+
+  const updateEst = (patch: Partial<EstimatorState>) =>
+    setEst(prev => ({ ...prev, ...patch }));
+
+  const toggleAddOn = (id: string) => {
+    setEst(prev => ({
+      ...prev,
+      selectedAddOnIds: prev.selectedAddOnIds.includes(id)
+        ? prev.selectedAddOnIds.filter(a => a !== id)
+        : [...prev.selectedAddOnIds, id],
+    }));
+  };
+
+  const calculate = async () => {
+    updateEst({ isCalculating: true, error: null, result: null });
+    try {
+      const res = await fetch(`${API_BASE}/packages/estimate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          packageId: pkg.id,
+          eventDate: est.eventDate || undefined,
+          guestCount: est.guestCount ? Number(est.guestCount) : undefined,
+          durationHours: est.durationHours ? Number(est.durationHours) : undefined,
+          selectedAddOnIds: est.selectedAddOnIds,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateEst({ result: data.data, isCalculating: false });
+      } else {
+        updateEst({ error: data.message || 'Could not calculate estimate', isCalculating: false });
+      }
+    } catch {
+      updateEst({ error: 'Network error — please try again', isCalculating: false });
+    }
+  };
+
+  const handleSendRequest = () => {
+    if (!isAuthenticated) {
+      navigate(`/login?redirect=/providers/${providerId}`);
+      return;
+    }
+    navigate('/create-request', { state: { providerId, packageId: pkg.id } });
+  };
+
+  const priceLabel = () => {
+    const effective = pkg.minimumSpend && pkg.minimumSpend > pkg.basePrice
+      ? pkg.minimumSpend
+      : pkg.basePrice;
+    if (pkg.pricingModel === 'PER_PERSON') return `From ${fmt(pkg.basePrice)} per person`;
+    if (pkg.pricingModel === 'PER_HOUR')   return `From ${fmt(pkg.basePrice)} per hour`;
+    // FLAT_RATE
+    if (pkg.minimumSpend && pkg.minimumSpend > pkg.basePrice)
+      return `Minimum spend ${fmt(effective)}`;
+    return `From ${fmt(pkg.basePrice)}`;
+  };
+
+  const pricingBadgeLabel = {
+    PER_PERSON: 'Per Person',
+    FLAT_RATE:  'Flat Rate',
+    PER_HOUR:   'Per Hour',
+  }[pkg.pricingModel];
 
   return (
-    <div className="pb-12">
-      {/* Hero Section */}
-      <div className="h-64 md:h-80 bg-gradient-to-br from-brand-500 to-brand-700 relative">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="section-padding relative z-10 h-full flex items-end pb-24">
-          <div className="flex items-center gap-3">
-            <Link to="/providers" className="text-white/80 hover:text-white flex items-center gap-1">
-              <ChevronLeft className="w-5 h-5" />
-              All Providers
-            </Link>
-          </div>
+    <div className="bg-bg rounded-2xl border border-border p-6 mb-4 hover:border-gold transition-colors duration-200">
+
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h4 className="font-serif text-lg text-dark">{pkg.name}</h4>
+          <p className="font-serif text-2xl text-dark mt-1">{priceLabel()}</p>
         </div>
+        <span className="font-sans text-xs text-muted border border-border rounded-full px-3 py-1 flex-shrink-0">
+          {pricingBadgeLabel}
+        </span>
       </div>
 
-      {/* Profile Card */}
-      <div className="section-padding -mt-16 relative z-20">
-        <div className="card p-6 md:p-8">
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Avatar */}
-            <div className="w-24 h-24 md:w-32 md:h-32 bg-brand-100 rounded-2xl flex items-center justify-center flex-shrink-0">
-              <span className="text-4xl md:text-5xl font-bold text-brand-600">
-                {mockProvider.businessName[0]}
-              </span>
+      {pkg.description && (
+        <p className="font-sans text-sm text-muted mt-3 leading-relaxed">{pkg.description}</p>
+      )}
+
+      {/* Meta row */}
+      <div className="flex flex-wrap gap-4 mt-3">
+        {pkg.durationHours != null && (
+          <span className="flex items-center gap-1 font-sans text-xs text-muted">
+            <Clock size={12} />
+            Includes {pkg.durationHours} hour{pkg.durationHours !== 1 ? 's' : ''}
+          </span>
+        )}
+        {(pkg.minGuests != null || pkg.maxGuests != null) && (
+          <span className="font-sans text-xs text-muted">
+            {pkg.minGuests ?? 1}–{pkg.maxGuests ?? '∞'} guests
+          </span>
+        )}
+      </div>
+
+      {/* Included chips */}
+      {pkg.included?.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-4">
+          {pkg.included.slice(0, SHOWN_ITEMS).map((item, i) => (
+            <span key={i} className="font-sans text-xs bg-white border border-border rounded-full px-3 py-1 text-charcoal">
+              {item}
+            </span>
+          ))}
+          {pkg.included.length > SHOWN_ITEMS && (
+            <span className="font-sans text-xs text-muted px-3 py-1">
+              +{pkg.included.length - SHOWN_ITEMS} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Estimator toggle */}
+      <button
+        onClick={() => updateEst({ isOpen: !est.isOpen })}
+        className="mt-5 flex items-center gap-2 border border-gold text-gold font-sans text-xs tracking-widest uppercase px-5 py-2.5 hover:bg-gold/5 transition-colors duration-200 focus:outline-none"
+      >
+        Get a Price Estimate
+        <ChevronDown
+          size={14}
+          className={`transition-transform duration-200 ${est.isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {/* Inline estimator */}
+      {est.isOpen && (
+        <div className="mt-5 border-t border-border pt-5 space-y-4">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-2">
+                Event Date
+              </label>
+              <input
+                type="date"
+                value={est.eventDate}
+                onChange={e => updateEst({ eventDate: e.target.value })}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm text-dark font-sans focus:outline-none focus:border-gold transition-colors"
+              />
             </div>
+            <div>
+              <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-2">
+                Guest Count
+              </label>
+              <input
+                type="number"
+                min="1"
+                placeholder="e.g. 80"
+                value={est.guestCount}
+                onChange={e => updateEst({ guestCount: e.target.value })}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm text-dark font-sans focus:outline-none focus:border-gold transition-colors"
+              />
+            </div>
+            {pkg.pricingModel === 'PER_HOUR' && (
+              <div>
+                <label className="block font-sans text-xs uppercase tracking-widest text-muted mb-2">
+                  Duration (hours)
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder={pkg.durationHours ? String(pkg.durationHours) : 'e.g. 4'}
+                  value={est.durationHours}
+                  onChange={e => updateEst({ durationHours: e.target.value })}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm text-dark font-sans focus:outline-none focus:border-gold transition-colors"
+                />
+              </div>
+            )}
+          </div>
 
-            {/* Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <h1 className="font-display text-2xl md:text-3xl font-bold text-stone-900">
-                      {mockProvider.businessName}
-                    </h1>
-                    {mockProvider.isVerified && (
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-4 h-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-stone-600">
-                    <span className="flex items-center gap-1">
-                      <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                      <span className="font-semibold text-stone-900">{mockProvider.averageRating}</span>
-                      <span>({mockProvider.totalReviews} reviews)</span>
-                    </span>
-                    <span>•</span>
-                    <span>{mockProvider.totalBookings} bookings</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {mockProvider.serviceRadius} mile radius
-                    </span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setIsFavorite(!isFavorite)}
-                    className={`p-3 rounded-full border-2 transition-all ${
-                      isFavorite 
-                        ? 'border-red-500 bg-red-50 text-red-500' 
-                        : 'border-stone-200 hover:border-stone-300 text-stone-500'
-                    }`}
+          {/* Add-ons */}
+          {pkg.addOns?.length > 0 && (
+            <div>
+              <p className="font-sans text-xs uppercase tracking-widest text-muted mb-3">Add-ons</p>
+              <div className="space-y-2">
+                {pkg.addOns.map(addon => (
+                  <label
+                    key={addon.id}
+                    className="flex items-center gap-3 cursor-pointer group"
                   >
-                    <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                  </button>
-                  <button className="p-3 rounded-full border-2 border-stone-200 hover:border-stone-300 text-stone-500">
-                    <Share2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="flex flex-wrap gap-4 mt-4">
-                <div className="px-4 py-2 bg-stone-100 rounded-lg">
-                  <span className="text-sm text-stone-500">Response rate</span>
-                  <p className="font-semibold text-stone-900">{mockProvider.responseRate}%</p>
-                </div>
-                <div className="px-4 py-2 bg-stone-100 rounded-lg">
-                  <span className="text-sm text-stone-500">Response time</span>
-                  <p className="font-semibold text-stone-900">{mockProvider.responseTime}</p>
-                </div>
-                <div className="px-4 py-2 bg-stone-100 rounded-lg">
-                  <span className="text-sm text-stone-500">Starting at</span>
-                  {isHourlyProvider ? (
-                    <p className="font-semibold text-stone-900">
-                      ${mockProvider.hourlyRate || 75}/hr
-                      {mockProvider.fixedFee ? ` + ${mockProvider.fixedFee} fee` : ''}
-                    </p>
-                  ) : (
-                    <p className="font-semibold text-stone-900">${mockProvider.pricePerPerson}/person</p>
-                  )}
-                </div>
-                {mockProvider.isSoloWorker && (
-                  <div className="px-4 py-2 bg-amber-100 rounded-lg">
-                    <span className="text-sm text-amber-700 flex items-center gap-1">
-                      <User className="w-4 h-4" />
-                      Freelancer
+                    <input
+                      type="checkbox"
+                      checked={est.selectedAddOnIds.includes(addon.id)}
+                      onChange={() => toggleAddOn(addon.id)}
+                      className="w-4 h-4 accent-gold cursor-pointer"
+                    />
+                    <span className="font-sans text-sm text-charcoal group-hover:text-dark transition-colors">
+                      {addon.name}
                     </span>
-                  </div>
-                )}
+                    <span className="font-sans text-xs text-muted ml-auto">
+                      {fmt(addon.price)}
+                      {addon.pricingModel === 'PER_PERSON' && '/person'}
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* CTA Buttons */}
-          <div className="flex gap-3 mt-6 pt-6 border-t border-stone-200">
-            <Link to="/create-request" className="btn-primary flex-1 justify-center">
-              <Calendar className="w-5 h-5 mr-2" />
-              Request Quote
-            </Link>
-            <button className="btn-secondary">
-              <MessageSquare className="w-5 h-5 mr-2" />
-              Message
+          <button
+            onClick={calculate}
+            disabled={est.isCalculating}
+            className="bg-gold text-dark font-sans text-xs tracking-widest uppercase px-6 py-3 hover:bg-gold-dark transition-colors duration-200 focus:outline-none disabled:opacity-50"
+          >
+            {est.isCalculating ? 'Calculating…' : 'Calculate'}
+          </button>
+
+          {est.error && (
+            <p className="font-sans text-xs text-red">{est.error}</p>
+          )}
+
+          {/* Estimate result */}
+          {est.result && (
+            <div className="bg-white rounded-xl border border-border p-5 space-y-2">
+              {est.result.isOutOfParameters && (
+                <div className="mb-4 border border-gold rounded-xl px-4 py-3"
+                  style={{ background: 'rgba(196,160,106,0.06)' }}>
+                  <p className="font-sans text-xs text-gold leading-relaxed">
+                    This request has special requirements — the vendor will review and provide a custom quote.
+                  </p>
+                </div>
+              )}
+              <div className="flex justify-between font-sans text-sm">
+                <span className="text-muted">Package price</span>
+                <span className="text-dark">{fmt(est.result.basePrice)}</span>
+              </div>
+              {est.result.addOnTotal > 0 && (
+                <div className="flex justify-between font-sans text-sm">
+                  <span className="text-muted">Add-ons</span>
+                  <span className="text-dark">{fmt(est.result.addOnTotal)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-sans text-sm">
+                <span className="text-muted">Subtotal</span>
+                <span className="text-dark">{fmt(est.result.subtotal)}</span>
+              </div>
+              <div className="flex justify-between font-sans text-sm">
+                <span className="text-muted">Tax (15%)</span>
+                <span className="text-dark">{fmt(est.result.tax)}</span>
+              </div>
+              <div className="flex justify-between font-sans text-sm font-medium border-t border-border pt-2 mt-2">
+                <span className="text-dark">Total</span>
+                <span className="font-serif text-lg text-dark">{fmt(est.result.total)}</span>
+              </div>
+              <div className="flex justify-between font-sans text-xs text-muted">
+                <span>Deposit (10%)</span>
+                <span>{fmt(est.result.depositAmount)}</span>
+              </div>
+
+              <button
+                onClick={handleSendRequest}
+                className="w-full mt-4 bg-gold text-dark font-sans text-xs tracking-widest uppercase py-3 hover:bg-gold-dark transition-colors duration-200 focus:outline-none"
+              >
+                Send Request
+              </button>
+            </div>
+          )}
+
+          {/* Send request even without estimate */}
+          {!est.result && (
+            <button
+              onClick={handleSendRequest}
+              className="font-sans text-xs text-gold hover:text-gold-dark transition-colors focus:outline-none underline"
+            >
+              Skip estimate and send request →
             </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
+export default function ProviderProfile() {
+  const { id } = useParams<{ id: string }>();
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const [provider, setProvider]         = useState<Provider | null>(null);
+  const [packageGroups, setPackageGroups] = useState<PackageGroup[]>([]);
+  const [reviews, setReviews]           = useState<Review[]>([]);
+  const [isLoading, setIsLoading]       = useState(true);
+  const [notFound, setNotFound]         = useState(false);
+  const [showStickyNav, setShowStickyNav] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  // ── Scroll → sticky nav ────────────────────────────────────────────────────
+  useEffect(() => {
+    const onScroll = () => {
+      const heroBottom = heroRef.current?.getBoundingClientRect().bottom ?? 0;
+      setShowStickyNav(heroBottom < 64);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // ── Data fetch ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!id) return;
+    const fetchAll = async () => {
+      setIsLoading(true);
+      setNotFound(false);
+      try {
+        const [providerRes, packagesRes, reviewsRes] = await Promise.all([
+          fetch(`${API_BASE}/providers/${id}`),
+          fetch(`${API_BASE}/providers/${id}/packages`),
+          fetch(`${API_BASE}/reviews/provider/${id}`).catch(() => null),
+        ]);
+
+        const providerData = await providerRes.json();
+        if (!providerData.success || !providerData.data) {
+          setNotFound(true);
+          setIsLoading(false);
+          return;
+        }
+        setProvider(providerData.data);
+
+        const packagesData = await packagesRes.json();
+        if (packagesData.success) setPackageGroups(packagesData.data ?? []);
+
+        if (reviewsRes) {
+          const reviewsData = await reviewsRes.json().catch(() => null);
+          if (reviewsData?.success) setReviews(reviewsData.data ?? []);
+        }
+      } catch (err) {
+        console.error('[ProviderProfile] fetch error:', err);
+        setNotFound(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAll();
+  }, [id]);
+
+  // ── Scroll to anchor ───────────────────────────────────────────────────────
+  const scrollTo = (anchor: string) => {
+    document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // ── Loading ────────────────────────────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-bg">
+        {/* Banner skeleton */}
+        <div className="h-64 bg-charcoal animate-pulse" />
+        {/* Profile card skeleton */}
+        <div className="mx-8 -mt-12 bg-white rounded-2xl border border-border p-8 animate-pulse">
+          <div className="flex gap-6">
+            <div className="w-20 h-20 rounded-full bg-border" />
+            <div className="flex-1 space-y-3">
+              <div className="h-6 bg-border rounded w-1/3" />
+              <div className="h-4 bg-border rounded w-1/4" />
+              <div className="h-4 bg-border rounded w-1/2" />
+            </div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Tabs */}
-      <div className="section-padding mt-8">
-        <div className="border-b border-stone-200">
-          <nav className="flex gap-8">
-            {(['about', 'portfolio', 'services', 'reviews'] as const).map((tab) => (
+  // ── Not found ──────────────────────────────────────────────────────────────
+  if (notFound || !provider) {
+    return (
+      <div className="min-h-screen bg-bg flex flex-col items-center justify-center text-center px-6">
+        <h1 className="font-serif text-4xl text-dark">Vendor not found</h1>
+        <p className="font-sans text-sm text-muted mt-4">
+          This vendor profile doesn't exist or has been removed.
+        </p>
+        <Link to="/providers" className="mt-8 font-sans text-xs text-gold hover:text-gold-dark transition-colors underline">
+          ← Back to Browse Vendors
+        </Link>
+      </div>
+    );
+  }
+
+  const city = provider.user?.city;
+  const state = provider.user?.state;
+
+  return (
+    <div className="bg-bg min-h-screen">
+
+      {/* ── STICKY NAV ──────────────────────────────────────────────────────── */}
+      <div
+        className={`fixed top-16 left-0 right-0 z-40 bg-white border-b border-border transition-all duration-300 ${
+          showStickyNav ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+        }`}
+      >
+        <div className="max-w-5xl mx-auto px-6 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            {['packages', 'about', 'reviews'].map(anchor => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`pb-4 font-medium transition-colors relative ${
-                  activeTab === tab 
-                    ? 'text-brand-600' 
-                    : 'text-stone-500 hover:text-stone-700'
-                }`}
+                key={anchor}
+                onClick={() => scrollTo(anchor)}
+                className="font-sans text-xs uppercase tracking-widest text-charcoal hover:text-gold transition-colors focus:outline-none"
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                {tab === 'reviews' && ` (${mockReviews.length})`}
-                {activeTab === tab && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500" />
-                )}
+                {anchor === 'packages' ? 'Packages' : anchor.charAt(0).toUpperCase() + anchor.slice(1)}
               </button>
             ))}
-          </nav>
+          </div>
+          <button
+            onClick={() => isAuthenticated
+              ? navigate('/create-request', { state: { providerId: id } })
+              : navigate(`/login?redirect=/providers/${id}`)
+            }
+            className="bg-gold text-dark font-sans text-xs tracking-widest uppercase px-5 py-2 hover:bg-gold-dark transition-colors duration-200 focus:outline-none"
+          >
+            Request This Vendor
+          </button>
         </div>
+      </div>
 
-        {/* Tab Content */}
-        <div className="mt-8">
-          {activeTab === 'about' && (
-            <div className="grid lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2">
-                <h2 className="font-display text-xl font-semibold text-stone-900 mb-4">
-                  About Us
-                </h2>
-                <div className="prose prose-stone max-w-none">
-                  {mockProvider.businessDescription.split('\n\n').map((paragraph, i) => (
-                    <p key={i} className="text-stone-600 mb-4">{paragraph}</p>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="space-y-6">
-                {!isHourlyProvider && (
-                  <div className="card p-5">
-                    <h3 className="font-semibold text-stone-900 mb-4">Capacity</h3>
-                    <div className="flex items-center gap-2 text-stone-600">
-                      <Users className="w-5 h-5" />
-                      <span>{mockProvider.minGuestCount} - {mockProvider.maxGuestCount} guests</span>
-                    </div>
+      {/* ── SECTION 1: HERO ─────────────────────────────────────────────────── */}
+      <div ref={heroRef}>
+        {/* Banner */}
+        <div
+          className="h-64 w-full bg-gradient-to-br from-dark to-charcoal"
+          style={provider.user?.bannerUrl ? {
+            backgroundImage: `url(${provider.user.bannerUrl})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          } : undefined}
+        />
+
+        {/* Profile card */}
+        <div className="mx-4 md:mx-8 -mt-12 relative z-10 bg-white rounded-2xl shadow-sm border border-border p-6 md:p-8">
+          <div className="flex flex-col md:flex-row gap-6">
+
+            {/* Avatar */}
+            {provider.logoUrl ? (
+              <img
+                src={provider.logoUrl}
+                alt={provider.businessName}
+                className="w-20 h-20 rounded-full object-cover flex-shrink-0 border border-border"
+              />
+            ) : (
+              <Initials name={provider.businessName} size={80} />
+            )}
+
+            {/* Centre */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                <div>
+                  <h1 className="font-serif text-3xl text-dark leading-tight">
+                    {provider.businessName}
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-3 mt-2">
+                    <ProviderTypeBadge type={provider.primaryType} size="sm" />
+                    {provider.averageRating > 0 && (
+                      <span className="flex items-center gap-1.5">
+                        <Star size={14} className="text-gold fill-gold" />
+                        <span className="font-sans text-sm text-dark">{provider.averageRating.toFixed(1)}</span>
+                        <span className="font-sans text-xs text-muted">
+                          ({provider.totalReviews} review{provider.totalReviews !== 1 ? 's' : ''})
+                        </span>
+                      </span>
+                    )}
+                    {city && (
+                      <span className="flex items-center gap-1 font-sans text-xs text-muted">
+                        <MapPin size={12} />
+                        {city}{state ? `, ${state}` : ''}
+                      </span>
+                    )}
                   </div>
-                )}
-                
-                <div className="card p-5">
-                  <h3 className="font-semibold text-stone-900 mb-4">Pricing</h3>
-                  {isHourlyProvider ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-stone-600">
-                        <Clock className="w-5 h-5" />
-                        <span>${mockProvider.hourlyRate || 75}/hour</span>
-                      </div>
-                      {mockProvider.minimumHours && (
-                        <div className="flex items-center gap-2 text-stone-600">
-                          <Clock className="w-5 h-5" />
-                          <span>Min {mockProvider.minimumHours} hours</span>
-                        </div>
-                      )}
-                      {mockProvider.fixedFee && mockProvider.fixedFee > 0 && (
-                        <div className="flex items-center gap-2 text-stone-600">
-                          <DollarSign className="w-5 h-5" />
-                          <span>${mockProvider.fixedFee} setup/travel fee</span>
-                        </div>
-                      )}
-                      <div className="pt-3 mt-3 border-t border-stone-100">
-                        <p className="text-sm text-stone-500">Example: 4 hours</p>
-                        <p className="text-lg font-bold text-stone-900">
-                          ${((mockProvider.hourlyRate || 75) * 4) + (mockProvider.fixedFee || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-stone-600">
-                        <DollarSign className="w-5 h-5" />
-                        <span>From ${mockProvider.pricePerPerson}/person</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-stone-600">
-                        <DollarSign className="w-5 h-5" />
-                        <span>Min: ${mockProvider.minimumBudget?.toLocaleString()}</span>
-                      </div>
-                      {mockProvider.depositPercentage && (
-                        <div className="flex items-center gap-2 text-stone-600">
-                          <DollarSign className="w-5 h-5" />
-                          <span>{mockProvider.depositPercentage}% deposit required</span>
-                        </div>
-                      )}
-                    </div>
+                  {provider.tagline && (
+                    <p className="font-sans text-sm text-muted mt-2">{provider.tagline}</p>
                   )}
                 </div>
-              </div>
-            </div>
-          )}
 
-          {activeTab === 'portfolio' && (
-            <div>
-              <h2 className="font-display text-xl font-semibold text-stone-900 mb-6">
-                Portfolio
-              </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {mockPortfolio.map((item) => (
-                  <div
-                    key={item.id}
-                    className="aspect-square bg-gradient-to-br from-stone-200 to-stone-300 rounded-xl overflow-hidden relative group cursor-pointer"
-                  >
-                    {item.type === 'VIDEO' && (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
-                          <Play className="w-8 h-8 text-stone-700 ml-1" />
-                        </div>
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-end">
-                      <p className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity font-medium">
-                        {item.title}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                {/* Request CTA */}
+                <button
+                  onClick={() => isAuthenticated
+                    ? navigate('/create-request', { state: { providerId: id } })
+                    : navigate(`/login?redirect=/providers/${id}`)
+                  }
+                  className="flex-shrink-0 bg-gold text-dark font-sans text-xs tracking-widest uppercase px-6 py-3 hover:bg-gold-dark transition-colors duration-200 focus:outline-none self-start"
+                >
+                  Request This Vendor
+                </button>
               </div>
-            </div>
-          )}
 
-          {activeTab === 'services' && (
-            <div>
-              <h2 className="font-display text-xl font-semibold text-stone-900 mb-6">
-                Services & Packages
-              </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockServices.map((service) => (
-                  <div key={service.id} className="card p-6">
-                    <h3 className="font-semibold text-stone-900 mb-2">{service.name}</h3>
-                    <p className="text-stone-600 text-sm mb-4">{service.description}</p>
-                    <div className="flex items-center justify-between pt-4 border-t border-stone-100">
-                      <div>
-                        <p className="text-2xl font-bold text-stone-900">
-                          ${service.pricePerPerson}
-                        </p>
-                        <p className="text-sm text-stone-500">per person</p>
-                      </div>
-                      <p className="text-sm text-stone-500">
-                        From ${service.basePrice.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'reviews' && (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display text-xl font-semibold text-stone-900">
-                  Reviews ({mockReviews.length})
-                </h2>
-                <div className="flex items-center gap-2">
-                  <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
-                  <span className="text-2xl font-bold text-stone-900">{mockProvider.averageRating}</span>
+              {/* Languages */}
+              {provider.languages && provider.languages.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  {provider.languages.map(lang => (
+                    <span key={lang} className="font-sans text-xs border border-border rounded-full px-3 py-1 text-charcoal">
+                      {lang}
+                    </span>
+                  ))}
                 </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 md:px-8 pb-24 mt-12 space-y-20">
+
+        {/* ── SECTION 3: PACKAGES ───────────────────────────────────────────── */}
+        <section id="packages">
+          <p className="font-sans text-xs uppercase tracking-widest text-gold mb-3">
+            Packages &amp; Pricing
+          </p>
+
+          {packageGroups.length === 0 ? (
+            <p className="font-sans text-sm text-muted">No packages listed yet.</p>
+          ) : (
+            packageGroups.map(group => (
+              <div key={group.category} className="mb-10">
+                <h3 className="font-serif text-xl text-dark border-b border-border pb-2 mb-6">
+                  {group.category}
+                </h3>
+                {group.packages.map(pkg => (
+                  <PackageCard
+                    key={pkg.id}
+                    pkg={pkg}
+                    isAuthenticated={isAuthenticated}
+                    providerId={id!}
+                  />
+                ))}
               </div>
-              
-              <div className="space-y-6">
-                {mockReviews.map((review) => (
-                  <div key={review.id} className="card p-6">
-                    <div className="flex items-start justify-between mb-3">
+            ))
+          )}
+        </section>
+
+        {/* ── SECTION 4: ABOUT ──────────────────────────────────────────────── */}
+        <section id="about">
+          <p className="font-sans text-xs uppercase tracking-widest text-gold mb-6">About</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+            {/* Description */}
+            <div className="md:col-span-2">
+              {provider.businessDescription ? (
+                provider.businessDescription.split('\n\n').map((para, i) => (
+                  <p key={i} className="font-sans text-charcoal leading-relaxed mb-4">{para}</p>
+                ))
+              ) : (
+                <p className="font-sans text-muted text-sm">No description provided.</p>
+              )}
+            </div>
+
+            {/* Details card */}
+            <div className="bg-bg rounded-2xl border border-border p-6 self-start space-y-4">
+              {provider.serviceRadius != null && (
+                <div>
+                  <p className="font-sans text-xs uppercase tracking-widest text-muted mb-1">Service Radius</p>
+                  <p className="font-sans text-sm text-charcoal">{provider.serviceRadius} km</p>
+                </div>
+              )}
+              {provider.languages && provider.languages.length > 0 && (
+                <div>
+                  <p className="font-sans text-xs uppercase tracking-widest text-muted mb-2">Languages</p>
+                  <div className="flex flex-wrap gap-2">
+                    {provider.languages.map(lang => (
+                      <span key={lang} className="font-sans text-xs border border-border rounded-full px-3 py-1 text-charcoal">
+                        {lang}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {provider.website && (
+                <a
+                  href={provider.website.startsWith('http') ? provider.website : `https://${provider.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-sans text-xs text-gold hover:text-gold-dark transition-colors"
+                >
+                  <Globe size={14} />
+                  Website
+                </a>
+              )}
+              {provider.instagram && (
+                <a
+                  href={`https://instagram.com/${provider.instagram.replace('@', '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 font-sans text-xs text-gold hover:text-gold-dark transition-colors"
+                >
+                  <Instagram size={14} />
+                  @{provider.instagram.replace('@', '')}
+                </a>
+              )}
+            </div>
+
+          </div>
+        </section>
+
+        {/* ── SECTION 5: REVIEWS ────────────────────────────────────────────── */}
+        <section id="reviews">
+          <p className="font-sans text-xs uppercase tracking-widest text-gold mb-6">Reviews</p>
+
+          {/* Rating summary */}
+          {provider.averageRating > 0 && (
+            <div className="flex items-center gap-4 mb-10">
+              <span className="font-serif text-5xl text-gold">
+                {provider.averageRating.toFixed(1)}
+              </span>
+              <div>
+                <Stars rating={provider.averageRating} />
+                <p className="font-sans text-xs text-muted mt-1">
+                  {provider.totalReviews} review{provider.totalReviews !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {reviews.length === 0 ? (
+            <p className="font-sans text-sm text-muted">No reviews yet.</p>
+          ) : (
+            <div className="space-y-6">
+              {reviews.map(review => {
+                const name = review.author
+                  ? `${review.author.firstName ?? ''} ${review.author.lastName?.[0] ?? ''}.`.trim()
+                  : 'Anonymous';
+                return (
+                  <div key={review.id} className="bg-white rounded-2xl border border-border p-6">
+                    <div className="flex items-start justify-between gap-4 mb-3">
                       <div>
-                        <p className="font-semibold text-stone-900">{review.clientName}</p>
-                        <p className="text-sm text-stone-500">{review.eventType} • {new Date(review.date).toLocaleDateString()}</p>
+                        <p className="font-sans text-sm font-medium text-dark">{name}</p>
+                        <p className="font-sans text-xs text-muted mt-0.5">
+                          {new Date(review.createdAt).toLocaleDateString('en-CA', {
+                            year: 'numeric', month: 'long', day: 'numeric',
+                          })}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-stone-300'}`}
-                          />
-                        ))}
-                      </div>
+                      <Stars rating={review.rating} />
                     </div>
                     {review.title && (
-                      <h4 className="font-medium text-stone-900 mb-2">{review.title}</h4>
+                      <p className="font-sans text-sm font-medium text-dark mb-1">{review.title}</p>
                     )}
-                    <p className="text-stone-600">{review.content}</p>
+                    {review.content && (
+                      <p className="font-sans text-sm text-charcoal leading-relaxed">{review.content}</p>
+                    )}
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
-        </div>
+        </section>
+
       </div>
     </div>
   );
