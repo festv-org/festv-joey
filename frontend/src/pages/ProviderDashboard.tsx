@@ -1,315 +1,589 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  FileText, 
-  DollarSign, 
-  Calendar, 
-  Star,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Users,
-  ChevronRight,
-  Send,
-  Eye
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Calendar, Inbox, Star, Package, Eye, Clock, ChevronRight, User,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { providersApi } from '../utils/api';
 
-// Type config for badges
-const TYPE_CONFIG: Record<string, { label: string; emoji: string; color: string; bg: string }> = {
-  CATERER: { label: 'Caterer', emoji: '🍽️', color: '#b91c1c', bg: '#fef2f2' },
-  DJ: { label: 'DJ', emoji: '🎧', color: '#7c3aed', bg: '#f5f3ff' },
-  PHOTOGRAPHER: { label: 'Photographer', emoji: '📷', color: '#be185d', bg: '#fdf2f8' },
-  VIDEOGRAPHER: { label: 'Videographer', emoji: '🎬', color: '#0d9488', bg: '#f0fdfa' },
-  DECORATOR: { label: 'Decorator', emoji: '🎨', color: '#b45309', bg: '#fffbeb' },
-  MUSICIAN: { label: 'Musician', emoji: '🎵', color: '#1d4ed8', bg: '#eff6ff' },
-  FLORIST: { label: 'Florist', emoji: '💐', color: '#15803d', bg: '#f0fdf4' },
-  BARTENDER: { label: 'Bartender', emoji: '🍸', color: '#c2410c', bg: '#fff7ed' },
-  EVENT_PLANNER: { label: 'Event Planner', emoji: '📋', color: '#4338ca', bg: '#eef2ff' },
-  RENTAL_EQUIPMENT: { label: 'Equipment Rental', emoji: '🎪', color: '#4b5563', bg: '#f3f4f6' },
-  OTHER: { label: 'Other', emoji: '📦', color: '#6b7280', bg: '#f9fafb' },
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/v1`
+  : '/api/v1';
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat('en-CA', { style: 'currency', currency: 'CAD', maximumFractionDigits: 0 }).format(n);
+
+function fmtDate(iso: string) {
+  const d = new Date(iso.split('T')[0] + 'T00:00:00');
+  return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function dayMonth(iso: string): { day: string; month: string } {
+  const d = new Date(iso.split('T')[0] + 'T00:00:00');
+  return {
+    day:   d.toLocaleDateString('en-CA', { day: 'numeric' }),
+    month: d.toLocaleDateString('en-CA', { month: 'short' }).toUpperCase(),
+  };
+}
+
+function daysUntil(iso: string): number {
+  const diff = new Date(iso).getTime() - Date.now();
+  return Math.max(0, Math.round(diff / 86400000));
+}
+
+function greeting(firstName: string): string {
+  const h = new Date().getHours();
+  const salutation = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  return `${salutation}, ${firstName}`;
+}
+
+function todayLabel(): string {
+  return new Date().toLocaleDateString('en-CA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+interface Profile {
+  id: string;
+  businessName: string;
+  primaryType: string;
+  verificationStatus: string;
+  averageRating: number;
+  totalReviews: number;
+  user: { firstName: string; lastName: string };
+}
+
+interface EventRequest {
+  id: string;
+  eventType: string;
+  eventDate?: string | null;
+  guestCount?: number | null;
+  budget?: number | null;
+  specialRequests?: string | null;
+  isOutOfParameters?: boolean;
+  packageId?: string | null;
+  package?: { name: string } | null;
+  client?: { firstName: string; lastName: string } | null;
+  createdAt: string;
+}
+
+interface Booking {
+  id: string;
+  status: string;
+  eventDate?: string | null;
+  totalAmount: number;
+  eventType?: string | null;
+  guestCount?: number | null;
+  package?: { name: string } | null;
+  client?: { firstName: string; lastName: string } | null;
+  quote?: { client?: { firstName: string; lastName: string } | null } | null;
+}
+
+interface BookingStats {
+  totalBookings: number;
+  confirmedBookings: number;
+  completedBookings: number;
+  totalRevenue: number;
+}
+
+interface PendingQuote {
+  id: string;
+  totalAmount: number;
+  expiresAt?: string | null;
+  eventRequest?: {
+    eventType?: string | null;
+    client?: { firstName: string; lastName: string } | null;
+  } | null;
+}
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+
+const STATUS_BADGE: Record<string, string> = {
+  PENDING_DEPOSIT: 'bg-amber-50 text-amber-700 border border-amber-200',
+  DEPOSIT_PAID:    'bg-blue-50  text-blue-700  border border-blue-200',
+  CONFIRMED:       'bg-green/10 text-green     border border-green/30',
+  IN_PROGRESS:     'bg-gold/10  text-gold-dark border border-gold/30',
+  COMPLETED:       'bg-bg       text-muted     border border-border',
+  CANCELLED:       'bg-red/10   text-red       border border-red/30',
 };
 
-const VERIFY_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  VERIFIED: { label: 'Verified', color: '#059669', bg: '#f0fdf4' },
-  PENDING: { label: 'Pending Verification', color: '#d97706', bg: '#fffbeb' },
-  UNVERIFIED: { label: 'Unverified', color: '#6b7280', bg: '#f3f4f6' },
-  REJECTED: { label: 'Rejected', color: '#dc2626', bg: '#fef2f2' },
+const STATUS_LABEL: Record<string, string> = {
+  PENDING_DEPOSIT: 'Deposit Pending',
+  DEPOSIT_PAID:    'Deposit Paid',
+  CONFIRMED:       'Confirmed',
+  IN_PROGRESS:     'In Progress',
+  COMPLETED:       'Completed',
+  CANCELLED:       'Cancelled',
 };
 
-// TODO: Replace with real API calls when endpoints are ready
-const mockRequests: any[] = [];
-const mockBookings: any[] = [];
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+function Skeleton({ className }: { className?: string }) {
+  return <div className={`animate-pulse bg-border rounded-md ${className ?? ''}`} />;
+}
+
+// ── Main component ─────────────────────────────────────────────────────────────
 
 export default function ProviderDashboard() {
   const { user, token } = useAuth();
-  const [profiles, setProfiles] = useState<any[]>([]);
-  const [profileLoading, setProfileLoading] = useState(true);
+  const navigate = useNavigate();
 
+  const [profile,  setProfile]  = useState<Profile | null>(null);
+  const [requests, setRequests] = useState<EventRequest[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [stats,    setStats]    = useState<BookingStats>({ totalBookings: 0, confirmedBookings: 0, completedBookings: 0, totalRevenue: 0 });
+  const [quotes,   setQuotes]   = useState<PendingQuote[]>([]);
+  const [loading,  setLoading]  = useState(true);
+
+  // ── Fetch all data on mount ────────────────────────────────────────────────
   useEffect(() => {
-    if (!token) return;
-    (async () => {
-      try {
-        const data = await providersApi.getMyProfiles(token) as any;
-        if (data.success) setProfiles(data.data || []);
-      } catch (e) { console.error('Failed to load provider profiles', e); }
-      finally { setProfileLoading(false); }
-    })();
-  }, [token]);
+    if (!token) { navigate('/login'); return; }
 
-  // Use real profile stats if available, fall back to zero
-  const profile = profiles[0];
-  const stats = profile ? {
-    totalEarnings: 0, // Would need a separate earnings endpoint
-    pendingQuotes: 0,
-    activeBookings: profile.totalBookings || 0,
-    completedBookings: profile.completedBookings || 0,
-    averageRating: profile.averageRating || 0,
-    totalReviews: profile.totalReviews || 0,
-    responseRate: profile.responseRate || 0,
-  } : { totalEarnings: 0, pendingQuotes: 0, activeBookings: 0, completedBookings: 0, averageRating: 0, totalReviews: 0, responseRate: 0 };
+    const headers = { Authorization: `Bearer ${token}` };
+
+    Promise.allSettled([
+      fetch(`${API_BASE}/providers/profile/me`,               { headers }).then(r => r.json()),
+      fetch(`${API_BASE}/event-requests/incoming?limit=5`,     { headers }).then(r => r.json()),
+      fetch(`${API_BASE}/bookings/upcoming`,                   { headers }).then(r => r.json()),
+      fetch(`${API_BASE}/bookings/stats`,                      { headers }).then(r => r.json()),
+      fetch(`${API_BASE}/quotes/me/vendor?status=SENT&limit=5`,{ headers }).then(r => r.json()),
+    ]).then(([profileRes, reqRes, bookRes, statsRes, quotesRes]) => {
+      // Profile
+      if (profileRes.status === 'fulfilled' && profileRes.value?.success) {
+        const p = profileRes.value.data?.providerProfile ?? profileRes.value.data;
+        if (p) setProfile(p);
+        else navigate('/login');
+      } else {
+        navigate('/login');
+      }
+
+      // Requests
+      if (reqRes.status === 'fulfilled' && reqRes.value?.success) {
+        setRequests(reqRes.value.data ?? []);
+      }
+
+      // Bookings
+      if (bookRes.status === 'fulfilled' && bookRes.value?.success) {
+        setBookings(bookRes.value.data ?? []);
+      }
+
+      // Stats
+      if (statsRes.status === 'fulfilled' && statsRes.value?.success) {
+        const s = statsRes.value.data;
+        if (s) setStats({
+          totalBookings:     s.totalBookings     ?? 0,
+          confirmedBookings: s.confirmedBookings ?? 0,
+          completedBookings: s.completedBookings ?? 0,
+          totalRevenue:      s.totalRevenue      ?? 0,
+        });
+      }
+
+      // Pending quotes
+      if (quotesRes.status === 'fulfilled' && quotesRes.value?.success) {
+        setQuotes(quotesRes.value.data ?? []);
+      }
+
+      setLoading(false);
+    });
+  }, [token, navigate]);
+
+  const firstName = profile?.user?.firstName ?? user?.firstName ?? 'there';
+
+  // ── Loading skeleton ───────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="bg-bg min-h-screen px-6 md:px-12 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-4">
+              <Skeleton className="h-8 w-64" />
+              <Skeleton className="h-4 w-40" />
+              <div className="mt-8 space-y-3">
+                {[1,2,3].map(i => <Skeleton key={i} className="h-28" />)}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-48" />
+              <Skeleton className="h-40" />
+              <Skeleton className="h-40" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const isVerified = profile?.verificationStatus === 'VERIFIED';
+  const profileId  = profile?.id ?? '';
 
   return (
-    <div className="py-8">
-      <div className="section-padding">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-start justify-between flex-wrap gap-4">
+    <div className="bg-bg min-h-screen">
+
+      {/* ── PENDING APPROVAL BANNER ──────────────────────────────────────── */}
+      {!isVerified && (
+        <div className="bg-dark border-b border-gold/20 px-6 md:px-12 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Clock size={18} strokeWidth={1.5} className="text-gold flex-shrink-0" />
             <div>
-              <h1 className="font-display text-3xl font-bold text-stone-900">
-                Welcome back, {user?.firstName}!
-              </h1>
-              <p className="text-stone-600 mt-1">
-                Here's what's happening with your business
+              <p className="font-sans text-sm font-semibold text-white">
+                Your profile is under review
+              </p>
+              <p className="font-sans text-xs text-white/50 mt-0.5">
+                We'll notify you by email once approved. This usually takes 1–2 business days.
               </p>
             </div>
-            {/* Provider type badges + verification status */}
-            {!profileLoading && profiles.length > 0 && (
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex flex-wrap gap-2">
-                  {profiles.map(p => {
-                    const types = p.providerTypes || (p.primaryType ? [p.primaryType] : []);
-                    return types.map((t: string) => {
-                      const cfg = TYPE_CONFIG[t] || TYPE_CONFIG.OTHER;
-                      return (
-                        <span key={`${p.id}-${t}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold" style={{ background: cfg.bg, color: cfg.color }}>
-                          <span>{cfg.emoji}</span> {cfg.label}
-                        </span>
-                      );
-                    });
-                  })}
-                </div>
-                {profiles.map(p => {
-                  const vc = VERIFY_CONFIG[p.verificationStatus] || VERIFY_CONFIG.UNVERIFIED;
+          </div>
+          <Link
+            to="/vendor/setup"
+            className="font-sans text-xs font-semibold text-gold hover:text-gold-light transition-colors flex-shrink-0 whitespace-nowrap"
+          >
+            Complete profile →
+          </Link>
+        </div>
+      )}
+
+      {/* ── PAGE BODY ─────────────────────────────────────────────────────── */}
+      <div className="max-w-6xl mx-auto px-6 md:px-12 py-8">
+
+        {/* ── HEADER ──────────────────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
+          <div>
+            <h1 className="font-serif text-3xl text-dark">
+              {greeting(firstName)}
+            </h1>
+            <p className="font-sans text-sm text-muted mt-1">{todayLabel()}</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/vendor/packages"
+              className="border border-border text-charcoal font-sans text-xs uppercase tracking-widest px-4 py-2 hover:border-gold hover:text-gold transition-colors rounded-md focus:outline-none"
+            >
+              Edit Packages
+            </Link>
+            <Link
+              to="/vendor/availability"
+              className="border border-border text-charcoal font-sans text-xs uppercase tracking-widest px-4 py-2 hover:border-gold hover:text-gold transition-colors rounded-md focus:outline-none"
+            >
+              Update Availability
+            </Link>
+          </div>
+        </div>
+
+        {/* ── TWO-COLUMN GRID ─────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+          {/* ── LEFT COLUMN (col-span-2) ───────────────────────────────────── */}
+          <div className="md:col-span-2">
+
+            {/* ── SECTION 1: INCOMING REQUESTS ─────────────────────────────── */}
+            <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-4">
+              Incoming Requests
+            </p>
+
+            {requests.length === 0 ? (
+              <div className="bg-white border border-border rounded-md p-8 text-center mb-4">
+                <Inbox size={32} strokeWidth={1.5} className="text-muted mx-auto mb-3" />
+                <p className="font-serif text-lg text-muted">No new requests yet</p>
+                <p className="font-sans text-xs text-muted mt-2">
+                  Share your profile to start receiving bookings
+                </p>
+                {profileId && (
+                  <Link
+                    to={`/providers/${profileId}`}
+                    className="inline-block mt-4 font-sans text-xs text-gold hover:text-gold-dark transition-colors"
+                  >
+                    Preview your profile →
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <>
+                {requests.map(req => {
+                  const clientName = req.client
+                    ? `${req.client.firstName} ${req.client.lastName}`
+                    : 'Anonymous';
+                  const estimated = req.budget
+                    ? fmt(req.budget)
+                    : req.guestCount
+                      ? `~${fmt(req.guestCount * 100)}` // rough estimate placeholder
+                      : null;
+
                   return (
-                    <span key={p.id} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium" style={{ background: vc.bg, color: vc.color }}>
-                      {p.verificationStatus === 'VERIFIED' ? '✅' : p.verificationStatus === 'REJECTED' ? '❌' : '⏳'} {vc.label}
-                      {p.verificationStatus === 'REJECTED' && p.rejectionReason && (
-                        <span className="text-xs ml-1 opacity-70">- {p.rejectionReason}</span>
+                    <div
+                      key={req.id}
+                      className="bg-white border border-border rounded-md p-5 mb-3 hover:border-gold transition-colors duration-150"
+                    >
+                      {/* Top meta row */}
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="font-sans text-xs uppercase bg-gold/10 text-gold-dark px-2 py-0.5 rounded-full">
+                          {req.eventType?.replace(/_/g, ' ') ?? 'Event'}
+                        </span>
+                        {req.eventDate && (
+                          <span className="font-sans text-xs text-muted">
+                            {fmtDate(req.eventDate)}
+                          </span>
+                        )}
+                        {req.isOutOfParameters && (
+                          <span className="font-sans text-xs bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
+                            Custom request
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Client */}
+                      <p className="font-sans text-sm font-semibold text-dark">{clientName}</p>
+
+                      {/* Package */}
+                      {req.package?.name && (
+                        <p className="font-sans text-xs text-muted mt-0.5">
+                          Package: {req.package.name}
+                        </p>
                       )}
-                    </span>
+
+                      {/* Guests + estimated value */}
+                      {(req.guestCount != null || estimated) && (
+                        <p className="font-serif text-lg text-dark mt-1">
+                          {req.guestCount != null && <span>{req.guestCount} guests</span>}
+                          {req.guestCount != null && estimated && <span className="text-muted font-sans text-sm"> · </span>}
+                          {estimated && <span>Est. {estimated}</span>}
+                        </p>
+                      )}
+
+                      {/* Special requests preview */}
+                      {req.specialRequests && (
+                        <p className="font-sans text-xs text-muted italic mt-1 truncate">
+                          "{req.specialRequests}"
+                        </p>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-3 mt-4">
+                        <Link
+                          to={`/event-requests/${req.id}`}
+                          className="bg-gold text-dark font-sans text-xs font-bold tracking-widest uppercase px-5 py-2 hover:bg-gold-dark transition-colors focus:outline-none rounded-md"
+                        >
+                          {req.isOutOfParameters ? 'Create Custom Quote' : 'Auto-Generate Quote'}
+                        </Link>
+                        <button
+                          className="font-sans text-xs text-muted hover:text-red transition-colors focus:outline-none"
+                          onClick={() => {/* decline — navigate to detail */
+                            navigate(`/event-requests/${req.id}`);
+                          }}
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    </div>
                   );
                 })}
+                <Link
+                  to="/event-requests"
+                  className="flex items-center gap-1 font-sans text-xs text-gold hover:text-gold-dark transition-colors mt-1 mb-2"
+                >
+                  View all requests <ChevronRight size={12} />
+                </Link>
+              </>
+            )}
+
+            {/* ── SECTION 2: UPCOMING BOOKINGS ─────────────────────────────── */}
+            <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mt-10 mb-4">
+              Upcoming Bookings
+            </p>
+
+            {bookings.length === 0 ? (
+              <div className="bg-white border border-border rounded-md p-8 text-center">
+                <Calendar size={32} strokeWidth={1.5} className="text-muted mx-auto mb-3" />
+                <p className="font-serif text-lg text-muted">No upcoming bookings</p>
+                <p className="font-sans text-xs text-muted mt-2">
+                  Confirmed bookings will appear here
+                </p>
               </div>
+            ) : (
+              <>
+                {bookings.map(booking => {
+                  const dm = booking.eventDate ? dayMonth(booking.eventDate) : null;
+                  const clientName = booking.client
+                    ? `${booking.client.firstName} ${booking.client.lastName}`
+                    : booking.quote?.client
+                      ? `${booking.quote.client.firstName} ${booking.quote.client.lastName}`
+                      : 'Client';
+                  return (
+                    <Link
+                      to={`/bookings/${booking.id}`}
+                      key={booking.id}
+                      className="bg-white border border-border rounded-md p-5 mb-3 flex items-start gap-4 hover:border-gold transition-colors duration-150 block"
+                    >
+                      {/* Date block */}
+                      {dm ? (
+                        <div className="bg-gold/10 rounded-md p-3 text-center w-14 flex-shrink-0">
+                          <p className="font-serif text-2xl text-gold-dark font-semibold leading-none">
+                            {dm.day}
+                          </p>
+                          <p className="font-sans text-xs text-muted uppercase mt-1">{dm.month}</p>
+                        </div>
+                      ) : (
+                        <div className="bg-border rounded-md p-3 text-center w-14 flex-shrink-0">
+                          <Calendar size={20} strokeWidth={1.5} className="text-muted mx-auto" />
+                        </div>
+                      )}
+
+                      {/* Details */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-sm font-semibold text-dark">
+                          {booking.eventType?.replace(/_/g, ' ') ?? 'Event'}
+                          {booking.package?.name && (
+                            <span className="font-normal text-muted"> · {booking.package.name}</span>
+                          )}
+                        </p>
+                        <p className="font-sans text-xs text-muted mt-0.5">
+                          {clientName}
+                          {booking.guestCount != null && ` · ${booking.guestCount} guests`}
+                        </p>
+                        <div className="flex items-center gap-3 mt-2">
+                          <span className={`font-sans text-xs px-2 py-0.5 rounded-full ${STATUS_BADGE[booking.status] ?? 'bg-bg text-muted border border-border'}`}>
+                            {STATUS_LABEL[booking.status] ?? booking.status}
+                          </span>
+                          <span className="font-serif text-base text-dark">
+                            {fmt(booking.totalAmount)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <ChevronRight size={16} className="text-muted flex-shrink-0 mt-1" />
+                    </Link>
+                  );
+                })}
+                <Link
+                  to="/provider/bookings"
+                  className="flex items-center gap-1 font-sans text-xs text-gold hover:text-gold-dark transition-colors mt-1"
+                >
+                  View all bookings <ChevronRight size={12} />
+                </Link>
+              </>
             )}
           </div>
-        </div>
 
-        {/* Stats Grid - Now Clickable */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Link to="/provider/earnings" className="card card-hover p-5 group">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                <DollarSign className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-2xl font-bold text-stone-900">
-                  ${stats.totalEarnings.toLocaleString()}
-                </p>
-                <p className="text-sm text-stone-500">Total Earnings</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-stone-500 transition-colors" />
-            </div>
-          </Link>
-
-          <Link to="/provider/quotes" className="card card-hover p-5 group">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center group-hover:bg-amber-200 transition-colors">
-                <Send className="w-6 h-6 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-2xl font-bold text-stone-900">{stats.pendingQuotes}</p>
-                <p className="text-sm text-stone-500">Pending Quotes</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-stone-500 transition-colors" />
-            </div>
-          </Link>
-
-          <Link to="/provider/bookings" className="card card-hover p-5 group">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="text-2xl font-bold text-stone-900">{stats.activeBookings}</p>
-                <p className="text-sm text-stone-500">Active Bookings</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-stone-500 transition-colors" />
-            </div>
-          </Link>
-
-          <Link to="/provider/reviews" className="card card-hover p-5 group">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                <Star className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-1">
-                  <p className="text-2xl font-bold text-stone-900">{stats.averageRating > 0 ? stats.averageRating.toFixed(1) : 'New'}</p>
-                  <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                </div>
-                <p className="text-sm text-stone-500">{stats.totalReviews} Reviews</p>
-              </div>
-              <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-stone-500 transition-colors" />
-            </div>
-          </Link>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Available Requests */}
+          {/* ── RIGHT COLUMN ─────────────────────────────────────────────────── */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold text-stone-900">
-                Available Requests
-              </h2>
-              <Link to="/provider/requests" className="text-brand-600 text-sm font-medium hover:text-brand-700">
-                View all
-              </Link>
-            </div>
 
-            <div className="space-y-4">
-              {mockRequests.map((request) => (
-                <div key={request.id} className="card p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="font-semibold text-stone-900">{request.title}</h3>
-                      <p className="text-sm text-stone-500">
-                        {request.venueCity}, {request.venueState}
-                      </p>
-                    </div>
-                    <span className="px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-xs font-medium">
-                      {request.eventType}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-4 text-sm text-stone-600 mb-4">
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {new Date(request.eventDate).toLocaleDateString()}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="w-4 h-4" />
-                      {request.guestCount} guests
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
-                      ${request.budgetMin.toLocaleString()} - ${request.budgetMax.toLocaleString()}
-                    </span>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button className="btn-primary text-sm py-2">
-                      <Send className="w-4 h-4 mr-1" />
-                      Send Quote
-                    </button>
-                    <button className="btn-secondary text-sm py-2">
-                      <Eye className="w-4 h-4 mr-1" />
-                      View Details
-                    </button>
-                  </div>
+            {/* ── STATS CARD ───────────────────────────────────────────────── */}
+            <div className="bg-white border border-border rounded-md p-6 mb-6">
+              <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-4">
+                Overview
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-sans text-xs text-muted uppercase tracking-wide">Total</p>
+                  <p className="font-serif text-2xl text-dark mt-1">{stats.totalBookings}</p>
                 </div>
-              ))}
-            </div>
-          </div>
+                <div>
+                  <p className="font-sans text-xs text-muted uppercase tracking-wide">Confirmed</p>
+                  <p className="font-serif text-2xl text-dark mt-1">{stats.confirmedBookings}</p>
+                </div>
+                <div>
+                  <p className="font-sans text-xs text-muted uppercase tracking-wide">Completed</p>
+                  <p className="font-serif text-2xl text-dark mt-1">{stats.completedBookings}</p>
+                </div>
+                <div>
+                  <p className="font-sans text-xs text-muted uppercase tracking-wide">Revenue</p>
+                  <p className="font-serif text-2xl text-gold-dark mt-1">{fmt(stats.totalRevenue)}</p>
+                </div>
+              </div>
 
-          {/* Upcoming Bookings */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold text-stone-900">
-                Upcoming Bookings
-              </h2>
-              <Link to="/provider/bookings" className="text-brand-600 text-sm font-medium hover:text-brand-700">
-                View all
-              </Link>
-            </div>
-
-            <div className="space-y-4">
-              {mockBookings.map((booking) => (
-                <Link
-                  key={booking.id}
-                  to={`/bookings/${booking.id}`}
-                  className="card p-5 card-hover flex items-center gap-4"
-                >
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-stone-900 truncate">
-                      {booking.title}
-                    </h3>
-                    <div className="flex items-center gap-3 text-sm text-stone-500 mt-1">
-                      <span>{booking.clientName}</span>
-                      <span>•</span>
-                      <span>{new Date(booking.eventDate).toLocaleDateString()}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-stone-900">
-                      ${booking.totalAmount.toLocaleString()}
-                    </p>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      booking.status === 'CONFIRMED'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-amber-100 text-amber-700'
-                    }`}>
-                      {booking.status.replace('_', ' ')}
+              {profile && profile.averageRating > 0 && (
+                <>
+                  <div className="border-t border-border my-4" />
+                  <div className="flex items-center gap-2">
+                    <Star size={14} strokeWidth={1.5} className="text-gold fill-gold" />
+                    <span className="font-sans text-sm text-dark font-semibold">
+                      {profile.averageRating.toFixed(1)}
+                    </span>
+                    <span className="font-sans text-xs text-muted">
+                      · {profile.totalReviews} review{profile.totalReviews !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-stone-400" />
-                </Link>
-              ))}
+                </>
+              )}
+            </div>
 
-              {mockBookings.length === 0 && (
-                <div className="card p-8 text-center">
-                  <div className="w-16 h-16 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-8 h-8 text-stone-400" />
-                  </div>
-                  <h3 className="font-semibold text-stone-900 mb-2">No upcoming bookings</h3>
-                  <p className="text-stone-600">
-                    Send quotes to clients to get new bookings.
-                  </p>
+            {/* ── PENDING QUOTES ───────────────────────────────────────────── */}
+            <div className="bg-white border border-border rounded-md p-6 mb-6">
+              <p className="font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-4">
+                Awaiting Response
+              </p>
+
+              {quotes.length === 0 ? (
+                <p className="font-sans text-xs text-muted">No pending quotes</p>
+              ) : (
+                <div>
+                  {quotes.map((q, idx) => {
+                    const clientName = q.eventRequest?.client
+                      ? `${q.eventRequest.client.firstName} ${q.eventRequest.client.lastName}`
+                      : 'Client';
+                    const eventType = q.eventRequest?.eventType?.replace(/_/g, ' ') ?? 'Event';
+                    const daysLeft  = q.expiresAt ? daysUntil(q.expiresAt) : null;
+
+                    return (
+                      <div
+                        key={q.id}
+                        className={`${idx < quotes.length - 1 ? 'border-b border-border pb-3 mb-3' : ''}`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="font-sans text-sm text-dark font-medium truncate">
+                              {clientName}
+                            </p>
+                            <p className="font-sans text-xs text-muted mt-0.5">{eventType}</p>
+                          </div>
+                          <Link
+                            to={`/bookings/${q.id}`}
+                            className="font-sans text-xs text-gold hover:text-gold-dark transition-colors flex-shrink-0"
+                          >
+                            View
+                          </Link>
+                        </div>
+                        <p className="font-serif text-lg text-gold-dark mt-1">{fmt(q.totalAmount)}</p>
+                        {daysLeft !== null && (
+                          <p className="font-sans text-xs text-muted mt-0.5">
+                            {daysLeft === 0
+                              ? 'Expires today'
+                              : `Expires in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
 
-            {/* Performance Card */}
-            <div className="card p-5 mt-4 bg-gradient-to-br from-brand-500 to-brand-600 text-white">
-              <div className="flex items-center gap-3 mb-4">
-                <TrendingUp className="w-6 h-6" />
-                <h3 className="font-semibold">Performance This Month</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-brand-100 text-sm">Response Rate</p>
-                  <p className="text-2xl font-bold">{stats.responseRate}%</p>
-                </div>
-                <div>
-                  <p className="text-brand-100 text-sm">Completed</p>
-                  <p className="text-2xl font-bold">{stats.completedBookings}</p>
-                </div>
+            {/* ── QUICK ACTIONS ─────────────────────────────────────────────── */}
+            <div className="bg-dark rounded-md p-6">
+              <p className="font-sans text-xs font-bold uppercase tracking-widest text-white/50 mb-4">
+                Quick Actions
+              </p>
+              <div className="space-y-0">
+                {[
+                  { Icon: Package,  label: 'Manage Packages',     to: '/vendor/packages'             },
+                  { Icon: Calendar, label: 'Update Availability',  to: '/vendor/availability'         },
+                  { Icon: User,     label: 'Edit Profile',         to: '/vendor/setup'                },
+                  { Icon: Eye,      label: 'Preview My Profile',   to: profileId ? `/providers/${profileId}` : '#' },
+                  { Icon: Star,     label: 'View Reviews',         to: profileId ? `/providers/${profileId}#reviews` : '#' },
+                ].map(({ Icon, label, to }) => (
+                  <Link
+                    key={label}
+                    to={to}
+                    className="flex items-center gap-3 py-3 border-b border-white/10 last:border-0 text-white/60 hover:text-gold-light transition-colors duration-150 focus:outline-none group"
+                  >
+                    <Icon size={15} strokeWidth={1.5} className="flex-shrink-0 group-hover:text-gold-light transition-colors" />
+                    <span className="font-sans text-sm">{label}</span>
+                    <ChevronRight size={12} className="ml-auto opacity-40 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
               </div>
             </div>
+
           </div>
         </div>
       </div>
