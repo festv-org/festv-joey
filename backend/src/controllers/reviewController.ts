@@ -8,29 +8,28 @@ import { createReviewSchema, updateReviewSchema } from '../utils/validators';
 export const createReview = async (req: AuthenticatedRequest, res: Response) => {
   const userId = req.user!.id;
   const validation = createReviewSchema.safeParse(req.body);
-  
+
   if (!validation.success) {
     throw new AppError(validation.error.errors[0].message, 400);
   }
 
-  const { bookingId, overallRating, foodQualityRating, presentationRating, 
-          punctualityRating, communicationRating, valueRating, title, 
-          comment, photos } = validation.data;
+  const { bookingId, overallRating, foodQuality, presentation,
+          punctuality, communication, valueForMoney, title,
+          content } = validation.data;
 
   // Verify the booking exists and belongs to this client
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     include: {
-      eventRequest: true,
-      provider: true
-    }
+      providerProfile: { select: { userId: true } },
+    },
   });
 
   if (!booking) {
     throw new NotFoundError('Booking');
   }
 
-  if (booking.eventRequest.clientId !== userId) {
+  if (booking.clientId !== userId) {
     throw new ForbiddenError('You can only review your own bookings');
   }
 
@@ -40,7 +39,7 @@ export const createReview = async (req: AuthenticatedRequest, res: Response) => 
 
   // Check if already reviewed
   const existingReview = await prisma.review.findUnique({
-    where: { bookingId }
+    where: { bookingId },
   });
 
   if (existingReview) {
@@ -51,60 +50,60 @@ export const createReview = async (req: AuthenticatedRequest, res: Response) => 
   const review = await prisma.review.create({
     data: {
       bookingId,
-      clientId: userId,
-      providerId: booking.providerId,
+      authorId: userId,
+      subjectId: booking.providerProfile.userId, // TODO: rewire to new schema (subjectId should be vendor User.id)
       overallRating,
-      foodQualityRating,
-      presentationRating,
-      punctualityRating,
-      communicationRating,
-      valueRating,
+      foodQuality,
+      presentation,
+      punctuality,
+      communication,
+      valueForMoney,
       title,
-      comment,
-      photos: photos || [],
-      isVerified: true // Verified because it's linked to a real booking
+      content,
+      isVerified: true, // Verified because it's linked to a real booking
     },
     include: {
-      client: {
+      author: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          profileImage: true
-        }
-      }
-    }
+          avatarUrl: true,
+        },
+      },
+    },
   });
 
   // Update provider's average rating
   const providerReviews = await prisma.review.findMany({
-    where: { providerId: booking.providerId, isPublic: true }
+    where: { subjectId: booking.providerProfile.userId, isPublic: true },
   });
 
   const avgRating = providerReviews.reduce((sum, r) => sum + r.overallRating, 0) / providerReviews.length;
 
   await prisma.providerProfile.update({
-    where: { id: booking.providerId },
+    where: { id: booking.providerProfileId },
     data: {
       averageRating: avgRating,
-      totalReviews: providerReviews.length
-    }
+      totalReviews: providerReviews.length,
+    },
   });
 
   // Create notification for provider
+  // TODO: rewire to new schema — notify booking.providerProfile.userId
   await prisma.notification.create({
     data: {
-      userId: booking.provider.userId,
+      userId: booking.providerProfile.userId,
       type: 'NEW_REVIEW',
       title: 'New Review Received',
       message: `You received a ${overallRating}-star review!`,
-      data: { reviewId: review.id, bookingId }
-    }
+      data: { reviewId: review.id, bookingId },
+    },
   });
 
   res.status(201).json({
     success: true,
-    data: review
+    data: review,
   });
 };
 
@@ -115,9 +114,10 @@ export const getProviderReviews = async (req: AuthenticatedRequest, res: Respons
 
   const skip = (Number(page) - 1) * Number(limit);
 
+  // TODO: rewire to new schema — subjectId is User.id, need to resolve from ProviderProfile.userId
   const where: any = {
-    providerId,
-    isPublic: true
+    subjectId: providerId,
+    isPublic: true,
   };
 
   if (minRating) {
@@ -128,51 +128,40 @@ export const getProviderReviews = async (req: AuthenticatedRequest, res: Respons
     prisma.review.findMany({
       where,
       include: {
-        client: {
+        author: {
           select: {
             id: true,
             firstName: true,
             lastName: true,
-            profileImage: true
-          }
+            avatarUrl: true,
+          },
         },
-        booking: {
-          include: {
-            eventRequest: {
-              select: {
-                eventType: true,
-                guestCount: true,
-                eventDate: true
-              }
-            }
-          }
-        }
       },
       orderBy: { [sortBy as string]: sortOrder },
       skip,
-      take: Number(limit)
+      take: Number(limit),
     }),
-    prisma.review.count({ where })
+    prisma.review.count({ where }),
   ]);
 
   // Calculate rating distribution
   const ratingDistribution = await prisma.review.groupBy({
     by: ['overallRating'],
-    where: { providerId, isPublic: true },
-    _count: true
+    where: { subjectId: providerId, isPublic: true },
+    _count: true,
   });
 
   // Calculate average for each category
   const categoryAverages = await prisma.review.aggregate({
-    where: { providerId, isPublic: true },
+    where: { subjectId: providerId, isPublic: true },
     _avg: {
       overallRating: true,
-      foodQualityRating: true,
-      presentationRating: true,
-      punctualityRating: true,
-      communicationRating: true,
-      valueRating: true
-    }
+      foodQuality: true,
+      presentation: true,
+      punctuality: true,
+      communication: true,
+      valueForMoney: true,
+    },
   });
 
   res.json({
@@ -184,15 +173,15 @@ export const getProviderReviews = async (req: AuthenticatedRequest, res: Respons
           acc[curr.overallRating] = curr._count;
           return acc;
         }, {} as Record<number, number>),
-        categoryAverages: categoryAverages._avg
+        categoryAverages: categoryAverages._avg,
       },
       pagination: {
         page: Number(page),
         limit: Number(limit),
         total,
-        pages: Math.ceil(total / Number(limit))
-      }
-    }
+        pages: Math.ceil(total / Number(limit)),
+      },
+    },
   });
 };
 
@@ -203,46 +192,36 @@ export const getReview = async (req: AuthenticatedRequest, res: Response) => {
   const review = await prisma.review.findUnique({
     where: { id: reviewId },
     include: {
-      client: {
+      author: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          profileImage: true
-        }
+          avatarUrl: true,
+        },
       },
-      provider: {
+      subject: {
         select: {
           id: true,
-          businessName: true,
-          profileImage: true
-        }
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
       },
-      booking: {
-        include: {
-          eventRequest: {
-            select: {
-              eventType: true,
-              guestCount: true,
-              eventDate: true
-            }
-          }
-        }
-      }
-    }
+    },
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  if (!review.isPublic && req.user?.id !== review.clientId) {
+  if (!review.isPublic && req.user?.id !== review.authorId) {
     throw new ForbiddenError('This review is private');
   }
 
   res.json({
     success: true,
-    data: review
+    data: review,
   });
 };
 
@@ -257,14 +236,14 @@ export const updateReview = async (req: AuthenticatedRequest, res: Response) => 
   }
 
   const review = await prisma.review.findUnique({
-    where: { id: reviewId }
+    where: { id: reviewId },
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  if (review.clientId !== userId) {
+  if (review.authorId !== userId) {
     throw new ForbiddenError('You can only update your own reviews');
   }
 
@@ -278,32 +257,33 @@ export const updateReview = async (req: AuthenticatedRequest, res: Response) => 
     where: { id: reviewId },
     data: validation.data,
     include: {
-      client: {
+      author: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          profileImage: true
-        }
-      }
-    }
+          avatarUrl: true,
+        },
+      },
+    },
   });
 
   // Update provider's average rating if rating changed
   if (validation.data.overallRating) {
     const providerReviews = await prisma.review.findMany({
-      where: { providerId: review.providerId, isPublic: true }
+      where: { subjectId: review.subjectId, isPublic: true },
     });
     const avgRating = providerReviews.reduce((sum, r) => sum + r.overallRating, 0) / providerReviews.length;
-    await prisma.providerProfile.update({
-      where: { id: review.providerId },
-      data: { averageRating: avgRating }
+    // TODO: rewire to new schema — need to resolve ProviderProfile from subjectId (User.id)
+    await prisma.providerProfile.updateMany({
+      where: { userId: review.subjectId },
+      data: { averageRating: avgRating },
     });
   }
 
   res.json({
     success: true,
-    data: updatedReview
+    data: updatedReview,
   });
 };
 
@@ -314,41 +294,42 @@ export const deleteReview = async (req: AuthenticatedRequest, res: Response) => 
   const { reviewId } = req.params;
 
   const review = await prisma.review.findUnique({
-    where: { id: reviewId }
+    where: { id: reviewId },
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  if (review.clientId !== userId && userRole !== 'ADMIN') {
+  if (review.authorId !== userId && userRole !== 'ADMIN') {
     throw new ForbiddenError('You can only delete your own reviews');
   }
 
   await prisma.review.delete({
-    where: { id: reviewId }
+    where: { id: reviewId },
   });
 
   // Update provider's stats
   const providerReviews = await prisma.review.findMany({
-    where: { providerId: review.providerId, isPublic: true }
+    where: { subjectId: review.subjectId, isPublic: true },
   });
 
-  const avgRating = providerReviews.length > 0 
-    ? providerReviews.reduce((sum, r) => sum + r.overallRating, 0) / providerReviews.length 
+  const avgRating = providerReviews.length > 0
+    ? providerReviews.reduce((sum, r) => sum + r.overallRating, 0) / providerReviews.length
     : 0;
 
-  await prisma.providerProfile.update({
-    where: { id: review.providerId },
+  // TODO: rewire to new schema — need to resolve ProviderProfile from subjectId (User.id)
+  await prisma.providerProfile.updateMany({
+    where: { userId: review.subjectId },
     data: {
       averageRating: avgRating,
-      totalReviews: providerReviews.length
-    }
+      totalReviews: providerReviews.length,
+    },
   });
 
   res.json({
     success: true,
-    message: 'Review deleted successfully'
+    message: 'Review deleted successfully',
   });
 };
 
@@ -368,16 +349,14 @@ export const respondToReview = async (req: AuthenticatedRequest, res: Response) 
 
   const review = await prisma.review.findUnique({
     where: { id: reviewId },
-    include: {
-      provider: true
-    }
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  if (review.provider.userId !== userId) {
+  // TODO: rewire to new schema — subjectId is User.id; check if current user is the subject
+  if (review.subjectId !== userId) {
     throw new ForbiddenError('You can only respond to reviews for your business');
   }
 
@@ -389,30 +368,23 @@ export const respondToReview = async (req: AuthenticatedRequest, res: Response) 
     where: { id: reviewId },
     data: {
       providerResponse: response,
-      providerResponseAt: new Date()
+      providerRespondedAt: new Date(),
     },
     include: {
-      client: {
+      author: {
         select: {
           id: true,
           firstName: true,
           lastName: true,
-          profileImage: true
-        }
+          avatarUrl: true,
+        },
       },
-      provider: {
-        select: {
-          id: true,
-          businessName: true,
-          profileImage: true
-        }
-      }
-    }
+    },
   });
 
   res.json({
     success: true,
-    data: updatedReview
+    data: updatedReview,
   });
 };
 
@@ -425,33 +397,22 @@ export const getMyReviews = async (req: AuthenticatedRequest, res: Response) => 
 
   const [reviews, total] = await Promise.all([
     prisma.review.findMany({
-      where: { clientId: userId },
+      where: { authorId: userId },
       include: {
-        provider: {
+        subject: {
           select: {
             id: true,
-            businessName: true,
-            profileImage: true,
-            providerTypes: true
-          }
+            firstName: true,
+            lastName: true,
+            avatarUrl: true,
+          },
         },
-        booking: {
-          include: {
-            eventRequest: {
-              select: {
-                eventType: true,
-                guestCount: true,
-                eventDate: true
-              }
-            }
-          }
-        }
       },
       orderBy: { createdAt: 'desc' },
       skip,
-      take: Number(limit)
+      take: Number(limit),
     }),
-    prisma.review.count({ where: { clientId: userId } })
+    prisma.review.count({ where: { authorId: userId } }),
   ]);
 
   res.json({
@@ -462,9 +423,9 @@ export const getMyReviews = async (req: AuthenticatedRequest, res: Response) => 
         page: Number(page),
         limit: Number(limit),
         total,
-        pages: Math.ceil(total / Number(limit))
-      }
-    }
+        pages: Math.ceil(total / Number(limit)),
+      },
+    },
   });
 };
 
@@ -479,25 +440,19 @@ export const reportReview = async (req: AuthenticatedRequest, res: Response) => 
   }
 
   const review = await prisma.review.findUnique({
-    where: { id: reviewId }
+    where: { id: reviewId },
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  // Mark for moderation
-  await prisma.review.update({
-    where: { id: reviewId },
-    data: {
-      isFlagged: true,
-      moderationNotes: `Reported by user ${userId}: ${reason}`
-    }
-  });
+  // TODO: rewire to new schema — isFlagged / moderationNotes removed from Review; add to new schema when needed
+  console.warn(`Review ${reviewId} reported by user ${userId}: ${reason}`);
 
   res.json({
     success: true,
-    message: 'Review has been reported and will be reviewed by our team'
+    message: 'Review has been reported and will be reviewed by our team',
   });
 };
 
@@ -507,25 +462,25 @@ export const toggleReviewVisibility = async (req: AuthenticatedRequest, res: Res
   const { reviewId } = req.params;
 
   const review = await prisma.review.findUnique({
-    where: { id: reviewId }
+    where: { id: reviewId },
   });
 
   if (!review) {
     throw new NotFoundError('Review');
   }
 
-  if (review.clientId !== userId) {
+  if (review.authorId !== userId) {
     throw new ForbiddenError('You can only modify your own reviews');
   }
 
   const updatedReview = await prisma.review.update({
     where: { id: reviewId },
-    data: { isPublic: !review.isPublic }
+    data: { isPublic: !review.isPublic },
   });
 
   res.json({
     success: true,
     data: updatedReview,
-    message: `Review is now ${updatedReview.isPublic ? 'public' : 'private'}`
+    message: `Review is now ${updatedReview.isPublic ? 'public' : 'private'}`,
   });
 };

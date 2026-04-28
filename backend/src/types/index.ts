@@ -96,8 +96,6 @@ export interface CreateEventRequestInput {
   budgetMin: number;
   budgetMax: number;
   eventDate: Date;
-  eventStartTime: string;
-  eventEndTime: string;
   venueName?: string;
   venueAddress: string;
   venueCity: string;
@@ -154,12 +152,8 @@ export interface CreateServiceInput {
 
 // Quote Types
 export interface CreateQuoteInput {
-  eventRequestId: string;
   message?: string;
   items: QuoteItemInput[];
-  taxRate?: number;
-  serviceFee?: number;
-  gratuity?: number;
   discount?: number;
   validDays?: number;
 }

@@ -91,13 +91,11 @@ router.get('/event-requests', async (req: AuthenticatedRequest, res: Response) =
         client: {
           select: { id: true, firstName: true, lastName: true, email: true, city: true, state: true, createdAt: true },
         },
-        cuisineTypes: { select: { id: true, name: true } },
-        eventThemes: { select: { id: true, name: true } },
-        equipmentNeeded: { select: { id: true, name: true, category: true } },
+        // TODO: rewire to new schema — cuisineTypes, eventThemes, equipmentNeeded removed from EventRequest
         quotes: {
           select: {
-            id: true, status: true, totalAmount: true, createdAt: true,
-            provider: {
+            id: true, status: true, total: true, createdAt: true,
+            providerProfile: {
               select: { id: true, businessName: true, primaryType: true, providerTypes: true, averageRating: true, maxGuestCount: true },
             },
           },
@@ -105,10 +103,10 @@ router.get('/event-requests', async (req: AuthenticatedRequest, res: Response) =
         },
         booking: {
           select: {
-            id: true, status: true, totalAmount: true, eventDate: true, guestCount: true,
-            provider: { select: { id: true, businessName: true, primaryType: true } },
+            id: true, status: true, total: true, eventDate: true, guestCount: true,
+            providerProfile: { select: { id: true, businessName: true, primaryType: true } },
             payments: { select: { id: true, type: true, status: true, amount: true } },
-            review: { select: { id: true, overallRating: true, title: true } },
+            review: { select: { id: true, overallRating: true } },
           },
         },
       },
@@ -135,8 +133,7 @@ router.get('/providers', async (req: AuthenticatedRequest, res: Response) => {
             avatarUrl: true, city: true, state: true, createdAt: true,
           },
         },
-        services: { where: { isActive: true }, select: { id: true, name: true, providerType: true, basePrice: true, priceType: true } },
-        pricingLevels: { where: { isActive: true }, select: { id: true, name: true, pricePerPerson: true, features: true } },
+        // TODO: rewire to new schema — services and pricingLevels removed; use Package model
         menuItems: {
           where: { isAvailable: true },
           select: { id: true, name: true, category: true, price: true, allergens: true, dietaryInfo: true },
@@ -146,7 +143,7 @@ router.get('/providers', async (req: AuthenticatedRequest, res: Response) => {
         eventThemes: { select: { id: true, name: true } },
         equipmentOfferings: { select: { id: true, name: true, category: true, rentalPrice: true, isIncluded: true } },
         portfolioItems: { where: { isPublic: true }, select: { id: true, title: true, mediaType: true }, take: 10 },
-        _count: { select: { bookings: true, quotes: true, menuItems: true, services: true, portfolioItems: true, equipmentOfferings: true } },
+        _count: { select: { bookings: true, quotes: true, menuItems: true, portfolioItems: true, equipmentOfferings: true } },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -177,23 +174,7 @@ router.get('/providers/pending', async (req: AuthenticatedRequest, res: Response
             createdAt: true,
           },
         },
-        services: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            name: true,
-            providerType: true,
-            basePrice: true,
-          },
-        },
-        pricingLevels: {
-          where: { isActive: true },
-          select: {
-            id: true,
-            name: true,
-            pricePerPerson: true,
-          },
-        },
+        // TODO: rewire to new schema — services and pricingLevels removed; use Package model
         menuItems: {
           where: { isAvailable: true },
           select: {
@@ -213,7 +194,6 @@ router.get('/providers/pending', async (req: AuthenticatedRequest, res: Response
         },
         _count: {
           select: {
-            services: true,
             menuItems: true,
             portfolioItems: true,
             bookings: true,
@@ -347,7 +327,7 @@ router.get('/providers/all', async (req: AuthenticatedRequest, res: Response) =>
         },
         _count: {
           select: {
-            services: true,
+            // TODO: rewire to new schema — services removed; use packages count instead
             menuItems: true,
             portfolioItems: true,
             bookings: true,

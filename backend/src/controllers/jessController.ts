@@ -172,21 +172,16 @@ async function buildUserContext(req: AuthenticatedRequest): Promise<string> {
   if (isClient) {
     lines.push('- Role: Planner');
 
-    // Most recent non-draft event request
+    // Most recent non-pending event request
     const event = await prisma.eventRequest.findFirst({
-      where: { clientId: id, status: { not: 'DRAFT' } },
+      where: { clientId: id, status: { not: 'PENDING' } },
       orderBy: { createdAt: 'desc' },
       select: {
-        title: true,
+        eventType: true,
         eventDate: true,
         guestCount: true,
-        budgetMin: true,
-        budgetMax: true,
-        venueCity: true,
-        venueState: true,
-        servicesWanted: true,
+        specialRequests: true,
         status: true,
-        venueName: true,
       },
     });
 
@@ -194,16 +189,11 @@ async function buildUserContext(req: AuthenticatedRequest): Promise<string> {
       const dateStr = event.eventDate
         ? new Date(event.eventDate).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric' })
         : 'TBD';
-      const location = [event.venueCity, event.venueState].filter(Boolean).join(', ') || 'Location TBD';
-      const budget = `$${(event.budgetMin || 0).toLocaleString()}–$${(event.budgetMax || 0).toLocaleString()}`;
-      const services = (event.servicesWanted || []).join(', ') || 'none specified yet';
 
-      lines.push(`- Active event: "${event.title}"`);
-      lines.push(`- Date: ${dateStr} | Guests: ${event.guestCount} | Budget: ${budget}`);
-      lines.push(`- Location: ${location}`);
-      lines.push(`- Services wanted: ${services}`);
+      lines.push(`- Active event: ${event.eventType}`);
+      lines.push(`- Date: ${dateStr} | Guests: ${event.guestCount}`);
       lines.push(`- Request status: ${event.status}`);
-      if (event.venueName) lines.push(`- Venue booked: ${event.venueName}`);
+      if (event.specialRequests) lines.push(`- Special requests: ${event.specialRequests}`);
     } else {
       lines.push('- No active events yet — has not created an event');
     }
@@ -221,7 +211,7 @@ async function buildUserContext(req: AuthenticatedRequest): Promise<string> {
         verificationStatus: true,
         businessDescription: true,
         serviceAreas: true,
-        _count: { select: { services: true, menuItems: true, portfolioItems: true } },
+        _count: { select: { menuItems: true, portfolioItems: true } }, // TODO: rewire — services removed
       },
     });
 
@@ -230,7 +220,7 @@ async function buildUserContext(req: AuthenticatedRequest): Promise<string> {
       const verified = profile.verificationStatus === 'VERIFIED' ? 'Yes' : 'No (pending)';
       lines.push(`- Business: ${profile.businessName} (${types})`);
       lines.push(`- Verified: ${verified}`);
-      lines.push(`- Profile completeness: ${profile._count.services} services, ${profile._count.menuItems} menu items, ${profile._count.portfolioItems} portfolio photos`);
+      lines.push(`- Profile completeness: ${profile._count.menuItems} menu items, ${profile._count.portfolioItems} portfolio photos`); // TODO: rewire — services count removed
       if (!profile.businessDescription) lines.push('- Missing: business description');
       if (!profile.serviceAreas || profile.serviceAreas.length === 0) lines.push('- Missing: service areas');
     } else {

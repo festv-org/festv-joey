@@ -135,8 +135,6 @@ const eventRequestBaseSchema = z.object({
   budgetMin: z.number().min(0, 'Minimum budget must be positive'),
   budgetMax: z.number().min(0, 'Maximum budget must be positive'),
   eventDate: z.string().or(z.date()).transform(val => new Date(val)),
-  eventStartTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
-  eventEndTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/, 'Invalid time format (HH:MM)'),
   venueName: z.string().max(100).optional(),
   venueAddress: z.string().max(200).optional(),
   venueCity: z.string().max(100).optional(),
@@ -167,7 +165,6 @@ export const updateEventRequestSchema = eventRequestBaseSchema.partial();
 
 // Quote schemas
 export const createQuoteSchema = z.object({
-  eventRequestId: z.string().uuid(),
   message: z.string().max(2000).optional(),
   items: z.array(z.object({
     serviceId: z.string().uuid().optional(),
@@ -176,9 +173,6 @@ export const createQuoteSchema = z.object({
     quantity: z.number().int().min(1),
     unitPrice: z.number().min(0),
   })).min(1, 'At least one item is required'),
-  taxRate: z.number().min(0).max(100).optional(),
-  serviceFee: z.number().min(0).optional(),
-  gratuity: z.number().min(0).optional(),
   discount: z.number().min(0).optional(),
   validDays: z.number().int().min(1).max(90).optional(),
 });
