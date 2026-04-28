@@ -1,23 +1,44 @@
+/**
+ * Quote Routes
+ *
+ * Static segments registered before /:id to prevent Express capture.
+ *
+ * Auth matrix:
+ *   POST  /auto-generate  → autoGenerateQuote   (PROVIDER)
+ *   POST  /manual         → createManualQuote    (PROVIDER)
+ *   GET   /me/vendor      → getMyQuotesAsVendor  (PROVIDER)
+ *   GET   /me/client      → getMyQuotesAsClient  (CLIENT)
+ *   GET   /:id            → getQuoteById         (CLIENT or VENDOR who owns it)
+ *   POST  /:id/accept     → acceptQuote          (CLIENT)
+ *   POST  /:id/reject     → rejectQuote          (CLIENT)
+ *   POST  /:id/revise     → reviseQuote          (PROVIDER)
+ */
+
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
-import { authenticate, requireClient, requireProvider } from '../middleware/auth';
-import * as quoteController from '../controllers/quoteController';
+import { authenticate, requireClient, requireProvider } from '../middleware/auth.js';
+import {
+  autoGenerateQuote,
+  createManualQuote,
+  getQuoteById,
+  getMyQuotesAsVendor,
+  getMyQuotesAsClient,
+  acceptQuote,
+  rejectQuote,
+  reviseQuote,
+} from '../controllers/quoteController.js';
 
 const router = Router();
 
-// Provider routes
-router.post('/', authenticate, requireProvider, asyncHandler(quoteController.createQuote));
-router.post('/:id/send', authenticate, requireProvider, asyncHandler(quoteController.sendQuote));
-router.post('/:id/withdraw', authenticate, requireProvider, asyncHandler(quoteController.withdrawQuote));
-router.put('/:id', authenticate, requireProvider, asyncHandler(quoteController.updateQuote));
+// ── Static segments (must precede /:id) ──────────────────────────────────────
+router.post('/auto-generate',  authenticate, requireProvider, autoGenerateQuote);
+router.post('/manual',         authenticate, requireProvider, createManualQuote);
+router.get('/me/vendor',       authenticate, requireProvider, getMyQuotesAsVendor);
+router.get('/me/client',       authenticate, requireClient,   getMyQuotesAsClient);
 
-// Client routes
-router.post('/:id/accept', authenticate, requireClient, asyncHandler(quoteController.acceptQuote));
-router.post('/:id/reject', authenticate, requireClient, asyncHandler(quoteController.rejectQuote));
-
-// Shared routes
-router.get('/my-quotes', authenticate, asyncHandler(quoteController.getMyQuotes));
-router.get('/:id', authenticate, asyncHandler(quoteController.getQuote));
-router.get('/event/:eventRequestId', authenticate, asyncHandler(quoteController.getQuotesForEvent));
+// ── Single resource ───────────────────────────────────────────────────────────
+router.get('/:id',             authenticate,                  getQuoteById);
+router.post('/:id/accept',     authenticate, requireClient,   acceptQuote);
+router.post('/:id/reject',     authenticate, requireClient,   rejectQuote);
+router.post('/:id/revise',     authenticate, requireProvider, reviseQuote);
 
 export default router;
