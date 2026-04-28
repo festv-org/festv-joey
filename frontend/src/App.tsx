@@ -2,11 +2,11 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 
-// ── New vendor pages (placeholders — full implementations coming) ─────────────
-const VendorSetup       = () => <div className="p-8 font-sans text-charcoal">VendorSetup — coming soon</div>;
+// ── New vendor pages ──────────────────────────────────────────────────────────
 const VendorPackages    = () => <div className="p-8 font-sans text-charcoal">VendorPackages — coming soon</div>;
 const VendorAvailability = () => <div className="p-8 font-sans text-charcoal">VendorAvailability — coming soon</div>;
 import Landing from './pages/Landing';
+import VendorSetup from './pages/VendorSetup';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
