@@ -1,21 +1,30 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, User, ChefHat, Users, Briefcase } from 'lucide-react';
+import { Eye, EyeOff, Calendar, Store, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { providerTypeConfig } from '../components/ProviderTypeBadge';
+
+// ── Password strength helpers ─────────────────────────────────────────────────
+const checks = [
+  { label: 'Uppercase letter',  test: (p: string) => /[A-Z]/.test(p) },
+  { label: 'Lowercase letter',  test: (p: string) => /[a-z]/.test(p) },
+  { label: 'Number',            test: (p: string) => /[0-9]/.test(p) },
+];
 
 export default function Register() {
   const [searchParams] = useSearchParams();
   const initialRole = searchParams.get('role') === 'provider' ? 'PROVIDER' : 'CLIENT';
-  
-  const [role, setRole] = useState<'CLIENT' | 'PROVIDER'>(initialRole);
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
+  const [role, setRole]                       = useState<'CLIENT' | 'PROVIDER'>(initialRole);
+  const [vendorType, setVendorType]           = useState('');
+  const [firstName, setFirstName]             = useState('');
+  const [lastName, setLastName]               = useState('');
+  const [email, setEmail]                     = useState('');
+  const [password, setPassword]               = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword]       = useState(false);
+  const [error, setError]                     = useState('');
+  const [isLoading, setIsLoading]             = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -46,181 +55,236 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
-            <ChefHat className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-stone-900">Create Account</h1>
-          <p className="text-stone-600 mt-2">Join CaterEase and start planning amazing events</p>
-        </div>
+    <div className="min-h-screen bg-bg flex flex-col items-center px-4 py-12">
+      <div className="w-full max-w-md">
 
-        <div className="card p-8">
-          {/* Role Selection */}
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-stone-700 mb-3">
-              I want to...
-            </label>
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setRole('CLIENT')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  role === 'CLIENT'
-                    ? 'border-brand-500 bg-brand-50'
-                    : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                <Users className={`w-8 h-8 mx-auto mb-2 ${role === 'CLIENT' ? 'text-brand-500' : 'text-stone-400'}`} />
-                <p className={`font-semibold ${role === 'CLIENT' ? 'text-brand-700' : 'text-stone-700'}`}>
-                  Plan Events
-                </p>
-                <p className="text-xs text-stone-500 mt-1">Find providers for my events</p>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setRole('PROVIDER')}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  role === 'PROVIDER'
-                    ? 'border-brand-500 bg-brand-50'
-                    : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
-                <Briefcase className={`w-8 h-8 mx-auto mb-2 ${role === 'PROVIDER' ? 'text-brand-500' : 'text-stone-400'}`} />
-                <p className={`font-semibold ${role === 'PROVIDER' ? 'text-brand-700' : 'text-stone-700'}`}>
-                  Offer Services
-                </p>
-                <p className="text-xs text-stone-500 mt-1">Provide catering & events</p>
-              </button>
-            </div>
+        {/* Card */}
+        <div className="bg-white border border-border rounded-md p-10">
+
+          {/* Wordmark */}
+          <p className="font-serif text-2xl tracking-widest text-dark text-center">
+            FEST<span className="text-gold">V</span>
+          </p>
+
+          {/* Gold rule */}
+          <div className="w-8 border-t border-gold mx-auto my-6" />
+
+          {/* Heading */}
+          <h1 className="font-serif text-3xl text-dark font-light text-center">
+            Join FESTV
+          </h1>
+          <p className="font-sans text-sm text-muted text-center mt-2">
+            Create your account to start planning
+          </p>
+
+          {/* ── Role selector ──────────────────────────────────────────────── */}
+          <div className="mt-8 grid grid-cols-2 gap-3">
+
+            {/* Event Planner */}
+            <button
+              type="button"
+              onClick={() => setRole('CLIENT')}
+              className={`rounded-md p-4 cursor-pointer text-center transition-all duration-150 focus:outline-none ${
+                role === 'CLIENT'
+                  ? 'border-2 border-gold bg-gold/5'
+                  : 'border border-border hover:border-gold/50'
+              }`}
+            >
+              <Calendar size={24} strokeWidth={1.5} className="text-gold mx-auto" />
+              <p className="font-sans text-sm font-semibold text-dark mt-2">Event Planner</p>
+              <p className="font-sans text-xs text-muted mt-1">Find vendors for my events</p>
+            </button>
+
+            {/* Vendor */}
+            <button
+              type="button"
+              onClick={() => setRole('PROVIDER')}
+              className={`rounded-md p-4 cursor-pointer text-center transition-all duration-150 focus:outline-none ${
+                role === 'PROVIDER'
+                  ? 'border-2 border-gold bg-gold/5'
+                  : 'border border-border hover:border-gold/50'
+              }`}
+            >
+              <Store size={24} strokeWidth={1.5} className="text-gold mx-auto" />
+              <p className="font-sans text-sm font-semibold text-dark mt-2">Vendor</p>
+              <p className="font-sans text-xs text-muted mt-1">List my business on FESTV</p>
+            </button>
+
           </div>
 
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-red-700 text-sm">{error}</p>
+          {/* ── Vendor type pills (PROVIDER only) ─────────────────────────── */}
+          {role === 'PROVIDER' && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {providerTypeConfig.map(t => (
+                <button
+                  key={t.value}
+                  type="button"
+                  onClick={() => setVendorType(vendorType === t.value ? '' : t.value)}
+                  className={`font-sans text-xs px-3 py-1.5 rounded-full transition-colors duration-150 focus:outline-none ${
+                    vendorType === t.value
+                      ? 'bg-gold text-dark font-semibold'
+                      : 'border border-border text-charcoal hover:border-gold'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+          {/* Error */}
+          {error && (
+            <div className="mt-6 bg-red/10 border border-red/30 text-red text-sm font-sans rounded-md px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          {/* ── Form ──────────────────────────────────────────────────────── */}
+          <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+
+            {/* First + Last name */}
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
                   First Name
                 </label>
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-                  <input
-                    type="text"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="input-field pl-12"
-                    placeholder="John"
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  placeholder="Jane"
+                  required
+                  className="w-full border border-border rounded-md px-4 py-3 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-stone-700 mb-2">
+                <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
                   Last Name
                 </label>
                 <input
                   type="text"
                   value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  className="input-field"
+                  onChange={e => setLastName(e.target.value)}
                   placeholder="Doe"
                   required
+                  className="w-full border border-border rounded-md px-4 py-3 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
                 />
               </div>
             </div>
 
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                Email Address
+              <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
+                Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-12"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="w-full border border-border rounded-md px-4 py-3 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
+              />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
+              <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-12 pr-12"
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="Min 8 characters"
                   required
+                  className="w-full border border-border rounded-md px-4 py-3 pr-11 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-charcoal transition-colors focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
                 </button>
               </div>
-              <p className="text-xs text-stone-500 mt-1">
-                Must include uppercase, lowercase, and number
-              </p>
+
+              {/* Strength indicator — only shown once typing starts */}
+              {password.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {checks.map(c => {
+                    const ok = c.test(password);
+                    return (
+                      <div key={c.label} className="flex items-center gap-2">
+                        <span className={`flex-shrink-0 w-3.5 h-3.5 rounded-full flex items-center justify-center transition-colors ${
+                          ok ? 'bg-green/20' : 'bg-border'
+                        }`}>
+                          {ok && <Check size={9} strokeWidth={2.5} className="text-green" />}
+                        </span>
+                        <span className={`font-sans text-xs transition-colors ${ok ? 'text-green' : 'text-muted'}`}>
+                          {c.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
+            {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
+              <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="input-field pl-12"
+                  onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your password"
                   required
+                  className="w-full border border-border rounded-md px-4 py-3 pr-11 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-charcoal transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
+                </button>
               </div>
             </div>
 
+            {/* Terms */}
             <label className="flex items-start gap-3 cursor-pointer">
-              <input 
-                type="checkbox" 
-                className="w-4 h-4 mt-0.5 rounded border-stone-300 text-brand-500 focus:ring-brand-500" 
-                required 
+              <input
+                type="checkbox"
+                required
+                className="w-4 h-4 mt-0.5 accent-gold cursor-pointer flex-shrink-0"
               />
-              <span className="text-sm text-stone-600">
+              <span className="font-sans text-sm text-muted">
                 I agree to the{' '}
-                <Link to="/terms" className="text-brand-600 hover:underline">Terms of Service</Link>
+                <Link to="/terms" className="text-gold hover:text-gold-dark transition-colors">
+                  Terms of Service
+                </Link>
                 {' '}and{' '}
-                <Link to="/privacy" className="text-brand-600 hover:underline">Privacy Policy</Link>
+                <Link to="/privacy" className="text-gold hover:text-gold-dark transition-colors">
+                  Privacy Policy
+                </Link>
               </span>
             </label>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-primary py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gold text-dark py-3 text-xs tracking-widest uppercase font-sans font-bold hover:bg-gold-dark transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Creating account...
+                  <span className="w-4 h-4 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
+                  Creating account…
                 </span>
               ) : (
                 'Create Account'
@@ -228,14 +292,22 @@ export default function Register() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-stone-600">
-              Already have an account?{' '}
-              <Link to="/login" className="text-brand-600 font-semibold hover:text-brand-700">
-                Sign in
-              </Link>
-            </p>
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="border-t border-border" />
+            <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-white px-3 text-xs text-muted font-sans">
+              or
+            </span>
           </div>
+
+          {/* Sign in link */}
+          <p className="font-sans text-sm text-muted text-center">
+            Already have an account?{' '}
+            <Link to="/login" className="text-gold hover:text-gold-dark transition-colors">
+              Sign in
+            </Link>
+          </p>
+
         </div>
       </div>
     </div>

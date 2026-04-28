@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, AlertCircle, ChefHat } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import TestAccountsPicker from '../components/TestAccountsPicker';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError]               = useState('');
+  const [isLoading, setIsLoading]       = useState(false);
   const { login, user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
@@ -38,85 +38,93 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
-            <ChefHat className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="font-display text-3xl font-bold text-stone-900">Welcome Back</h1>
-          <p className="text-stone-600 mt-2">Sign in to continue to CaterEase</p>
-        </div>
+    <div className="min-h-screen bg-bg flex flex-col items-center px-4">
+      <div className="w-full max-w-md mt-20">
 
-        <div className="card p-8">
+        {/* Card */}
+        <div className="bg-white border border-border rounded-md p-10">
+
+          {/* Wordmark */}
+          <p className="font-serif text-2xl tracking-widest text-dark text-center">
+            FEST<span className="text-gold">V</span>
+          </p>
+
+          {/* Gold rule */}
+          <div className="w-8 border-t border-gold mx-auto my-6" />
+
+          {/* Heading */}
+          <h1 className="font-serif text-3xl text-dark font-light text-center">
+            Welcome back
+          </h1>
+          <p className="font-sans text-sm text-muted text-center mt-2">
+            Sign in to your FESTV account
+          </p>
+
+          {/* Error */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="mt-6 bg-red/10 border border-red/30 text-red text-sm font-sans rounded-md px-4 py-3">
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
-                Email Address
+              <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
+                Email
               </label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-12"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="w-full border border-border rounded-md px-4 py-3 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
+              />
             </div>
 
+            {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-stone-700 mb-2">
+              <label className="block font-sans text-xs font-bold uppercase tracking-widest text-charcoal mb-1">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-12 pr-12"
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   required
+                  className="w-full border border-border rounded-md px-4 py-3 pr-11 text-sm font-sans text-dark focus:outline-none focus:border-gold transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-charcoal transition-colors focus:outline-none"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff size={16} strokeWidth={1.5} /> : <Eye size={16} strokeWidth={1.5} />}
                 </button>
               </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-stone-300 text-brand-500 focus:ring-brand-500" />
-                <span className="text-sm text-stone-600">Remember me</span>
-              </label>
-              <Link to="/forgot-password" className="text-sm text-brand-600 hover:text-brand-700">
+              <Link
+                to="/forgot-password"
+                className="text-xs text-gold font-sans hover:text-gold-dark transition-colors block text-right mt-1"
+              >
                 Forgot password?
               </Link>
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full btn-primary py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gold text-dark py-3 text-xs tracking-widest uppercase font-sans font-bold hover:bg-gold-dark transition-colors duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed mt-6"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Signing in...
+                  <span className="w-4 h-4 border-2 border-dark/30 border-t-dark rounded-full animate-spin" />
+                  Signing in…
                 </span>
               ) : (
                 'Sign In'
@@ -124,22 +132,32 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-stone-600">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-brand-600 font-semibold hover:text-brand-700">
-                Sign up
-              </Link>
-            </p>
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="border-t border-border" />
+            <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-white px-3 text-xs text-muted font-sans">
+              or
+            </span>
           </div>
+
+          {/* Register link */}
+          <p className="font-sans text-sm text-muted text-center">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-gold hover:text-gold-dark transition-colors">
+              Get started
+            </Link>
+          </p>
+
         </div>
 
+        {/* Test accounts picker (preserved) */}
         <TestAccountsPicker
           onSelect={(e, p) => {
             setEmail(e);
             setPassword(p);
           }}
         />
+
       </div>
     </div>
   );
