@@ -30,6 +30,7 @@ import Planner, { canAccessPlanner } from './pages/Planner';
 import EventDashboard from './pages/EventDashboard';
 import AdminProviderVerification from './pages/AdminProviderVerification';
 import AccountVerify from './pages/AccountVerify';
+import QuoteDetail from './pages/QuoteDetail';
 
 function ProtectedRoute({ children, allowedRoles }: { 
   children: React.ReactNode; 
@@ -120,6 +121,11 @@ function App() {
         <Route path="bookings/:id" element={
           <ProtectedRoute>
             <BookingDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="quotes/:id" element={
+          <ProtectedRoute>
+            <QuoteDetail />
           </ProtectedRoute>
         } />
         <Route path="become-provider" element={
