@@ -1,25 +1,41 @@
+/**
+ * Event Request Routes
+ *
+ * All routes require authentication. Static segments are registered before
+ * the /:id wildcard to prevent Express from swallowing them.
+ *
+ * Public route matrix:
+ *   POST   /               → createEventRequest       (CLIENT)
+ *   GET    /me/client      → getMyRequestsAsClient    (CLIENT)
+ *   GET    /me/vendor      → getMyRequestsAsVendor    (PROVIDER)
+ *   GET    /incoming       → getIncomingRequests      (PROVIDER)
+ *   GET    /:id            → getEventRequestById      (CLIENT or VENDOR who owns it)
+ *   PATCH  /:id/status     → updateEventRequestStatus (CLIENT cancels / VENDOR declines)
+ */
+
 import { Router } from 'express';
-import { asyncHandler } from '../middleware/errorHandler';
-import { authenticate, requireClient, requireProvider } from '../middleware/auth';
-import * as eventRequestController from '../controllers/eventRequestController';
+import { authenticate, requireClient, requireProvider } from '../middleware/auth.js';
+import {
+  createEventRequest,
+  getMyRequestsAsClient,
+  getMyRequestsAsVendor,
+  getIncomingRequests,
+  getEventRequestById,
+  updateEventRequestStatus,
+} from '../controllers/eventRequestController.js';
 
 const router = Router();
 
-// Static/named routes MUST come before wildcard /:id routes
-// Provider routes (named paths first)
-router.get('/available/for-providers', authenticate, requireProvider, asyncHandler(eventRequestController.getAvailableEventRequests));
+// ── Static segments (must precede /:id) ──────────────────────────────────────
+router.get('/me/client',  authenticate, requireClient,   getMyRequestsAsClient);
+router.get('/me/vendor',  authenticate, requireProvider, getMyRequestsAsVendor);
+router.get('/incoming',   authenticate, requireProvider, getIncomingRequests);
 
-// Client routes
-router.post('/', authenticate, requireClient, asyncHandler(eventRequestController.createEventRequest));
-router.get('/my-requests', authenticate, requireClient, asyncHandler(eventRequestController.getMyEventRequests));
+// ── Collection ────────────────────────────────────────────────────────────────
+router.post('/',          authenticate, requireClient,   createEventRequest);
 
-// Wildcard /:id routes (must be after all named routes)
-router.get('/:id', authenticate, asyncHandler(eventRequestController.getEventRequest));
-router.put('/:id', authenticate, requireClient, asyncHandler(eventRequestController.updateEventRequest));
-router.post('/:id/submit', authenticate, requireClient, asyncHandler(eventRequestController.submitEventRequest));
-router.post('/:id/cancel', authenticate, requireClient, asyncHandler(eventRequestController.cancelEventRequest));
-router.delete('/:id', authenticate, requireClient, asyncHandler(eventRequestController.deleteEventRequest));
-router.post('/:id/decline', authenticate, requireProvider, asyncHandler(eventRequestController.declineEventRequest));
-router.post('/:id/vendor-confirm', authenticate, requireProvider, asyncHandler(eventRequestController.vendorConfirmRequest));
+// ── Single resource ───────────────────────────────────────────────────────────
+router.get('/:id',             authenticate,             getEventRequestById);
+router.patch('/:id/status',    authenticate,             updateEventRequestStatus);
 
 export default router;
